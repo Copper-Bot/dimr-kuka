@@ -17,26 +17,26 @@ from math import pi
 # from moveit_commander.conversions import pose_to_list
 
 from brick import Small, Big, Brick
-from wall import Wall
 
 class Layer(object):
+    column_number = 4
     def __init__(self,num):
         #even layer : 0, odd layer : 1
         self.num = num
         self.parity = num % 2
         self.bricks = []
         self.is_filled_up = False
-        fill_layer()
+        self.fill_layer()
 
     def fill_layer(self):
         if(self.parity == 0):
-            for b in range(Wall.column_number_bottom_layer):
+            for b in range(self.column_number):
                 self.bricks.append(Brick(Big(),self.num,b))
         else:
             self.bricks.append(Brick(Small(),self.num,0))
-            for k in range(1,Wall.column_number_bottom_layer):
+            for k in range(1,self.column_number):
                 self.bricks.append(Brick(Big(),self.num,k))
-            self.bricks.append(Brick(Small(),self.num,Wall.column_number_bottom_layer))
+            self.bricks.append(Brick(Small(),self.num,self.column_number))
         
     def count_placed_bricks(self):
         #count the bricks placed in the layer
@@ -49,4 +49,13 @@ class Layer(object):
                 else:
                     bb_number+=1
         return sb_number,bb_number
-
+    
+    def is_empty(self):
+        n = len(self.bricks)
+        if(n != 0):
+            is_empty = True
+            b = 0
+            while(is_empty == True and b < n):
+                if(self.bricks[b].is_placed == True):
+                    is_empty = False
+        return is_empty

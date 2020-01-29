@@ -29,35 +29,14 @@ class Big(Enum):
     height = 0.1
     width = 0.18
     depth = 0.1
-
+        
 class Brick(object):
-    sb_created = 0
-    bb_created = 0
-
-    #static position for all Brick's instances
-    #TODO : input the taking coordinates for big bricks
-    big_taking_pose = Pose()
-    big_taking_pose.position.x = 0
-    big_taking_pose.position.y = 0
-    big_taking_pose.position.y = 0
-    big_taking_pose.orientation.x = 0
-    big_taking_pose.orientation.y = 0
-    big_taking_pose.orientation.z = 0
-    big_taking_pose.orientation.w = 0
-
-    #TODO : input the taking coordinates for small bricks
-    small_taking_pose = Pose()
-    small_taking_pose.position.x = 0
-    small_taking_pose.position.y = 0
-    small_taking_pose.position.y = 0
-    small_taking_pose.orientation.x = 0
-    small_taking_pose.orientation.y = 0
-    small_taking_pose.orientation.z = 0
-    small_taking_pose.orientation.w = 0
+    #static properties for all Brick's instances
 
     def __init__(self,type,layer,column):
+        #type of the brick
         self.type = type
-        #position of the left-hand bottom corner of the brick
+        #position of the middle of the brick, dynamically attributed by the user when a click is detected on the interface
         self.placing_pose = Pose()
         self.placing_pose.position.x = column*self.type.width
         self.placing_pose.position.y = Wall.placing_pose.position.y
@@ -66,22 +45,59 @@ class Brick(object):
         self.placing_pose.orientation.y = Wall.placing_pose.orientation.y
         self.placing_pose.orientation.z = Wall.placing_pose.orientation.z
         self.placing_pose.orientation.w = Wall.placing_pose.orientation.w
-
+        #position of the middle of the brick
         self.taking_pose = Pose()
-        if(self.type == Small()):
-            sb_created +=1
-            self.taking_pose.position.x = Wall.taking_pose_s2.position.x
-            self.taking_pose.position.y = Wall.taking_pose_s2.position.y
-            self.taking_pose.position.z = Wall.taking_pose-s2.position.z
-            self.taking_pose.orientation.x = Wall.taking_pose_s2.orientation.x
-            self.taking_pose.orientation.y = Wall.taking_pose_s2.orientation.y
-            self.taking_pose.orientation.z = Wall.taking_pose_s2.orientation.z
-            self.taking_pose.orientation.w = Wall.taking_pose_s2.orientation.w
-        else:
-            bb_created += 1
-            if(bb_created <= Wall.)
+        self.feeder = None
         self.is_placed = False
     
-    def remove_brick_from_layer():
+    def find_right_feeder(self, feeders):
+        #put the brick in the right feeder and attribute its corresponding taking pose
+        r = 0
+        feeder_found = False
+        while(feeder_found == False and r < len(feeders))
+            feeder = feeders[r]
+            if(self.type == Small() and feeder.brick_type == Small()):
+                if(feeder.add_brick()):
+                    feeder_found = True
+                    self.feeder = feeder
+                    self.set_taking_pose(feeder.pose)
+            elif(self.type == Big() and feeder.brick_type == Big()):
+                if(feeder.add_brick()):
+                    feeder_found = True
+                    self.feeder = feeder
+                    self.set_taking_pose(feeder.pose)
+            r += 1
+    
+    def set_taking_pose(self,pose):
+        self.taking_pose.position.x = pose.position.x
+        self.taking_pose.position.y = pose.position.y
+        self.taking_pose.position.z = pose.position.z
+        self.taking_pose.orientation.x = pose.orientation.x
+        self.taking_pose.orientation.y = pose.orientation.y
+        self.taking_pose.orientation.z = pose.orientation.z
+        self.taking_pose.orientation.w = pose.orientation.w
+
+    def move_to_wall(self, feeders):
+        self.is_placed = True
+        self.find_right_feeder(feeders)
+    
+    def remove_from_wall(self):
         self.is_placed = False
-        
+        move_to_feeder()
+    
+    def move_to_feeder(self):
+        if(self.feeder != None):
+            n = self.feeder.brick_count + 1
+            self.taking_pose.position.x = self.feeder.pose.position.x
+            self.taking_pose.position.y = self.feeder.pose.position.y
+            self.taking_pose.position.z = self.feeder.pose.position.z + n*self.type.height
+            self.taking_pose.orientation.x = self.feeder.pose.orientation.x
+            self.taking_pose.orientation.y = self.feeder.pose.orientation.y
+            self.taking_pose.orientation.z = self.feeder.pose.orientation.z
+            self.taking_pose.orientation.w = self.feeder.pose.orientation.w
+            self.feeder.add_brick(self)
+
+
+    #in the order :
+    #create feeders
+    #create wall
