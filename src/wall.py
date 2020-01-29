@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from time import sleep
-import rospy
+# import rospy
 import sys
 import numpy as np
 import copy
@@ -10,7 +10,7 @@ import copy
 # import moveit_commander
 # import moveit_msgs.msg
 from geometry_msgs.msg import Pose, PoseStamped
-import tf
+# import tf
 
 from math import pi
 # from std_msgs.msg import String
@@ -28,36 +28,6 @@ class Wall(object):
     placing_pose.orientation.y = 0
     placing_pose.orientation.z = 0
     placing_pose.orientation.w = 1
-
-    # #TODO : input the taking coordinates for the b6 runner
-    # taking_pose_b6 = Pose()
-    # taking_pose_b6.position.x = 0
-    # taking_pose_b6.position.y = -0.5
-    # taking_pose_b6.position.y = 0
-    # taking_pose_b6.orientation.x = 0
-    # taking_pose_b6.orientation.y = 0
-    # taking_pose_b6.orientation.z = 0
-    # taking_pose_b6.orientation.w = 1
-
-    # #TODO : input the taking coordinates for the b5 runner
-    # taking_pose_b5 = Pose()
-    # taking_pose_b5.position.x = -0.3
-    # taking_pose_b5.position.y = -0.5
-    # taking_pose_b5.position.y = 0
-    # taking_pose_b5.orientation.x = 0
-    # taking_pose_b5.orientation.y = 0
-    # taking_pose_b5.orientation.z = 0
-    # taking_pose_b5.orientation.w = 1
-
-    # #TODO : input the taking coordinates for the s2 runner
-    # taking_pose_s2 = Pose()
-    # taking_pose_s2.position.x = 0.3
-    # taking_pose_s2.position.y = -0.5
-    # taking_pose_s2.position.y = 0
-    # taking_pose_s2.orientation.x = 0
-    # taking_pose_s2.orientation.y = 0
-    # taking_pose_s2.orientation.z = 0
-    # taking_pose_s2.orientation.w = 1
 
     #Wall main features
     layer_number = 3

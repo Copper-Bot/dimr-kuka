@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from time import sleep
-import rospy
+# import rospy
 import sys
 import numpy as np
 import copy
@@ -10,7 +10,7 @@ import copy
 # import moveit_commander
 # import moveit_msgs.msg
 from geometry_msgs.msg import Pose, PoseStamped
-import tf
+# import tf
 
 from math import pi
 # from std_msgs.msg import String
@@ -44,7 +44,7 @@ class Layer(object):
         bb_number = 0
         for brick in bricks:
             if(brick.is_placed):
-                if(brick.type = Small()):
+                if(brick.type == Small()):
                     sb_number+=1
                 else:
                     bb_number+=1

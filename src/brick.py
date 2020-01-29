@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from time import sleep
-import rospy
+# import rospy
 import sys
 import numpy as np
 import copy
@@ -10,7 +10,7 @@ import copy
 # import moveit_commander
 # import moveit_msgs.msg
 from geometry_msgs.msg import Pose, PoseStamped
-import tf
+# import tf
 
 from math import pi
 # from std_msgs.msg import String
@@ -54,7 +54,7 @@ class Brick(object):
         #put the brick in the right feeder and attribute its corresponding taking pose
         r = 0
         feeder_found = False
-        while(feeder_found == False and r < len(feeders))
+        while(feeder_found == False and r < len(feeders)):
             feeder = feeders[r]
             if(self.type == Small() and feeder.brick_type == Small()):
                 if(feeder.add_brick()):
