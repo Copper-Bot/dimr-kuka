@@ -16,11 +16,10 @@ from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
 
-from brick import Small, Big, Brick
-from wall import Wall
+from brick import Type, Brick
 
 class Layer(object):
-    def __init__(self,num,capacity=Wall.column_number):
+    def __init__(self,num,capacity):
         #even layer : 0, odd layer : 1
         self.num = num
         self.parity = num % 2
@@ -31,12 +30,12 @@ class Layer(object):
     def fill(self):
         if(self.parity == 0):
             for b in range(self.capacity):
-                self.bricks[b] = Brick(Big(),self.num,b)
+                self.bricks[b] = Brick(Type.big,self.num,b)
         else:
-            self.bricks[0] = Brick(Small(),self.num,0)
+            self.bricks[0] = Brick(Type.small,self.num,0)
             for k in range(1,self.capacity-1):
-                self.bricks[k] = Brick(Big(),self.num,k)
-            self.bricks[self.capacity-1] = Brick(Small(),self.num,self.capacity-1)
+                self.bricks[k] = Brick(Type.big,self.num,k)
+            self.bricks[self.capacity-1] = Brick(Type.small,self.num,self.capacity-1)
     
     def count_placed_bricks(self):
         #count the bricks placed in the layer
@@ -44,7 +43,7 @@ class Layer(object):
         bb_number = 0
         for brick in bricks:
             if(brick.is_placed):
-                if(brick.type == Small()):
+                if(brick.type == Type.small):
                     sb_number+=1
                 else:
                     bb_number+=1
@@ -53,19 +52,23 @@ class Layer(object):
     def is_empty(self):
         is_empty = True
         b = 0
-        while(is_empty == True and b < n):
+        while(is_empty == True and b < len(self.bricks)):
             if(self.bricks[b] != None):
                 if(self.bricks[b].is_placed == True):
                     is_empty = False
+                else:
+                    b += 1
         return is_empty
     
     def is_filled_up(self):
         is_filled_up = True
         b = 0
-        while(is_filled_up == True and b < n):
+        while(is_filled_up == True and b < len(self.bricks)):
             if(self.bricks[b] != None):
                 if(self.bricks[b].is_placed == False):
                     is_filled_up = False
+                else:
+                    b+=1
         return is_filled_up
     
     def destroy(self):

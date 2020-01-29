@@ -17,34 +17,30 @@ from math import pi
 # from moveit_commander.conversions import pose_to_list
 
 from enum import Enum
-from wall import Wall
 
-class Small(Enum):
+class Type(Enum):
     #brick dimensions
-    height = 0.1
-    width = 0.09
-    depth = 0.1
-
-class Big(Enum):
-    height = 0.1
-    width = 0.18
-    depth = 0.1
+    small = 0.09
+    big = 0.18
         
 class Brick(object):
     #static properties for all Brick's instances
-
     def __init__(self,type,layer,column):
         #type of the brick
-        self.type = type
+        self.type = type.name
+        self.height = 0.1
+        self.width = type.value
+        self.depth = 0.1
         #position of the middle of the brick, dynamically attributed by the user when a click is detected on the interface
+        #TODO : input the placing coordinates for the wall (left-hand bottom corner of the wall)
         self.placing_pose = Pose()
-        self.placing_pose.position.x = column*self.type.width
-        self.placing_pose.position.y = Wall.placing_pose.position.y
-        self.placing_pose.position.z = layer*self.type.height
-        self.placing_pose.orientation.x = Wall.placing_pose.orientation.x
-        self.placing_pose.orientation.y = Wall.placing_pose.orientation.y
-        self.placing_pose.orientation.z = Wall.placing_pose.orientation.z
-        self.placing_pose.orientation.w = Wall.placing_pose.orientation.w
+        self.placing_pose.position.x = column*self.width
+        self.placing_pose.position.y = 0
+        self.placing_pose.position.z = layer*self.height
+        self.placing_pose.orientation.x = 0
+        self.placing_pose.orientation.y = 0
+        self.placing_pose.orientation.z = 0
+        self.placing_pose.orientation.w = 1
         #position of the middle of the brick
         self.taking_pose = Pose()
         self.feeder = None
@@ -56,12 +52,12 @@ class Brick(object):
         feeder_found = False
         while(feeder_found == False and r < len(feeders)):
             feeder = feeders[r]
-            if(self.type == Small() and feeder.brick_type == Small()):
+            if(self.type == Type.small.name and feeder.brick_type == Type.small.name):
                 if(feeder.add_brick()):
                     feeder_found = True
                     self.feeder = feeder
                     self.set_taking_pose(feeder.pose)
-            elif(self.type == Big() and feeder.brick_type == Big()):
+            elif(self.type == Type.big.name and feeder.brick_type == Type.big.name):
                 if(feeder.add_brick()):
                     feeder_found = True
                     self.feeder = feeder
