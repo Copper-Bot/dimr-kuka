@@ -77,13 +77,19 @@ class Brick(object):
         self.taking_pose.orientation.z = pose.orientation.z
         self.taking_pose.orientation.w = pose.orientation.w
 
-    def move_to_wall(self, feeders):
-        self.is_placed = True
-        self.find_right_feeder(feeders)
+    def move_to_wall(self):
+        if(self.is_placed == False):
+            self.is_placed = True
+            self.feeder.remove_brick()
+        else:
+            print("The brick is already in the wall")
     
     def remove_from_wall(self):
-        self.is_placed = False
-        move_to_feeder()
+        if(self.is_placed == True):
+            self.is_placed = False
+            move_to_feeder()
+        else:
+            print("The brick isn't placed in the wall")
     
     def move_to_feeder(self):
         if(self.feeder != None):

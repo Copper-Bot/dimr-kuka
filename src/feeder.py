@@ -51,8 +51,11 @@ class Feeder(object):
     
     def remove_brick(self):
         #pop(0) returns an error if the list is empty
-        self.brick_count -= 1
-        return self.bricks.pop(0)
+        if(not self.is_empty()):
+            self.brick_count -= 1
+            self.bricks.pop(0)
+        else:
+            print("Feeder is already empty")
 
     def is_empty(self):
         return self.brick_count == 0

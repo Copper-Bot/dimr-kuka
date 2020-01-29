@@ -61,16 +61,19 @@ class Wall(object):
 
     #Wall main features
     layer_number = 3
+    column_number = 4
     sb_number = 2
     bb_number = 11
 
-    def __init__(self):
-        self.layers = []
+    def __init__(self, feeders):
+        self.layers = [None]*layer_number
         self.is_finished = False
+        self.fill()
+        self.fill_feeders(feeders)
     
     def fill(self):
         for l in range(layer_number):
-            self.layers.append(Layer(l))  
+            self.layers[l] = Layer(l) 
 
     def count_placed_bricks(self):
         #count the number of small and big bricks placed in the wall
@@ -85,18 +88,37 @@ class Wall(object):
         return sb_number, bb_number
 
     def destroy(self):
-        for l in layers:
-            l.destroy()
+        if(self.is_empty() == False):
+            for l in layers:
+                l.destroy()
+
+    def buid(self):
+        if(self.is_empty() == False):
+            for l in layers:
+                l.build()
 
     def at(self,layer,column):
         return layers[layer].bricks[column]
     
     def is_empty(self):
-        n = len(self.layers)
-        if(n != 0):
-            is_empty = True
-            l = 0
-            while(is_empty == True and l < n):
+        is_empty = True
+        l = 0
+        while(is_empty == True and l < n):
+            if(self.layers[l] != None):
                 if(self.layers[l].is_placed == True):
                     is_empty = False
         return is_empty
+
+    def is_filled_up(self):
+        is_filled_up = True
+        l = 0
+        while(is_filled_up == True and l < n):
+            if(self.layers[l] != None):
+                if(self.layers[l].is_placed == False):
+                    is_filled_up = False
+        return is_filled_up
+    
+    def fill_feeders(self, feeders):
+        if(self.is_empty() == False):
+            for l in layers:
+                l.fill_feeders(feeders)
