@@ -51,19 +51,25 @@ class Brick(object):
         #put the brick in the right feeder and attribute its corresponding taking pose
         r = 0
         feeder_found = False
+        print("HELLOOOOOOOO")
         while(feeder_found == False and r < len(feeders)):
             feeder = feeders[r]
+            # feeder.to_string()
+            print(self.type)
             if(self.type == Type.small.name and feeder.brick_type == Type.small.name):
-                if(feeder.add_brick()):
+                print("IIINNNNNNNNNN")
+                if(feeder.add_brick(self)):
+                    print("HELLOOOOOOOO 2")
                     feeder_found = True
                     self.feeder = feeder
                     self.set_taking_pose(feeder.pose)
             elif(self.type == Type.big.name and feeder.brick_type == Type.big.name):
-                if(feeder.add_brick()):
+                if(feeder.add_brick(self)):
                     feeder_found = True
                     self.feeder = feeder
                     self.set_taking_pose(feeder.pose)
             r += 1
+        print 'feeder found : {0} --> feeder capacity : {1}'.format(feeder_found,self.feeder.brick_capacity)
     
     def set_taking_pose(self,pose):
         self.taking_pose.position.x = pose.position.x
@@ -84,7 +90,7 @@ class Brick(object):
     def remove_from_wall(self):
         if(self.is_placed == True):
             self.is_placed = False
-            move_to_feeder()
+            self.move_to_feeder()
         else:
             print("The brick isn't placed in the wall")
     
@@ -93,7 +99,7 @@ class Brick(object):
             n = self.feeder.brick_count + 1
             self.taking_pose.position.x = self.feeder.pose.position.x
             self.taking_pose.position.y = self.feeder.pose.position.y
-            self.taking_pose.position.z = self.feeder.pose.position.z + n*self.type.height
+            self.taking_pose.position.z = self.feeder.pose.position.z + n*self.height
             self.taking_pose.orientation.x = self.feeder.pose.orientation.x
             self.taking_pose.orientation.y = self.feeder.pose.orientation.y
             self.taking_pose.orientation.z = self.feeder.pose.orientation.z
@@ -103,7 +109,8 @@ class Brick(object):
     def to_string(self):
         print "Brick number : {0}".format(self.id)
         if(self.feeder != None):
-            print '   Type : {0}\n   Is placed : {1}\n   Feeder : {2}\n '.format(self.type, self.is_placed, self.feeder.to_string())
+            print '   Type : {0}\n   Is placed : {1}\n   Feeder : '.format(self.type, self.is_placed)
+            print(self.feeder.to_string())
         else:
             print '   Type : {0}\n   Is placed : {1}\n   Feeder : {2}\n '.format(self.type, self.is_placed, self.feeder)
 

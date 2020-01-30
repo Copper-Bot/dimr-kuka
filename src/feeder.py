@@ -20,20 +20,21 @@ class Feeder(object):
     def __init__(self,brick_capacity, brick_type, pose):
         self.brick_capacity = brick_capacity
         self.brick_count = 0
-        self.brick_type = brick_type
+        self.brick_type = brick_type.name
         #coordinate of the feeder in the base frame
         self.pose = pose
         self.bricks = []
 
-    def fill(bricks):
-        for b in bricks:
+    def fill(self,bricks):
+        for b in self.bricks:
             self.add_brick(b)
     
-    def empty():
+    def empty(self):
         for b in self.bricks:
             self.remove_brick()
     
-    def add_brick(brick):
+    def add_brick(self,brick):
+        print("add")
         if(self.brick_count + 1 <= self.brick_capacity):
             self.bricks.append(brick)
             self.brick_count += 1
@@ -54,4 +55,4 @@ class Feeder(object):
         return self.brick_count == 0
     
     def to_string(self):
-        print 'Brick type : {0} \n Brick capacity : {1} \n Brick count : {2} \n'.format(self.brick_type,self.brick_capacity,self.brick_count)
+        print '      Brick type : {0} \n      Brick capacity : {1} \n      Brick count : {2} \n'.format(self.brick_type,self.brick_capacity,self.brick_count)

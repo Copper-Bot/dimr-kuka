@@ -43,7 +43,7 @@ class Layer(object):
         bb_number = 0
         for brick in self.bricks:
             if(brick.is_placed):
-                if(brick.type == Type.small):
+                if(brick.type == Type.small.name):
                     sb_number+=1
                 else:
                     bb_number+=1
