@@ -64,14 +64,15 @@ class StartPage(tk.Frame):
         self.controller = controller
         #img = tk.PhotoImage(file="home_img.jpg")
         img = Image.open("home_img.jpg")
+        labelWidth = controller.winfo_screenwidth()
+        labelHeight = controller.winfo_screenheight()
+        maxsize = (labelWidth, labelHeight)
+        img.thumbnail(maxsize, Image.ANTIALIAS)
         img_ = ImageTk.PhotoImage(img)
-        # img_kuka = tk.Label(controller, image=img_)
-        # img_kuka.image = img_ # keep a reference!
-        # img_kuka.pack()
 
         label = tk.Label(self, image=img_ ,font=controller.title_font)
         label.image = img_
-        label.pack(side="top", fill="x")
+        label.pack()
         button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,
                             command=lambda: controller.show_frame("MainPage"))
         #button2 = tk.Button(self, text="Go to Page Two",command=lambda: controller.show_frame("PageTwo"))
