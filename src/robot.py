@@ -1,0 +1,1 @@
+#fonction update() qui après chaque mouvement du robot est appelée pour mettre à jour les classes objets

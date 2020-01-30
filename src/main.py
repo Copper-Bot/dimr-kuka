@@ -59,6 +59,15 @@ def main():
 
     feeders = [f1,f2,f3]
     wall = Wall(feeders, 3, 4, 11, 2)
+    print(wall.is_empty())
+    wall.to_string()
+    wall.build()
+    wall.to_string()
+    print(wall.count_placed_bricks())
+    print(wall.is_empty())
+    print(wall.is_filled_up())
+    wall.destroy()
+    print(wall.is_empty())
 
 
 if __name__ == '__main__':

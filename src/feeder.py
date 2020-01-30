@@ -17,7 +17,7 @@ from math import pi
 # from moveit_commander.conversions import pose_to_list
 
 class Feeder(object):
-    def __init__(self, brick_capacity, brick_type, pose):
+    def __init__(self,brick_capacity, brick_type, pose):
         self.brick_capacity = brick_capacity
         self.brick_count = 0
         self.brick_type = brick_type
@@ -52,3 +52,6 @@ class Feeder(object):
 
     def is_empty(self):
         return self.brick_count == 0
+    
+    def to_string(self):
+        print 'Brick type : {0} \n Brick capacity : {1} \n Brick count : {2} \n'.format(self.brick_type,self.brick_capacity,self.brick_count)
