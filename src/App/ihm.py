@@ -63,7 +63,7 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         #img = tk.PhotoImage(file="home_img.jpg")
-        img = Image.open("home_img.jpg")
+        img = Image.open("Images/home_img.jpg")
         labelWidth = controller.winfo_screenwidth()
         labelHeight = controller.winfo_screenheight()
         maxsize = (labelWidth, labelHeight)
