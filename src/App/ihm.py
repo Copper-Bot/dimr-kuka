@@ -23,7 +23,7 @@ from PIL import Image, ImageTk
 
 
 
-class ihm_kuka(tk.Tk):
+class ihm(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -63,7 +63,7 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         #img = tk.PhotoImage(file="home_img.jpg")
-        img = Image.open("home_img.jpg")
+        img = Image.open("Images/home_img.jpg")
         labelWidth = controller.winfo_screenwidth()
         labelHeight = controller.winfo_screenheight()
         maxsize = (labelWidth, labelHeight)
@@ -96,6 +96,7 @@ class  MainPage(tk.Frame):
 
         self.grid()
         self.bricks = [[0 for x in xrange(column_number+1)] for x in xrange(layer_number)]
+        self.arrows = [[0 for x in xrange(2)] for x in xrange(layer_number)]
         self.order = tk.StringVar()
         self.order.set("Click on a brick to fill the 1st layer")
         begin_row=1
@@ -106,6 +107,7 @@ class  MainPage(tk.Frame):
         self.color_current_layer="floral white"
         self.color_current_brick="green"
         self.color_brick_placed="DarkOrange2"
+        self.current_layer=0
 
         title = tk.Label(self,text="KUKA BUILDING",font=(None,40,'bold'),anchor="n",bg=self.color_init,pady=15)
         title.grid(row=0,column=0,columnspan=column_number*2+first_col_num+end_col_num,sticky='NSEW')
@@ -113,7 +115,8 @@ class  MainPage(tk.Frame):
 
         for layer in range(layer_number-1,-1,-1):
 
-            tk.Label(self,anchor="center",bg=self.color_init).grid(row=begin_row+layer,column=0,sticky='NSEW')
+            self.arrows[layer][0]=tk.Label(self,anchor="center",text ="" ,fg="DarkOrange2",font=(None,20,'bold'),bg=self.color_init)
+            self.arrows[layer][0].grid(row=begin_row+layer,column=0,sticky='NSEW')
             self.grid_columnconfigure(0,weight=2)
 
             if (layer%2)==begin_parity: # 2 small bricks
@@ -139,7 +142,8 @@ class  MainPage(tk.Frame):
                     self.bricks[layer][column].grid(column=first_col_num+column+cpt, row=layer+begin_row,columnspan=2,sticky='NSEW')
                     cpt+=1
 
-            tk.Label(self,anchor="center",bg=self.color_init).grid(row=begin_row+layer,column=first_col_num+column_number*2,sticky='NSEW')
+            self.arrows[layer][1]=tk.Label(self,text ="" ,fg="DarkOrange2",font=(None,20,'bold'),anchor="center",bg=self.color_init)
+            self.arrows[layer][1].grid(row=begin_row+layer,column=first_col_num+column_number*2,sticky='NSEW')
             self.grid_columnconfigure(first_col_num+column_number*2,weight=2)
 
         for layer in range(begin_row+layer_number-1,-1+begin_row,-1):
@@ -152,6 +156,19 @@ class  MainPage(tk.Frame):
         self.grid_rowconfigure(begin_row+layer_number,weight=1)
 
 
+        self.update_arrows(self.current_layer)
+
+
+    #############
+    def update_arrows(self,current_layer):
+        for layer in range(self.layer_number):
+            if layer==current_layer:
+                self.arrows[abs(layer-(self.layer_number-1))][0].config(text="----->")
+                self.arrows[abs(layer-(self.layer_number-1))][1].config(text="<-----")
+            else:
+                self.arrows[abs(layer-(self.layer_number-1))][0].config(text="")
+                self.arrows[abs(layer-(self.layer_number-1))][1].config(text="")
+
     #############
     def colorate_current_layer(self,layer):
 
@@ -162,7 +179,8 @@ class  MainPage(tk.Frame):
     #############
     def select_brick(self, layer, column):
         print(layer,column)
-        self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+        if layer == self.current_layer:
+            self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
 
     #############
     def rgb2hex(self, r, g, b):
@@ -193,7 +211,7 @@ class  MainPage(tk.Frame):
 
 
 if __name__ == "__main__":
-    app = ihm_kuka()
+    app = ihm()
     app.title("DIMR KUKA")
     app.geometry('800x500')
     app.mainloop()
