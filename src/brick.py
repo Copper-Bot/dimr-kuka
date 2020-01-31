@@ -19,7 +19,7 @@ from math import pi
 from enum import Enum
 
 class Type(Enum):
-    #brick dimensions
+    #brick's width
     small = 0.09
     big = 0.18
         
@@ -51,15 +51,12 @@ class Brick(object):
         #put the brick in the right feeder and attribute its corresponding taking pose
         r = 0
         feeder_found = False
-        print("HELLOOOOOOOO")
         while(feeder_found == False and r < len(feeders)):
             feeder = feeders[r]
             # feeder.to_string()
             print(self.type)
             if(self.type == Type.small.name and feeder.brick_type == Type.small.name):
-                print("IIINNNNNNNNNN")
                 if(feeder.add_brick(self)):
-                    print("HELLOOOOOOOO 2")
                     feeder_found = True
                     self.feeder = feeder
                     self.set_taking_pose(feeder.pose)

@@ -32,7 +32,10 @@ class Wall(object):
     
     def fill(self):
         for l in range(self.layer_number):
-            self.layers[l] = Layer(l,self.column_number) 
+            if(l % 2 == 0): #even layer
+                self.layers[l] = Layer(l,self.column_number) 
+            else: #odd layer
+                self.layers[l] = Layer(l,self.column_number + 1)
 
     def count_placed_bricks(self):
         #count the number of small and big bricks placed in the wall
@@ -54,12 +57,13 @@ class Wall(object):
     def build(self): 
         # if(self.is_empty() == True):
         for l in self.layers:
-            print 'layer in progress : '
-            print(self.layer_in_progress())
+            # print 'layer in progress : '
+            # print(self.layer_in_progress().num)
             l.build()
 
     def at(self,layer,column):
-        return layers[layer].bricks[column]
+        if(self.layers[layer] != None):
+            return self.layers[layer].bricks[column]
     
     def is_empty(self):
         is_empty = True

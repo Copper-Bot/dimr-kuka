@@ -66,6 +66,8 @@ def main():
     wall.build()
     wall.to_string()
     print(wall.count_placed_bricks())
+    print("brick at layer 1, column 2 :")
+    print(wall.at(1,2))
     print(wall.is_empty())
     print(wall.is_filled_up())
     wall.destroy()

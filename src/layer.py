@@ -30,11 +30,15 @@ class Layer(object):
     def fill(self):
         if(self.parity == 0):
             for b in range(self.capacity):
+                print(b)
                 self.bricks[b] = Brick(Type.big,self.num,b)
         else:
+            print(0)
             self.bricks[0] = Brick(Type.small,self.num,0)
             for k in range(1,self.capacity-1):
+                print(k)
                 self.bricks[k] = Brick(Type.big,self.num,k)
+            print(self.capacity-1)
             self.bricks[self.capacity-1] = Brick(Type.small,self.num,self.capacity-1)
     
     def count_placed_bricks(self):
