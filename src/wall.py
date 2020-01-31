@@ -31,7 +31,6 @@ class Wall(object):
         self.fill_feeders(feeders)
     
     def fill(self):
-        print("Start filling...")
         for l in range(self.layer_number):
             self.layers[l] = Layer(l,self.column_number) 
 
@@ -53,10 +52,11 @@ class Wall(object):
                 l.destroy()
 
     def build(self): 
-        #TODO : à débugger
         # if(self.is_empty() == True):
-            for l in self.layers:
-                l.build()
+        for l in self.layers:
+            print 'layer in progress : '
+            print(self.layer_in_progress())
+            l.build()
 
     def at(self,layer,column):
         return layers[layer].bricks[column]
@@ -88,6 +88,20 @@ class Wall(object):
             print("filling feeders")
             for l in self.layers:
                 l.fill_feeders(feeders)
+    
+    def layer_in_progress(self):
+        #return the layer in construction
+        l = 0
+        layer_found = False
+        while(layer_found ==  False and l < self.layers):
+            if(self.layers[l].is_filled_up()):
+                l += 1
+            else:
+                layer_found = True
+        if(layer_found):
+            return self.layers[l]
+        else:
+            return None
     
     def to_string(self):
         print "####################### Wall begin #######################\n"
