@@ -110,8 +110,3 @@ class Brick(object):
             print(self.feeder.to_string())
         else:
             print '   Type : {0}\n   Is placed : {1}\n   Feeder : {2}\n '.format(self.type, self.is_placed, self.feeder)
-
-
-    #in the order :
-    #create feeders
-    #create wall
