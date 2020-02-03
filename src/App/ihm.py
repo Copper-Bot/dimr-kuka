@@ -14,7 +14,7 @@ try:
     # for Python2
     import Tkinter as tk
     import tkFont as tkfont
-    
+
 except ImportError:
     # for Python3
     import tkinter as tk
@@ -24,7 +24,7 @@ from PIL import Image, ImageTk
 # from ..Domain.wall import Wall
 # from ..Domain.feeder import Feeder
 
-class ihm(tk.Tk):
+class Ihm(tk.Tk):
     def __init__(self, feeders):
         tk.Tk.__init__(self)
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
@@ -40,7 +40,7 @@ class ihm(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, MainPage): # ADD PAGE HERE
+        for F in (StartPage, MainPage, Parameter): # ADD PAGE HERE
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -76,9 +76,9 @@ class StartPage(tk.Frame):
         label.pack()
         button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,
                             command=lambda: controller.show_frame("MainPage"))
-        #button2 = tk.Button(self, text="Go to Page Two",command=lambda: controller.show_frame("PageTwo"))
+        button2 = tk.Button(self, text="Go to Page Two",command=lambda: controller.show_frame("PageTwo"))
         button1.place(relx=.5, rely=.5, anchor="c")
-        #button2.pack()
+        button2.pack()
 
 class  MainPage(tk.Frame):
 
@@ -187,16 +187,16 @@ class  MainPage(tk.Frame):
     def rgb2hex(self, r, g, b):
         return "#%02x%02x%02x" % (r, g, b)
 
-# class PageOne(tk.Frame):
-#
-#     def __init__(self, parent, controller):
-#         tk.Frame.__init__(self, parent)
-#         self.controller = controller
-#         label = tk.Label(self, text="This is page 1", font=controller.title_font)
-#         label.pack(side="top", fill="x", pady=10)
-#         button = tk.Button(self, text="Go to the start page",
-#                            command=lambda: controller.show_frame("StartPage"))
-#         button.pack()
+class Parameter(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="This is page 1", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        button = tk.Button(self, text="Go to the start page",
+                           command=lambda: controller.show_frame("StartPage"))
+        button.pack()
 
 
 # class PageTwo(tk.Frame):
