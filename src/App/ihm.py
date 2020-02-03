@@ -14,6 +14,7 @@ try:
     # for Python2
     import Tkinter as tk
     import tkFont as tkfont
+    
 except ImportError:
     # for Python3
     import tkinter as tk
@@ -25,8 +26,8 @@ from PIL import Image, ImageTk
 
 class ihm(tk.Tk):
 
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
+    def __init__(self):
+        tk.Tk.__init__(self)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
 
