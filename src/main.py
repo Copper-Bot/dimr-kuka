@@ -16,9 +16,10 @@ from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
 
-from feeder import Feeder
-from wall import Wall
-from brick import Type
+from Domain.feeder import Feeder
+from Domain.wall import Wall
+from Domain.brick import Type
+from App.ihm import ihm
 
 def main():
      #TODO : input the taking coordinates for the b6 runner
@@ -58,21 +59,12 @@ def main():
     f3 = Feeder(2, Type.small, taking_pose_s2)
 
     feeders = [f1,f2,f3]
-    wall = Wall(feeders, 3, 4, 11, 2)
-    print(wall.is_empty())
-    print("wall empty")
-    wall.to_string()
-    print("wall built")
-    wall.build()
-    wall.to_string()
-    print(wall.count_placed_bricks())
-    print("brick at layer 1, column 2 :")
-    print(wall.at(1,2))
-    print(wall.is_empty())
-    print(wall.is_filled_up())
-    wall.destroy()
-    wall.to_string()
-    print(wall.is_empty())
+    wall = Wall(feeders)
+
+    app = ihm()
+    app.title("DIMR KUKA")
+    app.geometry('800x500')
+    app.mainloop()
 
 
 if __name__ == '__main__':

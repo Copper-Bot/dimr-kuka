@@ -21,15 +21,15 @@ except ImportError:
     from tkinter import font  as tkfont
 
 from PIL import Image, ImageTk
-
-
+# from ..Domain.wall import Wall
+# from ..Domain.feeder import Feeder
 
 class ihm(tk.Tk):
-
-    def __init__(self):
+    def __init__(self, feeders):
         tk.Tk.__init__(self)
-
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+        self.wall = None
+        self.feeders = feeders
 
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
@@ -209,10 +209,3 @@ class  MainPage(tk.Frame):
 #         button = tk.Button(self, text="Go to the start page",
 #                            command=lambda: controller.show_frame("StartPage"))
 #         button.pack()
-
-
-if __name__ == "__main__":
-    app = ihm()
-    app.title("DIMR KUKA")
-    app.geometry('800x500')
-    app.mainloop()

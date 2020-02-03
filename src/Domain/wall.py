@@ -20,7 +20,7 @@ from layer import Layer
 
 class Wall(object):
 
-    def __init__(self, feeders, layer_number, column_number, bb_number, sb_number):
+    def __init__(self, feeders, layer_number=3, column_number=4, bb_number=11, sb_number=2):
         self.layer_number = layer_number
         self.column_number = column_number
         self.bb_number = bb_number
