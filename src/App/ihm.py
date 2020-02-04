@@ -24,6 +24,9 @@ from PIL import Image, ImageTk
 # from ..Domain.wall import Wall
 # from ..Domain.feeder import Feeder
 
+
+
+#=======================
 class Ihm(tk.Tk):
     def __init__(self, feeders):
         tk.Tk.__init__(self)
@@ -38,6 +41,8 @@ class Ihm(tk.Tk):
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        self.column_number=4
+        self.layer_number=3
 
         self.frames = {}
         for F in (StartPage, MainPage, Parameter): # ADD PAGE HERE
@@ -50,14 +55,16 @@ class Ihm(tk.Tk):
             # will be the one that is visible.
             frame.grid(row=0, column=0, sticky="nsew")
 
+
         self.show_frame("StartPage")
 
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
+        print ("testshowframes",self.layer_number,self.column_number)
         frame = self.frames[page_name]
         frame.tkraise()
 
-
+#=======================
 class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -71,39 +78,51 @@ class StartPage(tk.Frame):
         img.thumbnail(maxsize, Image.ANTIALIAS)
         img_ = ImageTk.PhotoImage(img)
 
+        img_param = Image.open("Images/parameter.png")
+        img_param.thumbnail((50,50), Image.ANTIALIAS)
+        img_p = ImageTk.PhotoImage(img_param)
+
         label = tk.Label(self, image=img_ ,font=controller.title_font)
         label.image = img_
         label.pack()
         button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,
-                            command=lambda: controller.show_frame("MainPage"))
-        button2 = tk.Button(self, text="Go to Page Two",command=lambda: controller.show_frame("PageTwo"))
+                            command=self.startBuild)
+        button2 = tk.Button(self,font=(None,10,'bold'),image = img_p,command=lambda: controller.show_frame("Parameter"))
+        button2.image=img_p
         button1.place(relx=.5, rely=.5, anchor="c")
-        button2.pack()
+        button2.place(relx=1.,anchor="ne",bordermode="outside")
 
+    def startBuild(self):
+        self.controller.frames["MainPage"].initialize()
+        self.controller.show_frame("MainPage")
+
+
+#=======================
 class  MainPage(tk.Frame):
 
     #############
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
         self.parent = parent
-        self.column_number=4
-        self.layer_number=3
-        self.initialize(self.column_number,self.layer_number)
-        self.colorate_current_layer(0)
+        self.controller=controller
+        print("testputain",controller.column_number,controller.layer_number)
+        self.column_number=self.controller.column_number
+        self.layer_number=self.controller.layer_number
 
 
     #############
-    def initialize(self,column_number,layer_number):
-
+    def initialize(self):
+        self.column_number=self.controller.column_number
+        self.layer_number=self.controller.layer_number
         self.grid()
-        self.bricks = [[0 for x in xrange(column_number+1)] for x in xrange(layer_number)]
-        self.arrows = [[0 for x in xrange(2)] for x in xrange(layer_number)]
+        self.bricks = [[0 for x in xrange(self.column_number+1)] for x in xrange(self.layer_number)]
+        self.arrows = [[0 for x in xrange(2)] for x in xrange(self.layer_number)]
         self.order = tk.StringVar()
         self.order.set("Click on a brick to fill the 1st layer")
         begin_row=1
         first_col_num=1
         end_col_num=1
-        begin_parity=layer_number%2
+        begin_parity=self.layer_number%2
         self.color_init="navajo white"
         self.color_current_layer="floral white"
         self.color_current_brick="green"
@@ -111,10 +130,10 @@ class  MainPage(tk.Frame):
         self.current_layer=0
 
         title = tk.Label(self,text="KUKA BUILDING",font=(None,40,'bold'),anchor="n",bg=self.color_init,pady=15)
-        title.grid(row=0,column=0,columnspan=column_number*2+first_col_num+end_col_num,sticky='NSEW')
+        title.grid(row=0,column=0,columnspan=self.column_number*2+first_col_num+end_col_num,sticky='NSEW')
         self.grid_rowconfigure(0,weight=2)
 
-        for layer in range(layer_number-1,-1,-1):
+        for layer in range(self.layer_number-1,-1,-1):
 
             self.arrows[layer][0]=tk.Label(self,anchor="center",text ="" ,fg="DarkOrange2",font=(None,20,'bold'),bg=self.color_init)
             self.arrows[layer][0].grid(row=begin_row+layer,column=0,sticky='NSEW')
@@ -122,42 +141,42 @@ class  MainPage(tk.Frame):
 
             if (layer%2)==begin_parity: # 2 small bricks
 
-                self.bricks[layer][0] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(layer_number-1)), y=0: self.select_brick(x,y))
+                self.bricks[layer][0] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(self.layer_number-1)), y=0: self.select_brick(x,y))
                 self.bricks[layer][0].grid(column=first_col_num, row=layer+begin_row,sticky='NSEW')
 
                 cpt=0
-                for column in range(1,column_number,1):
-                    self.bricks[layer][column] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(layer_number-1)), y=column: self.select_brick(x,y))
+                for column in range(1,self.column_number,1):
+                    self.bricks[layer][column] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(self.layer_number-1)), y=column: self.select_brick(x,y))
                     self.bricks[layer][column].grid(column=first_col_num+column+cpt, row=begin_row+layer,columnspan=2, sticky='NSEW')
                     cpt+=1
 
-                self.bricks[layer][column_number] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(layer_number-1)), y=column_number: self.select_brick(x,y))
-                self.bricks[layer][column_number].grid(column=first_col_num+column_number*2-1, row=layer+begin_row,sticky='NSEW')
-
-
+                self.bricks[layer][self.column_number] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(self.layer_number-1)), y=self.column_number: self.select_brick(x,y))
+                self.bricks[layer][self.column_number].grid(column=first_col_num+self.column_number*2-1, row=layer+begin_row,sticky='NSEW')
 
             else:
                 cpt=0
-                for column in range(column_number):
-                    self.bricks[layer][column] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(layer_number-1)), y=column: self.select_brick(x,y))
+                for column in range(self.column_number):
+                    self.bricks[layer][column] = tk.Button(self, bg=self.color_init,command=lambda x=abs(layer-(self.layer_number-1)), y=column: self.select_brick(x,y))
                     self.bricks[layer][column].grid(column=first_col_num+column+cpt, row=layer+begin_row,columnspan=2,sticky='NSEW')
                     cpt+=1
 
             self.arrows[layer][1]=tk.Label(self,text ="" ,fg="DarkOrange2",font=(None,20,'bold'),anchor="center",bg=self.color_init)
-            self.arrows[layer][1].grid(row=begin_row+layer,column=first_col_num+column_number*2,sticky='NSEW')
-            self.grid_columnconfigure(first_col_num+column_number*2,weight=2)
+            self.arrows[layer][1].grid(row=begin_row+layer,column=first_col_num+self.column_number*2,sticky='NSEW')
+            self.grid_columnconfigure(first_col_num+self.column_number*2,weight=2)
 
-        for layer in range(begin_row+layer_number-1,-1+begin_row,-1):
+        for layer in range(begin_row+self.layer_number-1,-1+begin_row,-1):
             self.grid_rowconfigure(layer,weight=1)
-            for column in range(column_number*2):
+            for column in range(self.column_number*2):
                 self.grid_columnconfigure(column+first_col_num,weight=1)
 
         label = tk.Label(self,textvariable=self.order,font=(None,20),fg="DarkOrange2",anchor="center",bg=self.color_init,pady=15)
-        label.grid(row=begin_row+layer_number,column=0,columnspan=column_number*2+first_col_num+end_col_num,sticky='NSEW')
-        self.grid_rowconfigure(begin_row+layer_number,weight=1)
+        label.grid(row=begin_row+self.layer_number,column=0,columnspan=self.column_number*2+first_col_num+end_col_num,sticky='NSEW')
+        self.grid_rowconfigure(begin_row+self.layer_number,weight=1)
 
 
         self.update_arrows(self.current_layer)
+        self.colorate_current_layer(0)
+
 
 
     #############
@@ -187,18 +206,45 @@ class  MainPage(tk.Frame):
     def rgb2hex(self, r, g, b):
         return "#%02x%02x%02x" % (r, g, b)
 
+
+
+#=======================
 class Parameter(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="This is page 1", font=controller.title_font)
-        label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go to the start page",
-                           command=lambda: controller.show_frame("StartPage"))
-        button.pack()
+        self.grid()
+        self.title = tk.Label(self,text="Parameters",font=(None,40,'bold'),anchor="n",pady=15)
+        self.title.grid(row=0,column=0,columnspan=2,sticky='NSEW')
+        self.grid_rowconfigure(0,weight=2)
+        self.label_layer = tk.Label(self,text="Number of layer : ",font=(None,20),anchor="n",pady=15)
+        self.label_layer.grid(row=1,column=0,sticky='NSEW')
+        self.grid_columnconfigure(0,weight=1)
+        self.grid_rowconfigure(1,weight=1)
+        self.label_brick = tk.Label(self,text="Number of column : ",font=(None,20),anchor="n",pady=15)
+        self.label_brick.grid(row=2,column=0,sticky='NSEW')
+        self.grid_rowconfigure(2,weight=1)
+        self.layer_slider = tk.Scale(self,from_=1, to=3,bd=3, sliderlength=100,orient="horizontal")
+        self.layer_slider.grid(row=1,column=1,sticky='NSEW',padx=50)
+        self.layer_slider.set(3)
+        self.grid_columnconfigure(1,weight=2)
+        self.brick_slider = tk.Scale(self,from_=1, to=4,bd=3,sliderlength=80,orient="horizontal")
+        self.brick_slider.grid(row=2,column=1,sticky='NSEW',padx=50)
+        self.brick_slider.set(4)
 
+        self.button = tk.Button(self, text="OK",font=(None,17),bg="DarkSeaGreen1",
+                           command=self.show_values)
+        self.grid_rowconfigure(3,weight=1)
+        self.button.grid(row=3,column=0,columnspan=2,sticky='NSEW')
 
+    def show_values(self):
+        print (self.layer_slider.get(),self.brick_slider.get())
+        self.controller.layer_number=self.layer_slider.get()
+        self.controller.column_number=self.brick_slider.get()
+        self.controller.show_frame("StartPage")
+
+##=======================
 # class PageTwo(tk.Frame):
 #
 #     def __init__(self, parent, controller):
