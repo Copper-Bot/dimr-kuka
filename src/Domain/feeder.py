@@ -40,7 +40,7 @@ class Feeder(object):
             self.brick_count += 1
             return True
         else:
-            print("The runner is already full. Choose an another one")
+            print("The feeder is already full. Choose an another one")
             return False
     
     def remove_brick(self):
