@@ -167,7 +167,12 @@ class  MainPage(tk.Frame):
         label.grid(row=begin_row+self.layer_number,column=0,columnspan=self.column_number*2+first_col_num+end_col_num,sticky='NSEW')
         self.grid_rowconfigure(begin_row+self.layer_number,weight=1)
 
-
+        img_bin = Image.open("Images/bin2.png")
+        img_bin.thumbnail((70,70), Image.ANTIALIAS)
+        img_b = ImageTk.PhotoImage(img_bin)
+        button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy)
+        button_destroy.image=img_b
+        button_destroy.place(relx=1.,anchor="ne",bordermode="outside")
         self.update_arrows(self.current_layer)
         self.colorate_current_layer(0)
 
@@ -195,6 +200,17 @@ class  MainPage(tk.Frame):
         print(layer,column)
         if layer == self.current_layer:
             self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+
+    #############
+    def destroy(self):
+        print("destroying the wall")
+        for layer in range(self.layer_number):
+            for column in range(self.column_number+1):
+                if not self.bricks[layer][column]==0:
+                    self.bricks[layer][column].config(bg=self.color_init)
+
+        self.colorate_current_layer(0)
+        print("destroy done")
 
     #############
     def rgb2hex(self, r, g, b):
