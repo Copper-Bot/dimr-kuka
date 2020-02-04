@@ -26,7 +26,7 @@ def main():
     taking_pose_b6 = Pose()
     taking_pose_b6.position.x = 0
     taking_pose_b6.position.y = -0.5
-    taking_pose_b6.position.y = 0
+    taking_pose_b6.position.z = 0
     taking_pose_b6.orientation.x = 0
     taking_pose_b6.orientation.y = 0
     taking_pose_b6.orientation.z = 0
@@ -38,7 +38,7 @@ def main():
     taking_pose_b5 = Pose()
     taking_pose_b5.position.x = -0.3
     taking_pose_b5.position.y = -0.5
-    taking_pose_b5.position.y = 0
+    taking_pose_b5.position.z = 0
     taking_pose_b5.orientation.x = 0
     taking_pose_b5.orientation.y = 0
     taking_pose_b5.orientation.z = 0
@@ -50,7 +50,7 @@ def main():
     taking_pose_s2 = Pose()
     taking_pose_s2.position.x = 0.3
     taking_pose_s2.position.y = -0.5
-    taking_pose_s2.position.y = 0
+    taking_pose_s2.position.z = 0
     taking_pose_s2.orientation.x = 0
     taking_pose_s2.orientation.y = 0
     taking_pose_s2.orientation.z = 0
@@ -61,7 +61,7 @@ def main():
     feeders = [f1,f2,f3]
     wall = Wall(feeders)
 
-    app = ihm()
+    app = ihm(feeders)
     app.title("DIMR KUKA")
     app.geometry('800x500')
     app.mainloop()
