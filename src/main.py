@@ -19,7 +19,7 @@ from math import pi
 from Domain.feeder import Feeder
 from Domain.wall import Wall
 from Domain.brick import Type
-from App.ihm import ihm
+from App.ihm import Ihm
 
 def main():
      #TODO : input the taking coordinates for the b6 runner
@@ -61,7 +61,8 @@ def main():
     feeders = [f1,f2,f3]
     wall = Wall(feeders)
 
-    app = ihm(feeders)
+
+    app = Ihm(feeders)
     app.title("DIMR KUKA")
     app.geometry('800x500')
     app.mainloop()
