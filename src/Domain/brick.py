@@ -27,7 +27,8 @@ class Brick(object):
     #static properties for all Brick's instances
     def __init__(self,type,layer,column):
         #type of the brick
-        self.id = column
+        self.num_column = column
+        self.num_layer = layer
         self.type = type.name
         self.height = 0.1
         self.width = type.value
@@ -77,7 +78,7 @@ class Brick(object):
         self.taking_pose.orientation.z = pose.orientation.z
         self.taking_pose.orientation.w = pose.orientation.w
 
-    def move_to_wall(self):
+    def add_to_wall(self):
         if(self.is_placed == False):
             self.is_placed = True
             self.feeder.remove_brick()
@@ -104,7 +105,7 @@ class Brick(object):
             self.feeder.add_brick(self)
     
     def to_string(self):
-        print "Brick number : {0}".format(self.id)
+        print "Brick number : {0}".format(self.num_column)
         if(self.feeder != None):
             print '   Type : {0}\n   Is placed : {1}\n   Feeder : '.format(self.type, self.is_placed)
             print(self.feeder.to_string())

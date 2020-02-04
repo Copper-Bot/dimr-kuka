@@ -65,6 +65,18 @@ class Wall(object):
         if(self.layers[layer] != None):
             return self.layers[layer].bricks[column]
     
+    def check_add_brick(self, brick):
+        check = True
+        if(brick.num_layer == 0):
+            return check
+        else:
+            
+
+    def check_remove_brick(self, brick):
+        check = True
+        if(brick.num_layer == layer_number-1):
+            return check
+    
     def is_empty(self):
         is_empty = True
         l = 0
