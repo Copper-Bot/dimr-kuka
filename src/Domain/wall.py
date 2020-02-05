@@ -20,15 +20,22 @@ from layer import Layer
 
 class Wall(object):
 
-    def __init__(self, feeders, layer_number=3, column_number=4, bb_number=11, sb_number=2):
+    def __init__(self, feeders, layer_number=3, column_number=4):
         self.layer_number = layer_number
         self.column_number = column_number
-        self.bb_number = bb_number
-        self.sb_number = sb_number
+        self.bb_number = 0
+        self.sb_number = 0
+        self.compute_nb_bricks()
         self.layers = [None]*layer_number
         self.is_finished = False
         self.fill()
         self.fill_feeders(feeders)
+
+    def compute_nb_bricks(self):
+        nb_even_layers = self.layer_number / 2
+        nb_odd_layers = self.layer_number - nb_even_layers
+        self.sb_number = nb_odd_layers * 2
+        self.bb_number = nb_even_layers * self.column_number + nb_odd_layers * (self.column_number - 1)
     
     def fill(self):
         for l in range(self.layer_number):
@@ -66,13 +73,14 @@ class Wall(object):
             return self.layers[layer].bricks[column]
     
     def check_add_brick(self, brick):
+        #TODO ===========================================================================
         check = True
         if(brick.num_layer == 0):
             return check
-        else:
             
 
     def check_remove_brick(self, brick):
+        #TODO ===========================================================================
         check = True
         if(brick.num_layer == layer_number-1):
             return check

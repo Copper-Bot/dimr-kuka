@@ -59,8 +59,6 @@ def main():
     f3 = Feeder(2, Type.small, taking_pose_s2)
 
     feeders = [f1,f2,f3]
-    wall = Wall(feeders)
-
 
     app = Ihm(feeders)
     app.title("DIMR KUKA")

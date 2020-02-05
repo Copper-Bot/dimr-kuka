@@ -21,11 +21,13 @@ except ImportError:
     from tkinter import font  as tkfont
 
 from PIL import Image, ImageTk
-from robot import Robot
+from Domain.wall import Wall
 
 class Ihm(tk.Tk):
-    def __init__(self):
+    def __init__(self, feeders):
         tk.Tk.__init__(self)
+        self.feeders = feeders
+        self.wall = None
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
 
         # the container is where we'll stack a bunch of frames
@@ -89,6 +91,8 @@ class StartPage(tk.Frame):
     def startBuild(self):
         self.controller.frames["MainPage"].initialize()
         self.controller.show_frame("MainPage")
+        self.controller.wall = Wall(self.controller.feeders, self.controller.layer_number, self.controller.column_number)
+        self.controller.wall.to_string()
 
 
 #=======================

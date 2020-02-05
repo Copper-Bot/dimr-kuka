@@ -35,16 +35,16 @@ class Brick(object):
         self.depth = 0.1
         #position of the middle of the brick, dynamically attributed by the user when a click is detected on the interface
         #TODO : input the placing coordinates for the wall (left-hand bottom corner of the wall)
-        self.placing_pose = Pose()
-        self.placing_pose.position.x = column*self.width
-        self.placing_pose.position.y = 0
-        self.placing_pose.position.z = layer*self.height
-        self.placing_pose.orientation.x = 0
-        self.placing_pose.orientation.y = 0
-        self.placing_pose.orientation.z = 0
-        self.placing_pose.orientation.w = 1
+        self.wall_pose = Pose()
+        self.wall_pose.position.x = column*self.width
+        self.wall_pose.position.y = 0
+        self.wall_pose.position.z = layer*self.height
+        self.wall_pose.orientation.x = 0
+        self.wall_pose.orientation.y = 0
+        self.wall_pose.orientation.z = 0
+        self.wall_pose.orientation.w = 1
         #position of the middle of the brick
-        self.taking_pose = Pose()
+        self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
     
@@ -60,23 +60,23 @@ class Brick(object):
                 if(feeder.add_brick(self)):
                     feeder_found = True
                     self.feeder = feeder
-                    self.set_taking_pose(feeder.pose)
+                    self.set_feeder_pose(feeder.pose)
             elif(self.type == Type.big.name and feeder.brick_type == Type.big.name):
                 if(feeder.add_brick(self)):
                     feeder_found = True
                     self.feeder = feeder
-                    self.set_taking_pose(feeder.pose)
+                    self.set_feeder_pose(feeder.pose)
             r += 1
         print 'feeder found : {0} --> feeder capacity : {1}'.format(feeder_found,self.feeder.brick_capacity)
     
-    def set_taking_pose(self,pose):
-        self.taking_pose.position.x = pose.position.x
-        self.taking_pose.position.y = pose.position.y
-        self.taking_pose.position.z = pose.position.z
-        self.taking_pose.orientation.x = pose.orientation.x
-        self.taking_pose.orientation.y = pose.orientation.y
-        self.taking_pose.orientation.z = pose.orientation.z
-        self.taking_pose.orientation.w = pose.orientation.w
+    def set_feeder_pose(self,pose):
+        self.feeder_pose.position.x = pose.position.x
+        self.feeder_pose.position.y = pose.position.y
+        self.feeder_pose.position.z = pose.position.z
+        self.feeder_pose.orientation.x = pose.orientation.x
+        self.feeder_pose.orientation.y = pose.orientation.y
+        self.feeder_pose.orientation.z = pose.orientation.z
+        self.feeder_pose.orientation.w = pose.orientation.w
 
     def add_to_wall(self):
         if(self.is_placed == False):
@@ -95,13 +95,13 @@ class Brick(object):
     def move_to_feeder(self):
         if(self.feeder != None):
             n = self.feeder.brick_count + 1
-            self.taking_pose.position.x = self.feeder.pose.position.x
-            self.taking_pose.position.y = self.feeder.pose.position.y
-            self.taking_pose.position.z = self.feeder.pose.position.z + n*self.height
-            self.taking_pose.orientation.x = self.feeder.pose.orientation.x
-            self.taking_pose.orientation.y = self.feeder.pose.orientation.y
-            self.taking_pose.orientation.z = self.feeder.pose.orientation.z
-            self.taking_pose.orientation.w = self.feeder.pose.orientation.w
+            self.feeder_pose.position.x = self.feeder.pose.position.x
+            self.feeder_pose.position.y = self.feeder.pose.position.y
+            self.feeder_pose.position.z = self.feeder.pose.position.z + n*self.height
+            self.feeder_pose.orientation.x = self.feeder.pose.orientation.x
+            self.feeder_pose.orientation.y = self.feeder.pose.orientation.y
+            self.feeder_pose.orientation.z = self.feeder.pose.orientation.z
+            self.feeder_pose.orientation.w = self.feeder.pose.orientation.w
             self.feeder.add_brick(self)
     
     def to_string(self):
