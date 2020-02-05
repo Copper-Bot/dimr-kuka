@@ -27,9 +27,7 @@ class Ihm(tk.Tk):
     def __init__(self, feeders):
         tk.Tk.__init__(self)
         self.feeders = feeders
-        self.wall = None
-        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-
+        self.wall = None #created with the right values when the user click on the "start building" button on the StartPage
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
         # will be raised above the others
@@ -37,26 +35,24 @@ class Ihm(tk.Tk):
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
-        self.column_number=4
-        self.layer_number=3
+        self.column_number=4  # we can access from all frame with "self.controller.column_number"
+        self.layer_number=3   # "self.controller.layer_number"
 
         self.frames = {}
-        for F in (StartPage, MainPage, Settings): # ADD PAGE HERE
+        for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
-
             # put all of the pages in the same location;
             # the one on the top of the stacking order
             # will be the one that is visible.
             frame.grid(row=0, column=0, sticky="nsew")
 
 
-        self.show_frame("StartPage")
+        self.show_frame("StartPage") # the first Page to appear
 
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
-        print ("testshowframes",self.layer_number,self.column_number)
         frame = self.frames[page_name]
         frame.tkraise()
 
@@ -66,33 +62,33 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        #img = tk.PhotoImage(file="home_img.jpg")
+
         img = Image.open("Images/home_img.jpg")
         labelWidth = controller.winfo_screenwidth()
         labelHeight = controller.winfo_screenheight()
         maxsize = (labelWidth, labelHeight)
         img.thumbnail(maxsize, Image.ANTIALIAS)
         img_ = ImageTk.PhotoImage(img)
+        label = tk.Label(self, image=img_ )
+        label.image = img_
+        label.pack()
 
         img_param = Image.open("Images/parameter.png")
         img_param.thumbnail((50,50), Image.ANTIALIAS)
         img_p = ImageTk.PhotoImage(img_param)
 
-        label = tk.Label(self, image=img_ ,font=controller.title_font)
-        label.image = img_
-        label.pack()
-        button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,
-                            command=self.startBuild)
+        button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,command=self.start_building)
+        button1.place(relx=.5, rely=.5, anchor="c")
+
         button2 = tk.Button(self,font=(None,10,'bold'),image = img_p,command=lambda: controller.show_frame("Settings"))
         button2.image=img_p
-        button1.place(relx=.5, rely=.5, anchor="c")
         button2.place(relx=1.,anchor="ne",bordermode="outside")
 
-    def startBuild(self):
-        self.controller.frames["MainPage"].initialize()
+    def start_building(self):
+        self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
         self.controller.show_frame("MainPage")
         self.controller.wall = Wall(self.controller.feeders, self.controller.layer_number, self.controller.column_number)
-        self.controller.wall.to_string()
+        self.controller.wall.to_string() # easy debug
 
 
 #=======================
@@ -103,7 +99,6 @@ class  MainPage(tk.Frame):
         tk.Frame.__init__(self,parent)
         self.parent = parent
         self.controller=controller
-        print("testputain",controller.column_number,controller.layer_number)
         self.column_number=self.controller.column_number
         self.layer_number=self.controller.layer_number
 
@@ -218,10 +213,6 @@ class  MainPage(tk.Frame):
         self.colorate_current_layer(0)
         print("destroy done")
 
-    #############
-    def rgb2hex(self, r, g, b):
-        return "#%02x%02x%02x" % (r, g, b)
-
 
 
 #=======================
@@ -231,42 +222,45 @@ class Settings(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.grid()
+
         self.title = tk.Label(self,text="Settings",font=(None,40,'bold'),anchor="n",pady=15)
         self.title.grid(row=0,column=0,columnspan=2,sticky='NSEW')
         self.grid_rowconfigure(0,weight=2)
+
         self.label_layer = tk.Label(self,text="Number of layer : ",font=(None,20),anchor="n",pady=15)
         self.label_layer.grid(row=1,column=0,sticky='NSEW')
         self.grid_columnconfigure(0,weight=1)
         self.grid_rowconfigure(1,weight=1)
+
         self.label_brick = tk.Label(self,text="Number of column : ",font=(None,20),anchor="n",pady=15)
         self.label_brick.grid(row=2,column=0,sticky='NSEW')
         self.grid_rowconfigure(2,weight=1)
+
         self.layer_slider = tk.Scale(self,from_=1, to=3,bd=3, sliderlength=100,orient="horizontal")
         self.layer_slider.grid(row=1,column=1,sticky='NSEW',padx=50)
         self.layer_slider.set(3)
         self.grid_columnconfigure(1,weight=2)
+
         self.brick_slider = tk.Scale(self,from_=1, to=4,bd=3,sliderlength=80,orient="horizontal")
         self.brick_slider.grid(row=2,column=1,sticky='NSEW',padx=50)
         self.brick_slider.set(4)
 
-        self.button = tk.Button(self, text="OK",font=(None,17),bg="DarkSeaGreen1",
-                           command=self.show_values)
+        self.button = tk.Button(self, text="OK",font=(None,17),bg="DarkSeaGreen1", command=self.update_values)
         self.grid_rowconfigure(3,weight=1)
         self.button.grid(row=3,column=0,columnspan=2,sticky='NSEW')
 
-    def show_values(self):
-        print (self.layer_slider.get(),self.brick_slider.get())
+    def update_values(self):
         self.controller.layer_number=self.layer_slider.get()
         self.controller.column_number=self.brick_slider.get()
         self.controller.show_frame("StartPage")
 
-##=======================
+##======================= template to add a page
 # class PageTwo(tk.Frame):
 #
 #     def __init__(self, parent, controller):
 #         tk.Frame.__init__(self, parent)
 #         self.controller = controller
-#         label = tk.Label(self, text="This is page 2", font=controller.title_font)
+#         label = tk.Label(self, text="This is page 2")
 #         label.pack(side="top", fill="x", pady=10)
 #         button = tk.Button(self, text="Go to the start page",
 #                            command=lambda: controller.show_frame("StartPage"))

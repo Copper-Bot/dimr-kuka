@@ -60,7 +60,7 @@ def main():
 
     feeders = [f1,f2,f3]
 
-    app = Ihm()
+    app = Ihm(feeders)
     app.title("DIMR KUKA")
     app.geometry('800x500')
     app.mainloop()
