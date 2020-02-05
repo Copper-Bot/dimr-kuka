@@ -187,25 +187,33 @@ class  MainPage(tk.Frame):
                 self.arrows[abs(layer-(self.layer_number-1))][0].config(text="")
                 self.arrows[abs(layer-(self.layer_number-1))][1].config(text="")
 
-        self.order.set("Click on a brick to fill the layer number {}".format(current_layer+1))
+        #self.order.set("Click on a brick to fill the layer number {}".format(current_layer+1))
+        self.order.set("Click on a white brick to build the wall")
 
     #############
     def colorate_current_layer(self,layer):
-
         for y in range(self.column_number+(layer%2)):
             self.bricks[abs(layer-(self.layer_number-1))][y].config(bg=self.color_current_layer)
 
-
+    def update_white_brick(self):
+        for y in range(self.column_number+(layer%2)):
+            self.bricks[abs(layer-(self.layer_number-1))][y].config(bg=self.color_current_layer)
     #############
     def select_brick(self, layer, column):
         current_layer=self.controller.wall.layer_in_progress().num
+        brick=self.controller.wall.at(layer,column)
         print(layer,column)
         print("test",current_layer)
-        if layer == current_layer:
+        # if layer == current_layer:
+        #     if self.controller.wall.at(layer,column).add_to_wall():
+        #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+        if self.controller.wall.check_add_brick(brick):
             if self.controller.wall.at(layer,column).add_to_wall():
                 self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+
+
         if not (self.controller.wall.layer_in_progress().num==current_layer):
-            self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
+            #self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
             self.update_arrows(self.controller.wall.layer_in_progress().num)
 
 
@@ -219,6 +227,8 @@ class  MainPage(tk.Frame):
                     self.bricks[layer][column].config(bg=self.color_init)
 
         self.colorate_current_layer(0)
+        self.controller.wall.destroy()
+        self.update_arrows(self.current_layer)
         print("destroy done")
 
 
