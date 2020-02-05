@@ -36,11 +36,11 @@ class Wall(object):
         nb_odd_layers = self.layer_number - nb_even_layers
         self.sb_number = nb_odd_layers * 2
         self.bb_number = nb_even_layers * self.column_number + nb_odd_layers * (self.column_number - 1)
-    
+
     def fill(self):
         for l in range(self.layer_number):
             if(l % 2 == 0): #even layer
-                self.layers[l] = Layer(l,self.column_number) 
+                self.layers[l] = Layer(l,self.column_number)
             else: #odd layer
                 self.layers[l] = Layer(l,self.column_number + 1)
 
@@ -61,7 +61,7 @@ class Wall(object):
             for l in self.layers:
                 l.destroy()
 
-    def build(self): 
+    def build(self):
         # if(self.is_empty() == True):
         for l in self.layers:
             # print 'layer in progress : '
@@ -71,20 +71,20 @@ class Wall(object):
     def at(self,layer,column):
         if(self.layers[layer] != None):
             return self.layers[layer].bricks[column]
-    
+
     def check_add_brick(self, brick):
         #TODO ===========================================================================
         check = True
         if(brick.num_layer == 0):
             return check
-            
+
 
     def check_remove_brick(self, brick):
         #TODO ===========================================================================
         check = True
         if(brick.num_layer == layer_number-1):
             return check
-    
+
     def is_empty(self):
         is_empty = True
         l = 0
@@ -106,19 +106,19 @@ class Wall(object):
                 else:
                     l+=1
         return is_filled_up
-    
+
     def fill_feeders(self, feeders):
         if(self.is_empty() == True):
             print("filling feeders")
             for l in self.layers:
                 l.fill_feeders(feeders)
-    
+
     def layer_in_progress(self):
         #return the layer in construction
         l = 0
         layer_found = False
-        while(layer_found ==  False and l < self.layers):
-            if(self.layers[l].is_filled_up()):
+        while(layer_found ==  False and l < len(self.layers)):
+            if(self.layers[l].is_filled_up() and l < len(self.layers)-1):
                 l += 1
             else:
                 layer_found = True
@@ -126,10 +126,9 @@ class Wall(object):
             return self.layers[l]
         else:
             return None
-    
+
     def to_string(self):
         print "####################### Wall begin #######################\n"
         for l in self.layers:
             l.to_string()
         print "####################### Wall end #######################\n\n\n\n"
-        
