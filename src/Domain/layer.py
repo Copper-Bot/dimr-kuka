@@ -88,7 +88,7 @@ class Layer(object):
     def build(self):
         for b in self.bricks:
             if(b.is_placed == False):
-                b.move_to_wall()
+                b.add_to_wall()
 
     def fill_feeders(self, feeders):
         # if(self.is_empty() == False):

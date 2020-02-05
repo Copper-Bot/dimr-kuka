@@ -21,7 +21,7 @@ class Feeder(object):
         self.brick_capacity = brick_capacity
         self.brick_count = 0
         self.brick_type = brick_type.name
-        #coordinate of the feeder in the base frame
+        #coordinate of the feeder in the base frame (middle point of the bottom brick of the feeder)
         self.pose = pose
         self.bricks = []
 
