@@ -24,11 +24,13 @@ from Domain.wall import Wall
 from Domain.feeder import Feeder
 
 class Robot(object):
-    def __init__(self, wall):
+    def __init__(self):
         self.init_pose = Pose()
         self.current_pose = Pose()
+        self.is_busy = False
 
     def initialize_effector(self):
+        self.is_busy = True
         #TODO define the initial pose of the robot's effector
         self.init_pose.position.x = 0
         self.init_pose.position.y = 0.6
@@ -37,7 +39,8 @@ class Robot(object):
         self.init_pose.orientation.y = 0
         self.init_pose.orientation.z = 0
         self.init_pose.orientation.w = 1
-        self.update_current_pose(self.init_pose)
+        self.move_to(init_pose, False)
+        self.is_busy = False
 
     def update_current_pose(self, pose):
         self.init_pose.position.x = pose.position.x
