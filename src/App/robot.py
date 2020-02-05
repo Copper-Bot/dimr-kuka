@@ -27,7 +27,7 @@ class Robot(object):
     def __init__(self):
         self.init_pose = Pose()
         self.current_pose = Pose()
-        self.is_busy = False
+        self.is_busy = False #robot state to publish on rostopic
 
     def initialize_effector(self):
         self.is_busy = True
@@ -151,6 +151,7 @@ class Robot(object):
 
     def move_brick_to(self, brick):
         #2 cases : brick is in the feeder ou brick is in the wall
+        self.is_busy = True
         if(brick.is_placed): #the brick is in the wall
             
             self.take_brick_from_wall(brick)
@@ -167,6 +168,9 @@ class Robot(object):
             self.move_to(self,target_pose, True)
 
             self.place_brick_in_feeder(brick)
+            
+            #update the wall object 
+            brick.remove_from_wall()
         else:
             self.take_brick_from_feeder(brick)
 
@@ -182,6 +186,11 @@ class Robot(object):
             self.move_to(self,target_pose, True)
 
             self.place_brick_in_wall(brick)
+
+            #update the wall object
+            brick.add_to_wall()
+
+        self.is_busy = False 
     
     def update_environment():
         #TODO : update class métiers
