@@ -172,6 +172,7 @@ class  MainPage(tk.Frame):
         button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy)
         button_destroy.image=img_b
         button_destroy.place(relx=1.,anchor="ne",bordermode="outside")
+
         self.update_arrows(self.current_layer)
         self.colorate_current_layer(0)
 
@@ -195,15 +196,21 @@ class  MainPage(tk.Frame):
         for y in range(self.column_number+(layer%2)):
             self.bricks[abs(layer-(self.layer_number-1))][y].config(bg=self.color_current_layer)
 
+    #############
     def update_white_brick(self):
-        for y in range(self.column_number+(layer%2)):
-            self.bricks[abs(layer-(self.layer_number-1))][y].config(bg=self.color_current_layer)
+        for layer in range(self.layer_number):
+            for column in range(self.column_number+1):
+                if not(layer%2==0 and column==self.column_number):
+                    brick = self.controller.wall.at(layer,column)
+                    if self.controller.wall.check_add_brick(brick):
+                        self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_layer)
+
+
     #############
     def select_brick(self, layer, column):
         current_layer=self.controller.wall.layer_in_progress().num
         brick=self.controller.wall.at(layer,column)
         print(layer,column)
-        print("test",current_layer)
         # if layer == current_layer:
         #     if self.controller.wall.at(layer,column).add_to_wall():
         #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
@@ -211,11 +218,13 @@ class  MainPage(tk.Frame):
             if self.controller.wall.at(layer,column).add_to_wall():
                 self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
 
-
+        self.update_white_brick()
         if not (self.controller.wall.layer_in_progress().num==current_layer):
             #self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
             self.update_arrows(self.controller.wall.layer_in_progress().num)
 
+        if self.controller.wall.is_filled_up():
+            self.order.set("FINISHED")
 
 
     #############
