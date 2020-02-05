@@ -39,7 +39,7 @@ class Ihm(tk.Tk):
         self.layer_number=3
 
         self.frames = {}
-        for F in (StartPage, MainPage, Parameter): # ADD PAGE HERE
+        for F in (StartPage, MainPage, Settings): # ADD PAGE HERE
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -81,7 +81,7 @@ class StartPage(tk.Frame):
         label.pack()
         button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,
                             command=self.startBuild)
-        button2 = tk.Button(self,font=(None,10,'bold'),image = img_p,command=lambda: controller.show_frame("Parameter"))
+        button2 = tk.Button(self,font=(None,10,'bold'),image = img_p,command=lambda: controller.show_frame("Settings"))
         button2.image=img_p
         button1.place(relx=.5, rely=.5, anchor="c")
         button2.place(relx=1.,anchor="ne",bordermode="outside")
@@ -188,6 +188,8 @@ class  MainPage(tk.Frame):
                 self.arrows[abs(layer-(self.layer_number-1))][0].config(text="")
                 self.arrows[abs(layer-(self.layer_number-1))][1].config(text="")
 
+        # + update text
+
     #############
     def colorate_current_layer(self,layer):
 
@@ -219,13 +221,13 @@ class  MainPage(tk.Frame):
 
 
 #=======================
-class Parameter(tk.Frame):
+class Settings(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.grid()
-        self.title = tk.Label(self,text="Parameters",font=(None,40,'bold'),anchor="n",pady=15)
+        self.title = tk.Label(self,text="Settings",font=(None,40,'bold'),anchor="n",pady=15)
         self.title.grid(row=0,column=0,columnspan=2,sticky='NSEW')
         self.grid_rowconfigure(0,weight=2)
         self.label_layer = tk.Label(self,text="Number of layer : ",font=(None,20),anchor="n",pady=15)

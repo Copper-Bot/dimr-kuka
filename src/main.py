@@ -62,10 +62,12 @@ def main():
     wall = Wall(feeders)
 
 
-    app = Ihm(feeders)
+    app = Ihm()
     app.title("DIMR KUKA")
     app.geometry('800x500')
     app.mainloop()
+
+
 
 
 if __name__ == '__main__':
