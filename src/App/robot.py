@@ -25,7 +25,6 @@ from Domain.feeder import Feeder
 
 class Robot(object):
     def __init__(self, wall):
-        self.wall = wall
         self.init_pose = Pose()
         self.current_pose = Pose()
 
@@ -52,16 +51,24 @@ class Robot(object):
     def take_brick_from_wall(self, brick):
         #TODO : check if the brick can be taken
 
-        #cartesianly lift the brick up of z += 0.1 m (brick.height?)
+        #place the effector in front of the brick to take in the wall
         target_pose = Pose()
-        self.target_pose.position.x = brick.placing_pose.position.x
-        self.target_pose.position.y = brick.placing_pose.position.y
-        self.target_pose.position.z = brick.placing_pose.position.z + brick.height
-        self.target_pose.orientation.x = brick.placing_pose.orientation.x
-        self.target_pose.orientation.y = brick.placing_pose.orientation.y
-        self.target_pose.orientation.z = brick.placing_pose.orientation.z
-        self.target_pose.orientation.w = brick.placing_pose.orientation.w
-        self.cartesian_move_to(target_pose)
+        self.target_pose.position.x = brick.wall_pose.position.x
+        self.target_pose.position.y = brick.wall_pose.position.y - 0.2
+        self.target_pose.position.z = brick.wall_pose.position.z
+        self.target_pose.orientation.x = brick.wall_pose.orientation.x
+        self.target_pose.orientation.y = brick.wall_pose.orientation.y
+        self.target_pose.orientation.z = brick.wall_pose.orientation.z
+        self.target_pose.orientation.w = brick.wall_pose.orientation.w
+        self.move_to(target_pose, False)
+
+        #move the effector forward through the hole in the brick
+        self.cartesian_move_to(brick.wall_pose, False)
+
+        #cartesianly lift the brick up of z += 0.1 m (brick.height?)
+        self.target_pose.position.y = self.current_pose.position.y
+        self.target_pose.position.z = self.current_pose.position.z + brick.height
+        self.cartesian_move_to(target_pose, True)
 
         #cartesianly move the brick backwards of y -= 0.2
         self.target_pose.position.x = self.current_pose.position.x
@@ -71,11 +78,25 @@ class Robot(object):
         self.target_pose.orientation.y = self.current_pose.orientation.y
         self.target_pose.orientation.z = self.current_pose.orientation.z
         self.target_pose.orientation.w = self.current_pose.orientation.w
-        self.cartesian_move_to(target_pose)
+        self.cartesian_move_to(target_pose, True)
 
         #(to skip?) cartesianly move the brick down of z -= (num_layer + 1)*brick.height
 
     def take_brick_from_feeder(self, brick):
+        #cartesianly move the brick down of z -= brick.feeder.brick_count*brick.height
+        self.cartesian_move_to(brick.feeder.pose, True)
+        
+        #cartesianly move the brick backwards of y -= 0.2
+        self.target_pose.position.x = self.current_pose.position.x
+        self.target_pose.position.y = self.current_pose.position.y - 0.2
+        self.target_pose.position.z = self.current_pose.position.z
+        self.target_pose.orientation.x = self.current_pose.orientation.x
+        self.target_pose.orientation.y = self.current_pose.orientation.y
+        self.target_pose.orientation.z = self.current_pose.orientation.z
+        self.target_pose.orientation.w = self.current_pose.orientation.w
+        self.cartesian_move_to(target_pose, True)
+
+        
 
     def place_brick_in_wall(self, brick):
 
@@ -93,11 +114,11 @@ class Robot(object):
         #cartesianly move the brick down of z -= brick.feeder.brick_count*brick.height
         self.cartesian_move_to(brick.feeder.pose)
 
-    def cartesian_move_to(self, pose):
+    def cartesian_move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         self.update_current_pose(pose)
 
-    def move_to(self, pose):
+    def move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         self.update_current_pose(pose)
 
@@ -123,8 +144,6 @@ class Robot(object):
     
     def update_environment():
         #TODO : update class métiers
-
-
 
 
 
