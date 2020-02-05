@@ -83,7 +83,15 @@ class Robot(object):
         #(to skip?) cartesianly move the brick down of z -= (num_layer + 1)*brick.height
 
     def take_brick_from_feeder(self, brick):
-        #cartesianly move the brick down of z -= brick.feeder.brick_count*brick.height
+        #cartesianly move the brick down of z += brick.feeder.brick_count*brick.height
+        target_pose = Pose()
+        self.target_pose.position.x = self.current_pose.position.x
+        self.target_pose.position.y = self.current_pose.position.y - 0.2
+        self.target_pose.position.z = self.current_pose.position.z
+        self.target_pose.orientation.x = self.current_pose.orientation.x
+        self.target_pose.orientation.y = self.current_pose.orientation.y
+        self.target_pose.orientation.z = self.current_pose.orientation.z
+        self.target_pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(brick.feeder.pose, True)
         
         #cartesianly move the brick backwards of y -= 0.2
