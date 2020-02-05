@@ -22,7 +22,7 @@ class Type(Enum):
     #brick's width
     small = 0.09
     big = 0.18
-        
+
 class Brick(object):
     #static properties for all Brick's instances
     def __init__(self,type,layer,column):
@@ -47,7 +47,7 @@ class Brick(object):
         self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
-    
+
     def find_right_feeder(self, feeders):
         #put the brick in the right feeder and attribute its corresponding taking pose
         r = 0
@@ -68,7 +68,7 @@ class Brick(object):
                     self.set_feeder_pose(feeder.pose)
             r += 1
         print 'feeder found : {0} --> feeder capacity : {1}'.format(feeder_found,self.feeder.brick_capacity)
-    
+
     def set_feeder_pose(self,pose):
         self.feeder_pose.position.x = pose.position.x
         self.feeder_pose.position.y = pose.position.y
@@ -82,16 +82,19 @@ class Brick(object):
         if(self.is_placed == False):
             self.is_placed = True
             self.feeder.remove_brick()
+            return True
         else:
             print("The brick is already in the wall")
-    
+            return False
+
+
     def remove_from_wall(self):
         if(self.is_placed == True):
             self.is_placed = False
             self.move_to_feeder()
         else:
             print("The brick isn't placed in the wall")
-    
+
     def move_to_feeder(self):
         if(self.feeder != None):
             n = self.feeder.brick_count + 1
@@ -103,7 +106,7 @@ class Brick(object):
             self.feeder_pose.orientation.z = self.feeder.pose.orientation.z
             self.feeder_pose.orientation.w = self.feeder.pose.orientation.w
             self.feeder.add_brick(self)
-    
+
     def to_string(self):
         print "Brick number : {0}".format(self.num_column)
         if(self.feeder != None):

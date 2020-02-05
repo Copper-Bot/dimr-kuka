@@ -187,7 +187,7 @@ class  MainPage(tk.Frame):
                 self.arrows[abs(layer-(self.layer_number-1))][0].config(text="")
                 self.arrows[abs(layer-(self.layer_number-1))][1].config(text="")
 
-        # + update text
+        self.order.set("Click on a brick to fill the layer number {}".format(current_layer+1))
 
     #############
     def colorate_current_layer(self,layer):
@@ -198,9 +198,17 @@ class  MainPage(tk.Frame):
 
     #############
     def select_brick(self, layer, column):
+        current_layer=self.controller.wall.layer_in_progress().num
         print(layer,column)
-        if layer == self.current_layer:
-            self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+        print("test",current_layer)
+        if layer == current_layer:
+            if self.controller.wall.at(layer,column).add_to_wall():
+                self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+        if not (self.controller.wall.layer_in_progress().num==current_layer):
+            self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
+            self.update_arrows(self.controller.wall.layer_in_progress().num)
+
+
 
     #############
     def destroy(self):
