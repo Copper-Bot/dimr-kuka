@@ -74,7 +74,9 @@ class Wall(object):
 
     def check_add_brick(self, brick):
         check = True
-        if(brick.num_layer > 0):
+        if(brick.is_placed == True):
+            check = False
+        elif(brick.num_layer > 0):
             if(brick.num_layer % 2 == 0): #if the layer is even
                 brick_under_1 = self.at(brick.num_layer - 1, brick.num_column)
                 brick_under_2 = self.at(brick.num_layer - 1, brick.num_column + 1)
@@ -95,22 +97,24 @@ class Wall(object):
 
     def check_remove_brick(self, brick):
         check = True
-        if(brick.num_layer < layer_number):
+        if(brick.is_placed == False):
+            check = False
+        elif(brick.num_layer < layer_number):
             if(brick.num_layer % 2 == 0): #if the layer is even
                 brick_under_1 = self.at(brick.num_layer + 1, brick.num_column)
                 brick_under_2 = self.at(brick.num_layer + 1, brick.num_column + 1)
-                check = brick_under_1.is_placed and brick_under_2.is_placed
+                check = not(brick_under_1.is_placed) and not(brick_under_2.is_placed)
             else: #if layer is odd
                 if(brick.num_column == 0):
                     brick_under = self.at(brick.num_layer + 1, brick.num_column)
-                    check = brick_under.is_placed
+                    check = not(brick_under.is_placed)
                 elif(brick.num_column == self.column_number):
                     brick_under = self.at(brick.num_layer + 1, brick.num_column - 1)
-                    check = brick_under.is_placed
+                    check = not(brick_under.is_placed)
                 else:
                     brick_under_1 = self.at(brick.num_layer + 1, brick.num_column - 1)
                     brick_under_2 = self.at(brick.num_layer + 1, brick.num_column)
-                    check = brick_under_1.is_placed and brick_under_2.is_placed
+                    check = not(brick_under_1.is_placed) and not(brick_under_2.is_placed)
         return check
 
     def is_empty(self):
