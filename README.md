@@ -9,8 +9,17 @@ Ce répertoire contient l'ensemble des fichiers nécessaire à l'utilisation du 
 
 Avant de construire le workspace, vous devez poseder sur votre machine linux :
 
-* Python 2.7
-* ROS Melodic
+* [Python 2.7](https://stackoverflow.com/a/59632121)
+* [ROS Melodic **Desktop-Full**](https://wiki.ros.org/melodic/Installation/Ubuntu)
+* [ROS Moveit](https://moveit.ros.org/install/)
+
+Vérifier que votre installation soit propre avant de continuer :
+
+```
+sudo apt update
+sudo apt upgrade
+sudo apt autoremove
+```
 
 
 
