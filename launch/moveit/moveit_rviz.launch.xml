@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+  <!-- ========================================================================================== -->
+  <!-- Fichier originellement créé par gavanderhoorn, source github :                             -->
+  <!-- https://github.com/gavanderhoorn/kuka_experimental/tree/kr6r900sixx_moveit_rsi_convenience -->
+  <!-- Modifié par le groupe dimr-kuka :                                                          -->
+  <!--   * Maj pour ROS Melodic                                                                   -->
+  <!--   * Lancement direct via notre repo git (voir aussi dossier "config/")                     -->
+  <!--   * Utilisation du strict nécessaire pour le projet                                        -->
+  <!--   * utilisation du simulateur RSI et non de "industrial_robot_simulator"                   -->
+  <!-- ========================================================================================== -->
+
+
+  <arg name="debug" default="false" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+  <arg name="config" default="false" />
+  <arg unless="$(arg config)" name="command_args" value="" />
+  <arg     if="$(arg config)" name="command_args" value="-d $(find dimr-kuka)/launch/moveit/moveit.rviz" />
+  
+  <node name="$(anon rviz)" launch-prefix="$(arg launch_prefix)" pkg="rviz" type="rviz" respawn="false"
+	args="$(arg command_args)" output="screen">
+    <rosparam command="load" file="$(find dimr-kuka)/config/kinematics.yaml"/>
+  </node>
+
+</launch>

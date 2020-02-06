@@ -77,13 +77,17 @@ class StartPage(tk.Frame):
         img_param.thumbnail((50,50), Image.ANTIALIAS)
         img_p = ImageTk.PhotoImage(img_param)
 
-        button1 = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,command=self.start_building)
-        button1.place(relx=.5, rely=.5, anchor="c")
+        btn_start = tk.Button(self, text="START THE BUILDING",font=(None,14,'bold'),fg='black',height=3, width=30,command=self.start_building)
+        btn_start.place(relx=.5, rely=.5, anchor="c")
 
-        button2 = tk.Button(self,font=(None,10,'bold'),image = img_p,command=lambda: controller.show_frame("Settings"))
-        button2.image=img_p
-        button2.place(relx=1.,anchor="ne",bordermode="outside")
+        btn_settings = tk.Button(self,font=(None,10,'bold'),image = img_p,command=self.go_settings)
+        btn_settings.image=img_p
+        btn_settings.place(relx=1.,anchor="ne",bordermode="outside")
 
+    ############
+    def go_settings(self):
+        self.controller.show_frame("Settings")
+    ############
     def start_building(self):
         self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
         self.controller.show_frame("MainPage")
@@ -272,9 +276,9 @@ class Settings(tk.Frame):
         self.brick_slider.grid(row=2,column=1,sticky='NSEW',padx=50)
         self.brick_slider.set(4)
 
-        self.button = tk.Button(self, text="OK",font=(None,17),bg="DarkSeaGreen1", command=self.update_values)
+        self.btn_validate = tk.Button(self, text="OK",font=(None,17),bg="DarkSeaGreen1", command=self.update_values)
         self.grid_rowconfigure(3,weight=1)
-        self.button.grid(row=3,column=0,columnspan=2,sticky='NSEW')
+        self.btn_validate.grid(row=3,column=0,columnspan=2,sticky='NSEW')
 
     def update_values(self):
         self.controller.layer_number=self.layer_slider.get()
