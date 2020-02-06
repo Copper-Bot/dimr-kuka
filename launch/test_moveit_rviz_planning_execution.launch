@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-    <!-- début d'un Launch file générale avec:
-	moveit, rviz, et interface avec le kuka
-    -->
+    <!-- ========================================================================================== -->
+    <!-- Launchfile de test générale pour utiliser moevit, rviz, et le simulateur RSI kuka.         -->
+    <!-- Les fichiers moveit ont été originellement créé par gavanderhoorn, source github :         -->
+    <!-- https://github.com/gavanderhoorn/kuka_experimental/tree/kr6r900sixx_moveit_rsi_convenience -->
+    <!-- Ils  ont été modifiés dans le cadre de ce projet DIMR, voir dossier "moveit/"              -->
+    <!-- Théoriquement, si RSI fonctionne sur le krc4, une connexion direct peut être établie       -->
+    <!-- avec la commande suivante, en utilisant le package moveit pour la planification de traj:   --> 
+    <!-- roslaunch dimr-kuka test_moveit_rviz_planning_execution.launch sim:=false                  -->
+    <!-- ========================================================================================== -->
 
 
     <!-- ======================================== -->
