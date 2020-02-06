@@ -1,0 +1,13 @@
+<launch>
+
+  <!-- ========================================================================================== -->
+  <!-- Fichier originellement créé par gavanderhoorn, source github :                             -->
+  <!-- https://github.com/gavanderhoorn/kuka_experimental/tree/kr6r900sixx_moveit_rsi_convenience -->
+  <!-- Modifié par le groupe dimr-kuka :                                                          -->
+  <!--   * Maj pour ROS Melodic                                                                   -->
+  <!--   * Lancement direct via notre repo git (voir aussi dossier "config/")                     -->
+  <!--   * Utilisation du strict nécessaire pour le projet                                        -->
+  <!--   * utilisation du simulateur RSI et non de "industrial_robot_simulator"                   -->
+  <!-- ========================================================================================== -->
+
+</launch>

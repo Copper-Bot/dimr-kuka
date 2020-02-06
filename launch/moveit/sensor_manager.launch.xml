@@ -1,0 +1,25 @@
+<launch>
+
+  <!-- ========================================================================================== -->
+  <!-- Fichier originellement créé par gavanderhoorn, source github :                             -->
+  <!-- https://github.com/gavanderhoorn/kuka_experimental/tree/kr6r900sixx_moveit_rsi_convenience -->
+  <!-- Modifié par le groupe dimr-kuka :                                                          -->
+  <!--   * Maj pour ROS Melodic                                                                   -->
+  <!--   * Lancement direct via notre repo git (voir aussi dossier "config/")                     -->
+  <!--   * Utilisation du strict nécessaire pour le projet                                        -->
+  <!--   * utilisation du simulateur RSI et non de "industrial_robot_simulator"                   -->
+  <!-- ========================================================================================== -->
+
+
+  <!-- This file makes it easy to include the settings for sensor managers -->  
+
+  <!-- Params for the octomap monitor -->
+  <!--  <param name="octomap_frame" type="string" value="some frame in which the robot moves" /> -->
+  <param name="octomap_resolution" type="double" value="0.025" />
+  <param name="max_range" type="double" value="5.0" />
+
+  <!-- Load the robot specific sensor manager; this sets the moveit_sensor_manager ROS parameter -->
+  <arg name="moveit_sensor_manager" default="kuka_kr6r900sixx" />
+  <include file="$(find dimr-kuka)/launch/moveit/$(arg moveit_sensor_manager)_moveit_sensor_manager.launch.xml" />
+  
+</launch>

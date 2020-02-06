@@ -60,6 +60,5 @@ echo "source ~/dimr_kuka_ws/devel/setup.bash" >> ~/.bashrc
 Pour vérifier l'installation, redémarrer votre terminal, et tapez la commande suivante :
 
 ```
-roslaunch dimr-kuka test_kr6r900sixx_rviz.launch
+roslaunch dimr-kuka test_moveit_rviz_planning_execution.launch sim:=true
 ```
-
