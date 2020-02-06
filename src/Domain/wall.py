@@ -27,7 +27,6 @@ class Wall(object):
         self.sb_number = 0
         self.compute_nb_bricks()
         self.layers = [None]*layer_number
-        self.is_finished = False
         self.fill()
         self.fill_feeders(feeders)
 

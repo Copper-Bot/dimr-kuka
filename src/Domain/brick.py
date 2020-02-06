@@ -91,11 +91,11 @@ class Brick(object):
     def remove_from_wall(self):
         if(self.is_placed == True):
             self.is_placed = False
-            self.move_to_feeder()
+            self.add_to_feeder()
         else:
             print("The brick isn't placed in the wall")
 
-    def move_to_feeder(self):
+    def add_to_feeder(self):
         if(self.feeder != None):
             n = self.feeder.brick_count + 1
             self.feeder_pose.position.x = self.feeder.pose.position.x

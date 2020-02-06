@@ -48,8 +48,10 @@ class Feeder(object):
         if(not self.is_empty()):
             self.brick_count -= 1
             self.bricks.pop(0)
+            return True
         else:
             print("Feeder is already empty")
+            return False
 
     def is_empty(self):
         return self.brick_count == 0
