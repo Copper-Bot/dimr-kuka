@@ -68,7 +68,7 @@ class Robot(object):
         self.init_pose.orientation.y = pose.orientation.y
         self.init_pose.orientation.z = pose.orientation.z
         self.init_pose.orientation.w = pose.orientation.w
-    
+
     def take_brick_from_wall(self, brick):
         #TODO : check if the brick can be taken
 
@@ -132,7 +132,7 @@ class Robot(object):
         target_pose.orientation.z = self.current_pose.orientation.z
         target_pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose, True)
-        
+
 
     def place_brick_in_wall(self, brick):
         #cartesianly move the brick forward of y += 0.2
@@ -246,7 +246,7 @@ class Robot(object):
         #2 cases : brick is in the feeder ou brick is in the wall
         self.is_busy = True
         if(brick.is_placed): #the brick is in the wall
-            
+
             self.take_brick_from_wall(brick)
 
             #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
@@ -261,8 +261,8 @@ class Robot(object):
             self.move_to(self,target_pose, True)
 
             self.place_brick_in_feeder(brick)
-            
-            #update the wall object 
+
+            #update the wall object
             brick.remove_from_wall()
         else:
             self.take_brick_from_feeder(brick.wall_pose)

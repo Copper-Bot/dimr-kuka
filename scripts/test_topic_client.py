@@ -18,17 +18,18 @@ from cv_bridge import CvBridge, CvBridgeError
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
-from dimr_kuka.srv import SendToolTo,SendToolToRequest,SendToolToResponse
+from dimr_kuka.msg import DimrControl
 
 
 if __name__ == '__main__':
 
-    rospy.init_node("test_service_client", anonymous=True)
-    rospy.wait_for_service('kuka_bridge_service')
+    pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
 
-    send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
+    rospy.init_node("test_topic_client", anonymous=True)
 
-    rospy.loginfo("Beginning calling service ...")
+
+
+    rospy.loginfo("Beginning publishing to kuka bridge ...")
 
 
     # On créé notre message à envoyer
@@ -38,15 +39,13 @@ if __name__ == '__main__':
     pose_goal.orientation.z = 0.0
     pose_goal.orientation.w = 0.0
     pose_goal.position.x = 0.5
-    pose_goal.position.y = 0.45
+    pose_goal.position.y = -0.45
     pose_goal.position.z = 0.1
 
-    test = SendToolToRequest()
+    test = DimrControl()
     test.brick_pose = pose_goal
 
-    resp = send_tool_to.call(test)
-
-    rospy.loginfo(resp.success.data)
+    pub.publish(test)
 
     rospy.loginfo("Stopped manipulation")
 

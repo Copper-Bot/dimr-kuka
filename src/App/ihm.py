@@ -20,6 +20,9 @@ except ImportError:
     import tkinter as tk
     from tkinter import font  as tkfont
 
+import rospy
+import geometry_msgs.msg
+from dimr_kuka.msg import DimrControl
 from PIL import Image, ImageTk
 from Domain.wall import Wall
 
@@ -38,6 +41,13 @@ class Ihm(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
         self.column_number=4  # we can access from all frame with "self.controller.column_number"
         self.layer_number=3   # "self.controller.layer_number"
+
+        rospy.init_node("ihm_node", anonymous=True)
+        # rospy.wait_for_service('kuka_bridge_service')
+        #
+        # self.send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
+        self.dimr_pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
+        self.flag = 1
 
         self.frames = {}
         for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
@@ -214,37 +224,65 @@ class  MainPage(tk.Frame):
 
     #############
     def select_brick(self, layer, column):
-        current_layer=self.controller.wall.layer_in_progress().num
-        brick=self.controller.wall.at(layer,column)
-        print(layer,column)
-        # if layer == current_layer:
-        #     if self.controller.wall.at(layer,column).add_to_wall():
-        #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
-        if self.controller.wall.check_add_brick(brick):
-            if self.controller.wall.at(layer,column).add_to_wall():
-                self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
 
-        self.update_white_brick()
-        if not (self.controller.wall.layer_in_progress().num==current_layer):
-            #self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
-            self.update_arrows(self.controller.wall.layer_in_progress().num)
+        print(rospy.get_param("/kuka/busy"))
+        if not (rospy.get_param("/kuka/busy")):
 
-        if self.controller.wall.is_filled_up():
-            self.order.set("FINISHED")
+            current_layer=self.controller.wall.layer_in_progress().num
+            brick=self.controller.wall.at(layer,column)
+            print(layer,column)
+            # if layer == current_layer:
+            #     if self.controller.wall.at(layer,column).add_to_wall():
+            #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+            if self.controller.wall.check_add_brick(brick):
+                if self.controller.wall.at(layer,column).add_to_wall():
+
+                    self.order.set("Pose in progress")
+                    self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_brick)
+
+
+                    # ROS PART:
+                    pose_goal = geometry_msgs.msg.Pose()
+                    pose_goal.orientation.x = 0.0
+                    pose_goal.orientation.y = 1.0
+                    pose_goal.orientation.z = 0.0
+                    pose_goal.orientation.w = 0.0
+                    pose_goal.position.x = 0.5
+                    pose_goal.position.y = self.controller.flag * 0.45
+                    pose_goal.position.z = 0.1
+
+                    test = DimrControl()
+                    test.brick_pose = pose_goal
+
+                    self.controller.dimr_pub.publish(test)
+
+                    self.controller.flag = self.controller.flag * (-1)
+                    # self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+                    # self.order.set("Click on a white brick to build the wall")
+
+            self.update_white_brick()
+            if not (self.controller.wall.layer_in_progress().num==current_layer):
+                #self.colorate_current_layer(self.controller.wall.layer_in_progress().num)
+                self.update_arrows(self.controller.wall.layer_in_progress().num)
+
+            if self.controller.wall.is_filled_up():
+                self.order.set("FINISHED")
+
 
 
     #############
     def destroy(self):
-        print("destroying the wall")
-        for layer in range(self.layer_number):
-            for column in range(self.column_number+1):
-                if not self.bricks[layer][column]==0:
-                    self.bricks[layer][column].config(bg=self.color_init)
+        if not rospy.get_param("/kuka/busy"):
+            print("destroying the wall")
+            for layer in range(self.layer_number):
+                for column in range(self.column_number+1):
+                    if not self.bricks[layer][column]==0:
+                        self.bricks[layer][column].config(bg=self.color_init)
 
-        self.colorate_current_layer(0)
-        self.controller.wall.destroy()
-        self.update_arrows(self.current_layer)
-        print("destroy done")
+            self.colorate_current_layer(0)
+            self.controller.wall.destroy()
+            self.update_arrows(self.current_layer)
+            print("destroy done")
 
 
 
