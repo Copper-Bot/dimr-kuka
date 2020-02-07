@@ -115,7 +115,11 @@ class  MainPage(tk.Frame):
         self.controller=controller
         self.column_number=self.controller.column_number
         self.layer_number=self.controller.layer_number
-
+        self.wait=False
+        self.layer_wait=0
+        self.column_wait=0
+        # self.flag = 1
+        # self.test = DimrControl()
 
     #############
     def initialize(self):
@@ -176,8 +180,8 @@ class  MainPage(tk.Frame):
             for column in range(self.column_number*2):
                 self.grid_columnconfigure(column+first_col_num,weight=1)
 
-        label = tk.Label(self,textvariable=self.order,font=(None,20),fg="DarkOrange2",anchor="center",bg=self.color_init,pady=15)
-        label.grid(row=begin_row+self.layer_number,column=0,columnspan=self.column_number*2+first_col_num+end_col_num,sticky='NSEW')
+        self.label = tk.Label(self,textvariable=self.order,font=(None,20),fg="DarkOrange2",anchor="center",bg=self.color_init,pady=15)
+        self.label.grid(row=begin_row+self.layer_number,column=0,columnspan=self.column_number*2+first_col_num+end_col_num,sticky='NSEW')
         self.grid_rowconfigure(begin_row+self.layer_number,weight=1)
 
         img_bin = Image.open("Images/bin2.png")
@@ -191,6 +195,21 @@ class  MainPage(tk.Frame):
         self.colorate_current_layer(0)
 
 
+    def update_btn(self):
+        # if not (rospy.get_param("/kuka/busy")):
+        if not(self.controller.kuka.is_busy):
+            print("orange")
+            self.wait=False
+            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+            self.order.set("Click on a white brick to build the wall")
+            self.label.config(fg="DarkOrange2")
+        if self.controller.wall.is_filled_up():
+            self.order.set("FINISHED")
+            self.label.config(fg="green")
+        if self.wait:
+            print("repasse")
+            self.parent.after(300,self.update_btn)
+
 
     #############
     def update_arrows(self,current_layer):
@@ -203,7 +222,8 @@ class  MainPage(tk.Frame):
                 self.arrows[abs(layer-(self.layer_number-1))][1].config(text="")
 
         #self.order.set("Click on a brick to fill the layer number {}".format(current_layer+1))
-        self.order.set("Click on a white brick to build the wall")
+        #self.order.set("Click on a white brick to build the wall")
+        #self.label.config(fg="DarkOrange2")
 
     #############
     def colorate_current_layer(self,layer):
@@ -226,15 +246,19 @@ class  MainPage(tk.Frame):
         if not(self.controller.kuka.is_busy):
             current_layer=self.controller.wall.layer_in_progress().num
             brick=self.controller.wall.at(layer,column)
-            print(layer,column)
+            #print(layer,column)
             # if layer == current_layer:
             #     if self.controller.wall.at(layer,column).add_to_wall():
             #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
             if self.controller.wall.check_add_brick(brick):
                 if self.controller.wall.at(layer,column).add_to_wall():
-
+                    rospy.set_param("/kuka/busy",True)
+                    self.layer_wait=abs(layer-(self.layer_number-1))
+                    self.column_wait=column
+                    self.wait=True
                     self.order.set("Pose in progress")
-                    self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_brick)
+                    self.label.config(fg="green")
+                    self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_brick)
 
 
                     # ROS PART: test
@@ -244,7 +268,7 @@ class  MainPage(tk.Frame):
                     # pose_goal.orientation.z = 0.0
                     # pose_goal.orientation.w = 0.0
                     # pose_goal.position.x = 0.5
-                    # pose_goal.position.y = self.controller.flag * 0.45
+                    # pose_goal.position.y = self.flag * 0.45
                     # pose_goal.position.z = 0.1
                     
                     #===============================================================
@@ -257,8 +281,8 @@ class  MainPage(tk.Frame):
                     # self.controller.dimr_pub.publish(msg)
                     #===============================================================
 
-                    # self.controller.flag = self.controller.flag * (-1)
-
+                    # self.flag = self.flag * (-1)
+                    self.update_btn()
                     # self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
                     # self.order.set("Click on a white brick to build the wall")
 
@@ -284,7 +308,8 @@ class  MainPage(tk.Frame):
                 for column in range(self.column_number+1):
                     if not self.bricks[layer][column]==0:
                         self.bricks[layer][column].config(bg=self.color_init)
-
+            self.order.set("Click on a white brick to build the wall")
+            self.label.config(fg="DarkOrange2")
             self.colorate_current_layer(0)
             self.controller.wall.destroy()
             self.update_arrows(self.current_layer)
