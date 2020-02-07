@@ -20,6 +20,9 @@ except ImportError:
     import tkinter as tk
     from tkinter import font  as tkfont
 
+import rospy
+import geometry_msgs.msg
+from dimr_kuka.srv import SendToolTo,SendToolToRequest,SendToolToResponse
 from PIL import Image, ImageTk
 from Domain.wall import Wall
 
@@ -37,6 +40,12 @@ class Ihm(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
         self.column_number=4  # we can access from all frame with "self.controller.column_number"
         self.layer_number=3   # "self.controller.layer_number"
+
+        rospy.init_node("ihm_node", anonymous=True)
+        rospy.wait_for_service('kuka_bridge_service')
+
+        self.send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
+        self.flag = 1
 
         self.frames = {}
         for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
@@ -221,6 +230,24 @@ class  MainPage(tk.Frame):
         if self.controller.wall.check_add_brick(brick):
             if self.controller.wall.at(layer,column).add_to_wall():
                 self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+
+                # ROS PART:
+                pose_goal = geometry_msgs.msg.Pose()
+                pose_goal.orientation.x = 0.0
+                pose_goal.orientation.y = 1.0
+                pose_goal.orientation.z = 0.0
+                pose_goal.orientation.w = 0.0
+                pose_goal.position.x = 0.5
+                pose_goal.position.y = self.controller.flag * 0.45
+                pose_goal.position.z = 0.1
+
+                test = SendToolToRequest()
+                test.brick_pose = pose_goal
+
+                resp = self.controller.send_tool_to.call(test)
+
+                self.controller.flag = self.controller.flag * (-1)
+
 
         self.update_white_brick()
         if not (self.controller.wall.layer_in_progress().num==current_layer):

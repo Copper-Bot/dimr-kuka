@@ -23,7 +23,6 @@ from dimr_kuka.srv import SendToolTo,SendToolToRequest,SendToolToResponse
 
 if __name__ == '__main__':
 
-    moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("test_service_client", anonymous=True)
     rospy.wait_for_service('kuka_bridge_service')
 
