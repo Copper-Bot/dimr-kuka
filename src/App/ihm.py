@@ -31,6 +31,7 @@ class Ihm(tk.Tk):
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
         # will be raised above the others
+        self.kuka = None
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -92,7 +93,8 @@ class StartPage(tk.Frame):
         self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
         self.controller.show_frame("MainPage")
         self.controller.wall = Wall(self.controller.feeders, self.controller.layer_number, self.controller.column_number)
-        self.controller.wall.to_string() # easy debug
+        # self.controller.wall.to_string() # easy debug
+        self.controller.kuka = Robot(self.controller.feeders,self.controller.wall)
 
 
 #=======================

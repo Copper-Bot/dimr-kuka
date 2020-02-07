@@ -15,13 +15,21 @@ from geometry_msgs.msg import Pose, PoseStamped
 from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
+from brick import Type
 
 class Feeder(object):
-    def __init__(self,brick_capacity, brick_type, pose):
+    def __init__(self,id, brick_capacity, brick_type, pose):
+        self.id = id
         self.brick_capacity = brick_capacity
         self.brick_count = 0
         self.brick_type = brick_type.name
         #coordinate of the feeder in the base frame (middle point of the bottom brick of the feeder)
+        self.height = 0.6
+        if(self.brick_type == Type.big.name):
+            self.width = 0.2
+        else:
+            self.width = 0.11
+        self.depth = 0.12
         self.pose = pose
         self.bricks = []
 
