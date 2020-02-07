@@ -23,8 +23,10 @@ from Domain.feeder import Feeder
 class Robot(object):
     # def __init__(self, feeders, wall):
     def __init__(self, feeders):
-        self.init_pose = Pose()
-        self.current_pose = Pose()
+        self.init_pose = PoseStamped()
+        self.init_pose.header.frame_id = "base"
+        self.current_pose = PoseStamped()
+        self.current_pose.header.frame_id = "base"
         self.is_busy = False #robot state to publish on rostopic
         self.feeders = feeders
         # self.wall = wall 
@@ -38,7 +40,7 @@ class Robot(object):
         self.scene = moveit_commander.PlanningSceneInterface()
 
         group_name = "manipulator"
-        move_group = moveit_commander.MoveGroupCommander(group_name)
+        self.move_group = moveit_commander.MoveGroupCommander(group_name)
 
         # display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path', moveit_msgs.msg.DisplayTrajectory, queue_size=20)
         self.tfb = tf.TransformBroadcaster() 
@@ -63,157 +65,186 @@ class Robot(object):
     def initialize_effector(self):
         self.is_busy = True
         #TODO define the initial pose of the robot's effector
-        self.init_pose.position.x = 0
-        self.init_pose.position.y = 0.6
-        self.init_pose.position.z = 0.4
-        self.init_pose.orientation.x = 0
-        self.init_pose.orientation.y = 0
-        self.init_pose.orientation.z = 0
-        self.init_pose.orientation.w = 1
+        self.init_pose.pose.position.x = 0
+        self.init_pose.pose.position.y = 0.6
+        self.init_pose.pose.position.z = 0.4
+        self.init_pose.pose.orientation.x = 0
+        self.init_pose.pose.orientation.y = 0
+        self.init_pose.pose.orientation.z = 0
+        self.init_pose.pose.orientation.w = 1
         self.move_to(init_pose, False)
         self.is_busy = False
 
-    def update_current_pose(self, pose):
-        self.init_pose.position.x = pose.position.x
-        self.init_pose.position.y = pose.position.y
-        self.init_pose.position.z = pose.position.z
-        self.init_pose.orientation.x = pose.orientation.x
-        self.init_pose.orientation.y = pose.orientation.y
-        self.init_pose.orientation.z = pose.orientation.z
-        self.init_pose.orientation.w = pose.orientation.w
+    def update_current_pose(self, poseS):
+        self.init_pose.pose.position.x = poseS.pose.position.x
+        self.init_pose.pose.position.y = poseS.pose.position.y
+        self.init_pose.pose.position.z = poseS.pose.position.z
+        self.init_pose.pose.orientation.x = poseS.pose.orientation.x
+        self.init_pose.pose.orientation.y = poseS.pose.orientation.y
+        self.init_pose.pose.orientation.z = poseS.pose.orientation.z
+        self.init_pose.pose.orientation.w = poseS.pose.orientation.w
 
     def take_brick_from_wall(self, brick):
         #TODO : check if the brick can be taken
 
         #place the effector in front of the brick to take in the wall
-        target_pose = Pose()
-        target_pose.position.x = brick.wall_pose.position.x
-        target_pose.position.y = brick.wall_pose.position.y - 0.2
-        target_pose.position.z = brick.wall_pose.position.z
-        target_pose.orientation.x = brick.wall_pose.orientation.x
-        target_pose.orientation.y = brick.wall_pose.orientation.y
-        target_pose.orientation.z = brick.wall_pose.orientation.z
-        target_pose.orientation.w = brick.wall_pose.orientation.w
+        target_pose = PoseStamped()
+        target_pose.header.frame_id = "base"
+        target_pose.pose.position.x = brick.wall_pose.position.x
+        target_pose.pose.position.y = brick.wall_pose.position.y - 0.2
+        target_pose.pose.position.z = brick.wall_pose.position.z
+        target_pose.pose.orientation.x = brick.wall_pose.orientation.x
+        target_pose.pose.orientation.y = brick.wall_pose.orientation.y
+        target_pose.pose.orientation.z = brick.wall_pose.orientation.z
+        target_pose.pose.orientation.w = brick.wall_pose.orientation.w
         self.move_to(target_pose, False)
 
         #move the effector forward through the hole in the brick
-        self.cartesian_move_to(brick.wall_pose, False)
+        target_pose.pose.position.y = brick.wall_pose.position.y
+        self.cartesian_move_to(target_pose, False)
 
         #cartesianly lift the brick up of z += 0.1 m (brick.height?)
-        target_pose.position.y = self.current_pose.position.y
-        target_pose.position.z = self.current_pose.position.z + brick.height
+        target_pose.pose.position.y = self.current_pose.pose.position.y
+        target_pose.pose.position.z = self.current_pose.pose.position.z + brick.height
         self.cartesian_move_to(target_pose, True)
 
         #cartesianly move the brick backward of y -= 0.2
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y - 0.2
-        target_pose.position.z = self.current_pose.position.z
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
+        target_pose.pose.position.x = self.current_pose.pose.position.x
+        target_pose.pose.position.y = self.current_pose.pose.position.y - 0.2
+        target_pose.pose.position.z = self.current_pose.pose.position.z
+        target_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.pose.orientation.w
         self.cartesian_move_to(target_pose, True)
 
         #(to skip?) cartesianly move the brick down of z -= (num_layer + 1)*brick.height
 
     def take_brick_from_feeder(self, brick):
         #place the end-effector in front of the brick to take
-        target_pose = Pose()
-        target_pose.position.x = brick.feeder.pose.position.x
-        target_pose.position.y = brick.feeder.pose.position.y + 0.2
-        target_pose.position.z = brick.feeder.pose.position.z
-        target_pose.orientation.x = brick.feeder.pose.orientation.x
-        target_pose.orientation.y = brick.feeder.pose.orientation.y
-        target_pose.orientation.z = brick.feeder.pose.orientation.z
-        target_pose.orientation.w = brick.feeder.pose.orientation.w
+        target_pose = PoseStamped()
+        target_pose.header.frame_id = "base"
+        target_pose.pose.position.x = brick.feeder.pose.position.x
+        target_pose.pose.position.y = brick.feeder.pose.position.y + 0.2
+        target_pose.pose.position.z = brick.feeder.pose.position.z
+        target_pose.pose.orientation.x = brick.feeder.pose.orientation.x
+        target_pose.pose.orientation.y = brick.feeder.pose.orientation.y
+        target_pose.pose.orientation.z = brick.feeder.pose.orientation.z
+        target_pose.pose.orientation.w = brick.feeder.pose.orientation.w
         self.move_to(target_pose, False)
 
         #move the effector forward through the hole in the brick
-        self.cartesian_move_to(brick.feeder.pose, True)
+        target_pose.pose.position.y = brick.feeder.pose.position.y
+        self.cartesian_move_to(target_pose, True)
 
         #cartesianly lift the brick up of z += 0.01 m (brick.height?)
-        target_pose.position.y = self.current_pose.position.y
-        target_pose.position.z = self.current_pose.position.z + 0.01
+        target_pose.pose.position.y = self.current_pose.position.y
+        target_pose.pose.position.z = self.current_pose.position.z + 0.01
         self.cartesian_move_to(target_pose, True)
         
         #cartesianly move the brick backward of y += 0.2
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y + 0.2
-        target_pose.position.z = self.current_pose.position.z
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
+        target_pose.pose.position.x = self.current_pose.position.x
+        target_pose.pose.position.y = self.current_pose.position.y + 0.2
+        target_pose.pose.position.z = self.current_pose.position.z
+        target_pose.pose.orientation.x = self.current_pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose, True)
 
 
     def place_brick_in_wall(self, brick):
         #cartesianly move the brick forward of y += 0.2
-        target_pose = Pose()
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y + 0.2
-        target_pose.position.z = self.current_pose.position.z
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
+        target_pose = PoseStamped()
+        target_pose.header.frame_id = "base"
+        target_pose.pose.position.x = self.current_pose.position.x
+        target_pose.pose.position.y = self.current_pose.position.y + 0.2
+        target_pose.pose.position.z = self.current_pose.position.z
+        target_pose.pose.orientation.x = self.current_pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose)
 
         #cartesianly move the brick down of z -= brick.height
-        self.cartesian_move_to(brick.wall_pose)
+        target_pose.pose.position.x = brick.wall_pose.position.x
+        target_pose.pose.position.y = brick.wall_pose.position.y
+        target_pose.pose.position.z = brick.wall_pose.position.z
+        target_pose.pose.orientation.x = brick.wall_pose.orientation.x
+        target_pose.pose.orientation.y = brick.wall_pose.orientation.y
+        target_pose.pose.orientation.z = brick.wall_pose.orientation.z
+        target_pose.pose.orientation.w = brick.wall_pose.orientation.w
+        self.cartesian_move_to(target_pose)
         
         #move the brick down of 0.01m
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y
-        target_pose.position.z = self.current_pose.position.z - 0.01
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
+        target_pose.pose.position.x = self.current_pose.position.x
+        target_pose.pose.position.y = self.current_pose.position.y
+        target_pose.pose.position.z = self.current_pose.position.z - 0.01
+        target_pose.pose.orientation.x = self.current_pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose)
 
         #retract the end-effector
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y - 0.2
-        target_pose.position.z = self.current_pose.position.z 
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
+        target_pose.pose.position.x = self.current_pose.position.x
+        target_pose.pose.position.y = self.current_pose.position.y - 0.2
+        target_pose.pose.position.z = self.current_pose.position.z 
+        target_pose.pose.orientation.x = self.current_pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose)
         
 
     def place_brick_in_feeder(self, brick):
         #cartesianly move the brick backward of y -= 0.2
-        target_pose = Pose()
-        target_pose.position.x = self.current_pose.position.x
-        target_pose.position.y = self.current_pose.position.y - 0.2
-        target_pose.position.z = self.current_pose.position.z
-        target_pose.orientation.x = self.current_pose.orientation.x
-        target_pose.orientation.y = self.current_pose.orientation.y
-        target_pose.orientation.z = self.current_pose.orientation.z
-        target_pose.orientation.w = self.current_pose.orientation.w
-        self.cartesian_move_to(target_pose)
+        target_pose = PoseStamped()
+        target_pose.header.frame_id = "base"
+        target_pose.pose.position.x = self.current_pose.pose.position.x
+        target_pose.pose.position.y = self.current_pose.pose.position.y - 0.2
+        target_pose.pose.position.z = self.current_pose.pose.position.z
+        target_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+        target_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+        target_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+        target_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+        self.cartesian_move_to(target_pose, True)
 
         #cartesianly move the brick down of z -= brick.feeder.brick_count*brick.height
-        self.cartesian_move_to(brick.feeder.pose)
+        target_pose.pose.position.x = brick.feeder.pose.position.x
+        target_pose.pose.position.y = brick.feeder.pose.position.y
+        target_pose.pose.position.z = brick.feeder.pose.position.z
+        target_pose.pose.orientation.x = brick.feeder.pose.orientation.x
+        target_pose.pose.orientation.y = brick.feeder.pose.orientation.y
+        target_pose.pose.orientation.z = brick.feeder.pose.orientation.z
+        target_pose.pose.orientation.w = brick.feeder.pose.orientation.w
+        self.cartesian_move_to(target_pose, True)
 
     def cartesian_move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         target_pose = PoseStamped()
         target_pose.header.frame_id = "base"
-        target_pose.pose.orientation.w = pose.orientation.w
-        target_pose.pose.orientation.x = pose.orientation.x
-        target_pose.pose.orientation.y = pose.orientation.y
-        target_pose.pose.orientation.z = pose.orientation.z
-        target_pose.pose.position.x = pose.position.x
-        target_pose.pose.position.y = pose.position.y
-        target_pose.pose.position.z = pose.position.z
+        target_pose.pose.orientation.w = pose.pose.orientation.w
+        target_pose.pose.orientation.x = pose.pose.orientation.x
+        target_pose.pose.orientation.y = pose.pose.orientation.y
+        target_pose.pose.orientation.z = pose.pose.orientation.z
+        target_pose.pose.position.x = pose.pose.position.x
+        target_pose.pose.position.y = pose.pose.position.y
+        target_pose.pose.position.z = pose.pose.position.z
 
         #starting and ending points of the path
         waypoints = []
-        waypoints.append(self.current_pose)
-        waypoints.append(target_pose)
+        # init_pose = PoseStamped()
+        # init_pose.header.frame_id = "base"
+        # init_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+        # init_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+        # init_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+        # init_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+        # init_pose.pose.position.x = self.current_pose.pose.position.x
+        # init_pose.pose.position.y = self.current_pose.pose.position.y
+        # init_pose.pose.position.z = self.current_pose.pose.position.z
+        waypoints.append(self.current_pose.pose)
+        waypoints.append(pose.pose)
 
         # We want the Cartesian path to be interpolated at a resolution of 1 cm
         # which is why we will specify 0.01 as the eef_step in Cartesian
@@ -229,19 +260,19 @@ class Robot(object):
         #we move the robot :
         self.move_group.execute(plan, wait=True)
 
-        self.update_current_pose(pose)
+        self.update_current_pose(target_pose)
 
     def move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         target_pose = PoseStamped()
         target_pose.header.frame_id = "base"
-        target_pose.pose.orientation.w = pose.orientation.w
-        target_pose.pose.orientation.x = pose.orientation.x
-        target_pose.pose.orientation.y = pose.orientation.y
-        target_pose.pose.orientation.z = pose.orientation.z
-        target_pose.pose.position.x = pose.position.x
-        target_pose.pose.position.y = pose.position.y
-        target_pose.pose.position.z = pose.position.z
+        target_pose.pose.orientation.w = pose.pose.orientation.w
+        target_pose.pose.orientation.x = pose.pose.orientation.x
+        target_pose.pose.orientation.y = pose.pose.orientation.y
+        target_pose.pose.orientation.z = pose.pose.orientation.z
+        target_pose.pose.position.x = pose.pose.position.x
+        target_pose.pose.position.y = pose.pose.position.y
+        target_pose.pose.position.z = pose.pose.position.z
 
         self.move_group.set_pose_target(target_pose)
         plan = self.move_group.go(wait=True)
@@ -257,45 +288,61 @@ class Robot(object):
     # def move_brick_to(self, layer, column):
     #     brick = self.wall.at(layer, column)
     def move_brick_to(self,brick):
-        #2 cases : brick is in the feeder ou brick is in the wall
-        self.is_busy = True
-        if(brick.is_placed): #the brick is in the wall
+        # #2 cases : brick is in the feeder ou brick is in the wall
+        
+        pose_goal = Pose()
+        pose_goal.orientation.x = 0.0
+        pose_goal.orientation.y = 1.0
+        pose_goal.orientation.z = 0.0
+        pose_goal.orientation.w = 0.0
+        pose_goal.position.x = 0.5
+        pose_goal.position.y = -0.45
+        pose_goal.position.z = 0.1
 
-            self.take_brick_from_wall(brick)
+        self.move_group.set_pose_target(pose_goal)
+        plan = self.move_group.go(wait=True)
+        self.move_group.stop()
+        self.move_group.clear_pose_targets()
 
-            #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
-            target_pose = Pose()
-            target_pose.position.x = brick.feeder.pose.position.x
-            target_pose.position.y = brick.feeder.pose.position.y + 0.2
-            target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
-            target_pose.orientation.x = brick.feeder.pose.orientation.x
-            target_pose.orientation.y = brick.feeder.pose.orientation.y
-            target_pose.orientation.z = brick.feeder.pose.orientation.z
-            target_pose.orientation.w = brick.feeder.pose.orientation.w
-            self.move_to(self,target_pose, True)
+        # if(brick.is_placed): #the brick is in the wall
 
-            self.place_brick_in_feeder(brick)
+        #     self.take_brick_from_wall(brick)
 
-            #update the wall object
-            brick.remove_from_wall()
-        else:
-            self.take_brick_from_feeder(brick.wall_pose)
+        #     #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
+        #     target_pose = PoseStamped()
+        #     target_pose.header.frame_id = "base"
+        #     target_pose.pose.position.x = brick.feeder.pose.position.x
+        #     target_pose.pose.position.y = brick.feeder.pose.position.y + 0.2
+        #     target_pose.pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
+        #     target_pose.pose.orientation.x = brick.feeder.pose.orientation.x
+        #     target_pose.pose.orientation.y = brick.feeder.pose.orientation.y
+        #     target_pose.pose.orientation.z = brick.feeder.pose.orientation.z
+        #     target_pose.pose.orientation.w = brick.feeder.pose.orientation.w
+        #     self.move_to(target_pose, True)
 
-            #move the brick to its future location in the wall
-            target_pose = Pose()
-            target_pose.position.x = brick.wall_pose.position.x
-            target_pose.position.y = brick.wall_pose.position.y - 0.2
-            target_pose.position.z = brick.wall_pose.position.z + brick.height
-            target_pose.orientation.x = brick.wall_pose.orientation.x
-            target_pose.orientation.y = brick.wall_pose.orientation.y
-            target_pose.orientation.z = brick.wall_pose.orientation.z
-            target_pose.orientation.w = brick.wall_pose.orientation.w
-            self.move_to(self,target_pose, True)
+        #     self.place_brick_in_feeder(brick)
 
-            self.place_brick_in_wall(brick)
+        #     #update the wall object
+        #     brick.remove_from_wall()
+        # else:
+        #     self.take_brick_from_feeder(brick.wall_pose)
 
-            #update the wall object
-            brick.add_to_wall()
+        #     #move the brick to its future location in the wall
+        #     target_pose = PoseStamped()
+        #     target_pose.header.frame_id = "base"
+        #     target_pose.pose.position.x = brick.wall_pose.position.x
+        #     target_pose.pose.position.y = brick.wall_pose.position.y - 0.2
+        #     target_pose.pose.position.z = brick.wall_pose.position.z + brick.height
+        #     target_pose.pose.orientation.x = brick.wall_pose.orientation.x
+        #     target_pose.pose.orientation.y = brick.wall_pose.orientation.y
+        #     target_pose.pose.orientation.z = brick.wall_pose.orientation.z
+        #     target_pose.pose.orientation.w = brick.wall_pose.orientation.w
+        #     self.move_to(self,target_pose, True)
+
+        #     self.place_brick_in_wall(brick)
+
+        #     #update the wall object
+        #     brick.add_to_wall()
 
         self.is_busy = False 
     
@@ -315,18 +362,18 @@ class Robot(object):
         self.scene.add_box(ground_name, ground_pose, size=(4, 4, 0))
 
         #Feeders in base frame
-        for f in self.feeders:
-            feeder_pose = PoseStamped()
-            feeder_pose.header.frame_id = "base"
-            feeder_pose.pose.orientation.x = f.pose.orientation.x
-            feeder_pose.pose.orientation.y = f.pose.orientation.y
-            feeder_pose.pose.orientation.z = f.pose.orientation.z
-            feeder_pose.pose.orientation.w = f.pose.orientation.w
-            feeder_pose.pose.position.x = f.pose.position.x
-            feeder_pose.pose.position.y = f.pose.position.y
-            feeder_pose.pose.position.z = f.pose.position.z + f.height/2
-            feeder_name = "feeder "+str(f.id)
-            self.scene.add_box(feeder_name, feeder_pose, size=(f.width, f.depth, f.height))
+        # for f in self.feeders:
+        #     feeder_pose = PoseStamped()
+        #     feeder_pose.header.frame_id = "base"
+        #     feeder_pose.pose.orientation.x = f.pose.orientation.x
+        #     feeder_pose.pose.orientation.y = f.pose.orientation.y
+        #     feeder_pose.pose.orientation.z = f.pose.orientation.z
+        #     feeder_pose.pose.orientation.w = f.pose.orientation.w
+        #     feeder_pose.pose.position.x = f.pose.position.x
+        #     feeder_pose.pose.position.y = f.pose.position.y
+        #     feeder_pose.pose.position.z = f.pose.position.z + f.height/2
+        #     feeder_name = "feeder "+str(f.id)
+        #     self.scene.add_box(feeder_name, feeder_pose, size=(f.width, f.depth, f.height))
     
     def add_brick_to_wall(self, brick):
         #Brick in base frame

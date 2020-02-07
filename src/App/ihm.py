@@ -252,7 +252,8 @@ class  MainPage(tk.Frame):
             #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
             if self.controller.wall.check_add_brick(brick):
                 if self.controller.wall.at(layer,column).add_to_wall():
-                    rospy.set_param("/kuka/busy",True)
+                    # rospy.set_param("/kuka/busy",True)
+                    self.controller.kuka.is_busy = True
                     self.layer_wait=abs(layer-(self.layer_number-1))
                     self.column_wait=column
                     self.wait=True
@@ -282,11 +283,11 @@ class  MainPage(tk.Frame):
                     #===============================================================
 
                     # self.flag = self.flag * (-1)
+                    self.controller.kuka.move_brick_to(brick) #BLOQUAAAANT CONNASSE DOU LES TOPICS !!!
                     self.update_btn()
                     # self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
                     # self.order.set("Click on a white brick to build the wall")
 
-                    self.controller.kuka.move_brick_to(brick)
 
 
             self.update_white_brick()
