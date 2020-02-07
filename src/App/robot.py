@@ -16,18 +16,21 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 
-from Domain.wall import Wall
+# from Domain.wall import Wall
 from Domain.feeder import Feeder
+# from dimr_kuka.msg import DimrControl
 
 class Robot(object):
-    def __init__(self, feeders, wall):
+    # def __init__(self, feeders, wall):
+    def __init__(self, feeders):
         self.init_pose = Pose()
         self.current_pose = Pose()
         self.is_busy = False #robot state to publish on rostopic
         self.feeders = feeders
-        self.wall = wall 
+        # self.wall = wall 
 
         moveit_commander.roscpp_initialize(sys.argv)
+        # rospy.init_node("topic_serveur", anonymous=True)
         rospy.init_node("manipulate_kuka", anonymous=True)
         rospy.loginfo("Beginning motion")
 
@@ -41,11 +44,21 @@ class Robot(object):
         self.tfb = tf.TransformBroadcaster() 
         self.tfl = tf.TransformListener()
 
-        rospy.sleep(1) # on attend un peu avant de publier
+        # rospy.sleep(1) # on attend un peu avant de publier
+        # sub = rospy.Subscriber("kuka_bridge", DimrControl, handle_dimrcontrol_message)
+        rospy.sleep(1)
+        rospy.loginfo("topic kuka_bridge subscribed and ready to process")
 
         rospy.loginfo("adding objects")
 
         self.add_objects()
+
+    def handle_dimrcontrol_message(data): #if topic is used to communicate between the interface and Moveit/RViz for robot simulation (on 2 different machines)
+        rospy.loginfo("Message DimrControl has been received.")
+        rospy.set_param("/kuka/busy", True)
+        self.move_brick_to(data.layer, data.column, data.type)
+        rospy.loginfo("finish")
+        rospy.set_param("/kuka/busy", False)
 
     def initialize_effector(self):
         self.is_busy = True
@@ -232,7 +245,7 @@ class Robot(object):
 
         self.move_group.set_pose_target(target_pose)
         plan = self.move_group.go(wait=True)
-        self.move_group.execute(plan, wait=True) #useless ?
+        # self.move_group.execute(plan, wait=True) #useless ?
         # Calling `stop()` ensures that there is no residual movement
         self.move_group.stop()
         # It is always good to clear your targets after planning with poses.
@@ -241,8 +254,9 @@ class Robot(object):
 
         self.update_current_pose(target_pose)
 
-    def move_brick_to(self, layer, column):
-        brick = self.wall.at(layer, column)
+    # def move_brick_to(self, layer, column):
+    #     brick = self.wall.at(layer, column)
+    def move_brick_to(self,brick):
         #2 cases : brick is in the feeder ou brick is in the wall
         self.is_busy = True
         if(brick.is_placed): #the brick is in the wall

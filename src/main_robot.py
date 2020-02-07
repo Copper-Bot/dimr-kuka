@@ -19,7 +19,7 @@ from math import pi
 from Domain.feeder import Feeder
 from Domain.wall import Wall
 from Domain.brick import Type
-from App.ihm import Ihm
+from App.robot import Robot
 
 def main():
      #TODO : input the taking coordinates for the b6 runner
@@ -60,10 +60,7 @@ def main():
 
     feeders = [f1,f2,f3]
 
-    app = Ihm(feeders)
-    app.title("DIMR KUKA")
-    app.geometry('800x500')
-    app.mainloop()
+    kuka = Robot(feeders)
 
 
 

@@ -22,9 +22,10 @@ except ImportError:
 
 import rospy
 import geometry_msgs.msg
-from dimr_kuka.msg import DimrControl
+# from dimr_kuka.msg import DimrControl
 from PIL import Image, ImageTk
 from Domain.wall import Wall
+from robot import Robot
 
 class Ihm(tk.Tk):
     def __init__(self, feeders):
@@ -42,12 +43,9 @@ class Ihm(tk.Tk):
         self.column_number=4  # we can access from all frame with "self.controller.column_number"
         self.layer_number=3   # "self.controller.layer_number"
 
-        rospy.init_node("ihm_node", anonymous=True)
-        # rospy.wait_for_service('kuka_bridge_service')
-        #
-        # self.send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
-        self.dimr_pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
-        self.flag = 1
+        # rospy.init_node("ihm_node", anonymous=True)
+        # self.dimr_pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
+        # self.flag = 1
 
         self.frames = {}
         for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
@@ -103,8 +101,8 @@ class StartPage(tk.Frame):
         self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
         self.controller.show_frame("MainPage")
         self.controller.wall = Wall(self.controller.feeders, self.controller.layer_number, self.controller.column_number)
-        # self.controller.wall.to_string() # easy debug
-        self.controller.kuka = Robot(self.controller.feeders,self.controller.wall)
+        # self.controller.kuka = Robot(self.controller.feeders,self.controller.wall)
+        self.controller.kuka = Robot(self.controller.feeders)
 
 
 #=======================
@@ -224,10 +222,8 @@ class  MainPage(tk.Frame):
 
     #############
     def select_brick(self, layer, column):
-
-        print(rospy.get_param("/kuka/busy"))
-        if not (rospy.get_param("/kuka/busy")):
-
+        # if not (rospy.get_param("/kuka/busy")):
+        if not(self.controller.kuka.is_busy):
             current_layer=self.controller.wall.layer_in_progress().num
             brick=self.controller.wall.at(layer,column)
             print(layer,column)
@@ -241,24 +237,33 @@ class  MainPage(tk.Frame):
                     self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_brick)
 
 
-                    # ROS PART:
-                    pose_goal = geometry_msgs.msg.Pose()
-                    pose_goal.orientation.x = 0.0
-                    pose_goal.orientation.y = 1.0
-                    pose_goal.orientation.z = 0.0
-                    pose_goal.orientation.w = 0.0
-                    pose_goal.position.x = 0.5
-                    pose_goal.position.y = self.controller.flag * 0.45
-                    pose_goal.position.z = 0.1
+                    # ROS PART: test
+                    # pose_goal = geometry_msgs.msg.Pose()
+                    # pose_goal.orientation.x = 0.0
+                    # pose_goal.orientation.y = 1.0
+                    # pose_goal.orientation.z = 0.0
+                    # pose_goal.orientation.w = 0.0
+                    # pose_goal.position.x = 0.5
+                    # pose_goal.position.y = self.controller.flag * 0.45
+                    # pose_goal.position.z = 0.1
+                    
+                    #===============================================================
+                    #PART TO UNCOMMENT IF TOPICS ARE USED
 
-                    test = DimrControl()
-                    test.brick_pose = pose_goal
+                    # msg = DimrControl()
+                    # msg.layer = layer
+                    # msg.column = column
 
-                    self.controller.dimr_pub.publish(test)
+                    # self.controller.dimr_pub.publish(msg)
+                    #===============================================================
 
-                    self.controller.flag = self.controller.flag * (-1)
+                    # self.controller.flag = self.controller.flag * (-1)
+
                     # self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
                     # self.order.set("Click on a white brick to build the wall")
+
+                    self.controller.kuka.move_brick_to(brick)
+
 
             self.update_white_brick()
             if not (self.controller.wall.layer_in_progress().num==current_layer):
@@ -272,7 +277,8 @@ class  MainPage(tk.Frame):
 
     #############
     def destroy(self):
-        if not rospy.get_param("/kuka/busy"):
+        # if not rospy.get_param("/kuka/busy"):
+        if not(self.controller.kuka.is_busy):
             print("destroying the wall")
             for layer in range(self.layer_number):
                 for column in range(self.column_number+1):
