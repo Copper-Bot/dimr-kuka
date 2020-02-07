@@ -8,7 +8,7 @@
     <!-- Ils  ont été modifiés dans le cadre de ce projet DIMR, voir dossier "moveit/"              -->
     <!-- Théoriquement, si RSI fonctionne sur le krc4, une connexion direct peut être établie       -->
     <!-- avec la commande suivante, en utilisant le package moveit pour la planification de traj:   --> 
-    <!-- roslaunch dimr-kuka test_moveit_rviz_planning_execution.launch sim:=false                  -->
+    <!-- roslaunch dimr_kuka test_moveit_rviz_planning_execution.launch sim:=false                  -->
     <!-- ========================================================================================== -->
 
 
@@ -26,7 +26,7 @@
     <!-- By default, we do not start a database (it can be large) -->
     <arg name="db" default="false" doc="Start the MoveIt database" />
     <!-- Allow user to specify database location -->
-    <arg name="db_path" default="$(find dimr-kuka)/default_warehouse_mongo_db" doc="Path to database files" />
+    <arg name="db_path" default="$(find dimr_kuka)/default_warehouse_mongo_db" doc="Path to database files" />
 
     <!-- name of the ros_control controllers (see below) -->
     <arg name="js_ctrlr" value="joint_state_controller" />
@@ -39,28 +39,28 @@
 
 
     <!-- On choisit le bon fichier de paramètres -->
-    <rosparam file="$(find dimr-kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
-    <rosparam file="$(find dimr-kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
+    <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
+    <rosparam file="$(find dimr_kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
 
     <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find dimr-kuka)/config/hardware_controllers.yaml" command="load"/>
+    <rosparam file="$(find dimr_kuka)/config/hardware_controllers.yaml" command="load"/>
     <!-- Load standard kuka controller joint names from YAML file to parameter server -->
-    <rosparam file="$(find dimr-kuka)/config/controller_joint_names.yaml" command="load"/>
+    <rosparam file="$(find dimr_kuka)/config/controller_joint_names.yaml" command="load"/>
 
     <!-- Chargement du modèle KR6 R900 -->
     <param name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
 
     <!-- ... et sa sémantique associée -->
-    <param name="$(arg robot_description)_semantic" textfile="$(find dimr-kuka)/config/kuka_kr6r900sixx.srdf" />
+    <param name="$(arg robot_description)_semantic" textfile="$(find dimr_kuka)/config/kuka_kr6r900sixx.srdf" />
 
     <!-- Load updated joint limits (override information from URDF) -->
     <group ns="$(arg robot_description)_planning">
-      <rosparam command="load" file="$(find dimr-kuka)/config/joint_limits.yaml"/>
+      <rosparam command="load" file="$(find dimr_kuka)/config/joint_limits.yaml"/>
     </group>
 
     <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace -->
     <group ns="$(arg robot_description)_kinematics">
-      <rosparam command="load" file="$(find dimr-kuka)/config/kinematics.yaml"/>
+      <rosparam command="load" file="$(find dimr_kuka)/config/kinematics.yaml"/>
     </group>
 
 
@@ -95,11 +95,11 @@
     <!-- ======================================== -->
 
     <!-- Setup and launch moveit -->
-    <include file="$(find dimr-kuka)/launch/moveit/move_group.launch.xml">
+    <include file="$(find dimr_kuka)/launch/moveit/move_group.launch.xml">
       <arg name="publish_monitored_planning_scene" value="true" />
     </include>
 
-    <include file="$(find dimr-kuka)/launch/moveit/moveit_rviz.launch.xml">
+    <include file="$(find dimr_kuka)/launch/moveit/moveit_rviz.launch.xml">
       <arg name="config" value="true"/>
     </include>
 

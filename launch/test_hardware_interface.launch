@@ -3,8 +3,8 @@
     <arg name="sim" default="true" />
 
     <!-- On choisit le bon fichier de paramètres -->
-    <rosparam file="$(find dimr-kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
-    <rosparam file="$(find dimr-kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
+    <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
+    <rosparam file="$(find dimr_kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
 
     <!-- Chargement du modèle KR6 R900 -->
     <param name="robot_description" command="$(find xacro)/xacro.py '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
@@ -16,9 +16,9 @@
       required="true"/>
 
     <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find dimr-kuka)/config/hardware_controllers.yaml" command="load"/>
+    <rosparam file="$(find dimr_kuka)/config/hardware_controllers.yaml" command="load"/>
     <!-- Load standard kuka controller joint names from YAML file to parameter server -->
-    <rosparam file="$(find dimr-kuka)/config/controller_joint_names.yaml" command="load"/>
+    <rosparam file="$(find dimr_kuka)/config/controller_joint_names.yaml" command="load"/>
 
     <!-- Load controllers -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"

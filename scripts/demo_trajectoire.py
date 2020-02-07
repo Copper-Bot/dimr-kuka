@@ -88,18 +88,32 @@ if __name__ == '__main__':
 
     # Exemple dans l'espace cartésien
     pose_goal = geometry_msgs.msg.Pose()
-    pose_goal.orientation.w = 1.0
+    pose_goal.orientation.x = 0.0
+    pose_goal.orientation.y = 1.0
+    pose_goal.orientation.z = 0.0
+    pose_goal.orientation.w = 0.0
     pose_goal.position.x = 0.5
-    pose_goal.position.y = -0.5
-    pose_goal.position.z = 0.5
+    pose_goal.position.y = -0.45
+    pose_goal.position.z = 0.1
 
     move_group.set_pose_target(pose_goal)
-    ## Now, we call the planner to compute the plan and execute it.
     plan = move_group.go(wait=True)
-    # Calling `stop()` ensures that there is no residual movement
     move_group.stop()
-    # It is always good to clear your targets after planning with poses.
-    # Note: there is no equivalent function for clear_joint_value_targets()
+    move_group.clear_pose_targets()
+
+    # Exemple dans l'espace cartésien
+    pose_goal = geometry_msgs.msg.Pose()
+    pose_goal.orientation.x = 0.0
+    pose_goal.orientation.y = 1.0
+    pose_goal.orientation.z = 0.0
+    pose_goal.orientation.w = 0.0
+    pose_goal.position.x = 0.5
+    pose_goal.position.y = 0.45
+    pose_goal.position.z = 0.1
+
+    move_group.set_pose_target(pose_goal)
+    plan = move_group.go(wait=True)
+    move_group.stop()
     move_group.clear_pose_targets()
 
 

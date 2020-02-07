@@ -18,11 +18,11 @@
 
   <arg name="config" default="false" />
   <arg unless="$(arg config)" name="command_args" value="" />
-  <arg     if="$(arg config)" name="command_args" value="-d $(find dimr-kuka)/launch/moveit/moveit.rviz" />
+  <arg     if="$(arg config)" name="command_args" value="-d $(find dimr_kuka)/launch/moveit/moveit.rviz" />
   
   <node name="$(anon rviz)" launch-prefix="$(arg launch_prefix)" pkg="rviz" type="rviz" respawn="false"
 	args="$(arg command_args)" output="screen">
-    <rosparam command="load" file="$(find dimr-kuka)/config/kinematics.yaml"/>
+    <rosparam command="load" file="$(find dimr_kuka)/config/kinematics.yaml"/>
   </node>
 
 </launch>

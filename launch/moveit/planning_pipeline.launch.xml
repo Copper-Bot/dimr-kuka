@@ -16,6 +16,6 @@
 
   <arg name="pipeline" default="ompl" />
 
-  <include file="$(find dimr-kuka)/launch/moveit/$(arg pipeline)_planning_pipeline.launch.xml" />
+  <include file="$(find dimr_kuka)/launch/moveit/$(arg pipeline)_planning_pipeline.launch.xml" />
 
 </launch>
