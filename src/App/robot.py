@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# from tf import TransformListener
 from time import sleep
-# import rospy
-# from ros4pro.simulation.gripper import Gripper
-# from ros4pro.simulation.camera import Camera
-# from ros4pro.transformations import multiply_transform, inverse_transform
 
 import sys
 import numpy as np
@@ -153,6 +148,27 @@ class Robot(object):
 
         #cartesianly move the brick down of z -= brick.height
         self.cartesian_move_to(brick.wall_pose)
+        
+        #move the brick down of 0.01m
+        target_pose.position.x = self.current_pose.position.x
+        target_pose.position.y = self.current_pose.position.y
+        target_pose.position.z = self.current_pose.position.z - 0.01
+        target_pose.orientation.x = self.current_pose.orientation.x
+        target_pose.orientation.y = self.current_pose.orientation.y
+        target_pose.orientation.z = self.current_pose.orientation.z
+        target_pose.orientation.w = self.current_pose.orientation.w
+        self.cartesian_move_to(target_pose)
+
+        #retract the end-effector
+        target_pose.position.x = self.current_pose.position.x
+        target_pose.position.y = self.current_pose.position.y - 0.2
+        target_pose.position.z = self.current_pose.position.z 
+        target_pose.orientation.x = self.current_pose.orientation.x
+        target_pose.orientation.y = self.current_pose.orientation.y
+        target_pose.orientation.z = self.current_pose.orientation.z
+        target_pose.orientation.w = self.current_pose.orientation.w
+        self.cartesian_move_to(target_pose)
+        
 
     def place_brick_in_feeder(self, brick):
         #cartesianly move the brick backward of y -= 0.2
@@ -172,28 +188,58 @@ class Robot(object):
     def cartesian_move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         target_pose = PoseStamped()
-        ground_pose.header.frame_id = "base"
-        ground_pose.pose.orientation.w = pose.orientation.w
-        ground_pose.pose.orientation.x = pose.orientation.x
-        ground_pose.pose.orientation.y = pose.orientation.y
-        ground_pose.pose.orientation.z = pose.orientation.z
-        ground_pose.pose.position.x = pose.position.x
-        ground_pose.pose.position.y = pose.position.y
-        ground_pose.pose.position.z = pose.position.z
+        target_pose.header.frame_id = "base"
+        target_pose.pose.orientation.w = pose.orientation.w
+        target_pose.pose.orientation.x = pose.orientation.x
+        target_pose.pose.orientation.y = pose.orientation.y
+        target_pose.pose.orientation.z = pose.orientation.z
+        target_pose.pose.position.x = pose.position.x
+        target_pose.pose.position.y = pose.position.y
+        target_pose.pose.position.z = pose.position.z
+
+        #starting and ending points of the path
+        waypoints = []
+        waypoints.append(self.current_pose)
+        waypoints.append(target_pose)
+
+        # We want the Cartesian path to be interpolated at a resolution of 1 cm
+        # which is why we will specify 0.01 as the eef_step in Cartesian
+        # translation.  We will disable the jump threshold by setting it to 0.0,
+        # ignoring the check for infeasible jumps in joint space, which is sufficient
+        # for this tutorial.
+        (plan, fraction) = self.move_group.compute_cartesian_path(
+                                           waypoints,   # waypoints to follow
+                                           0.05,        # step
+                                           5)           # jump_threshold
+        print "fraction:", fraction
+        # Note: We are just planning, not asking move_group to actually move the robot yet
+        #we move the robot :
+        self.move_group.execute(plan, wait=True)
+
         self.update_current_pose(pose)
 
     def move_to(self, pose, brick_is_carried):
         #constraint : be careful with the effector's orientation : the brick must not fall
         target_pose = PoseStamped()
-        ground_pose.header.frame_id = "base"
-        ground_pose.pose.orientation.w = pose.orientation.w
-        ground_pose.pose.orientation.x = pose.orientation.x
-        ground_pose.pose.orientation.y = pose.orientation.y
-        ground_pose.pose.orientation.z = pose.orientation.z
-        ground_pose.pose.position.x = pose.position.x
-        ground_pose.pose.position.y = pose.position.y
-        ground_pose.pose.position.z = pose.position.z
-        self.update_current_pose(pose)
+        target_pose.header.frame_id = "base"
+        target_pose.pose.orientation.w = pose.orientation.w
+        target_pose.pose.orientation.x = pose.orientation.x
+        target_pose.pose.orientation.y = pose.orientation.y
+        target_pose.pose.orientation.z = pose.orientation.z
+        target_pose.pose.position.x = pose.position.x
+        target_pose.pose.position.y = pose.position.y
+        target_pose.pose.position.z = pose.position.z
+
+        self.move_group.set_pose_target(target_pose)
+        plan = self.move_group.go(wait=True)
+        self.move_group.execute(plan, wait=True) #useless ?
+        # Calling `stop()` ensures that there is no residual movement
+        self.move_group.stop()
+        # It is always good to clear your targets after planning with poses.
+        # Note: there is no equivalent function for clear_joint_value_targets()
+        self.move_group.clear_pose_targets()
+
+        self.update_current_pose(target_pose)
 
     def move_brick_to(self, layer, column):
         brick = self.wall.at(layer, column)
@@ -281,3 +327,4 @@ class Robot(object):
         brick_pose.pose.position.z = brick.pose.position.z
         brick_name = "brick"
         self.scene.add_box(brick_name, brick_pose, size=(brick.width, brick.depth, brick.height))
+        
