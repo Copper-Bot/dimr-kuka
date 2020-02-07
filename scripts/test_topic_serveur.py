@@ -23,7 +23,6 @@ from dimr_kuka.msg import DimrControl
 
 def handle_dimrcontrol_message(data):
     rospy.loginfo("Message DimrControl has been received.")
-    rospy.set_param("/kuka/busy", True)
     move_group.set_pose_target(data.brick_pose)
     plan = move_group.go(wait=True)
     move_group.stop()
@@ -49,15 +48,15 @@ if __name__ == '__main__':
     rospy.loginfo("topic kuka_bridge subscribed and ready to process")
     rospy.loginfo("adding objects")
 
-    # palette
-    base_palette = geometry_msgs.msg.PoseStamped()
-    base_palette.header.frame_id = "base"  # lancer un tf view pour choisir le bon nom !
-    base_palette.pose.orientation.w = 0.0
-    base_palette.pose.position.x = -0.095
-    base_palette.pose.position.y = 0.0
-    base_palette.pose.position.z = -0.0625
-    palette_name = "base_palette"
-    scene.add_box(palette_name, base_palette, size=(0.64, 0.80, 0.125))
+    # # palette
+    # base_palette = geometry_msgs.msg.PoseStamped()
+    # base_palette.header.frame_id = "base"  # lancer un tf view pour choisir le bon nom !
+    # base_palette.pose.orientation.w = 0.0
+    # base_palette.pose.position.x = -0.095
+    # base_palette.pose.position.y = 0.0
+    # base_palette.pose.position.z = -0.0625
+    # palette_name = "base_palette"
+    # scene.add_box(palette_name, base_palette, size=(0.64, 0.80, 0.125))
 
     # Sol
     sol = geometry_msgs.msg.PoseStamped()
@@ -70,21 +69,17 @@ if __name__ == '__main__':
     scene.add_box(sol_name, sol, size=(4, 4, 0))
 
     # Box
-    box = geometry_msgs.msg.PoseStamped()
-    box.header.frame_id = "base"
-    box.pose.position.x = 0.625  # .30
-    box.pose.position.y = 0.01  # .30
-    box.pose.position.z = 0.07  # .30
-    box.pose.orientation.w = 1.0
-    box_name = "box"
-    scene.add_box(box_name, box, size=(0.68, 0.45, 0.39))
+    # box = geometry_msgs.msg.PoseStamped()
+    # box.header.frame_id = "base"
+    # box.pose.position.x = 0.625  # .30
+    # box.pose.position.y = 0.01  # .30
+    # box.pose.position.z = 0.07  # .30
+    # box.pose.orientation.w = 1.0
+    # box_name = "box"
+    # scene.add_box(box_name, box, size=(0.68, 0.45, 0.39))
 
     rospy.sleep(1)  # on attend un peu avant de publier
 
     # Exit
     rospy.spin()
     rospy.loginfo("Stopped manipulation")
-
-
-
-
