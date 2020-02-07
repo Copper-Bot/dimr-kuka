@@ -13,7 +13,7 @@ Avant de construire le workspace, vous devez poseder sur votre machine linux :
 * [ROS Melodic **Desktop-Full**](https://wiki.ros.org/melodic/Installation/Ubuntu)
 * [ROS Moveit](https://moveit.ros.org/install/)
 
-Vérifier que votre installation soit propre avant de continuer :
+Vérifiez que votre installation soit propre avant de continuer :
 
 ```
 sudo apt update
@@ -25,7 +25,14 @@ sudo apt autoremove
 
 ## Installation
 
-Créer un nouvel espace de travail ROS :
+Installez Tkinter sur votre pc
+```
+sudo apt-get install python-imaging-tk
+sudo apt-get install python-tk
+```
+
+
+Créez un nouvel espace de travail ROS :
 
 ```
 mkdir -p ~/dimr_kuka_ws/src
