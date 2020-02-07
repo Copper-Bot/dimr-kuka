@@ -82,7 +82,7 @@
 
     <!-- Load controllers (ACTION topic) -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-        args="$(arg pos_ctrlr_name) $(arg js_ctrlr) --shutdown-timeout 1"/>
+        args="$(arg pos_ctrlr_name) $(arg js_ctrlr)"/>
     <!-- Load robot state publisher -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
