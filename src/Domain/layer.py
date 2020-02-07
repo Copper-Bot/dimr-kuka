@@ -40,7 +40,7 @@ class Layer(object):
                 self.bricks[k] = Brick(Type.big,self.num,k)
             print(self.capacity-1)
             self.bricks[self.capacity-1] = Brick(Type.small,self.num,self.capacity-1)
-    
+
     def count_placed_bricks(self):
         #count the bricks placed in the layer
         sb_number = 0
@@ -52,7 +52,7 @@ class Layer(object):
                 else:
                     bb_number+=1
         return sb_number,bb_number
-    
+
     def is_empty(self):
         is_empty = True
         b = 0
@@ -63,7 +63,7 @@ class Layer(object):
                 else:
                     b += 1
         return is_empty
-    
+
     def is_filled_up(self):
         is_filled_up = True
         b = 0
@@ -74,7 +74,7 @@ class Layer(object):
                 else:
                     b+=1
         return is_filled_up
-    
+
     def destroy(self):
         if(self.is_empty() == False):
             for b in self.bricks:
@@ -84,7 +84,7 @@ class Layer(object):
                     print("The brick location is already empty")
         else:
             print("The layer is already empty")
-    
+
     def build(self):
         for b in self.bricks:
             if(b.is_placed == False):
@@ -95,9 +95,8 @@ class Layer(object):
         for b in self.bricks:
             if(b != None):
                 b.find_right_feeder(feeders)
-    
+
     def to_string(self):
         print "===================== Layer number : {0} =====================".format(self.num)
         for b in self.bricks:
             b.to_string()
-

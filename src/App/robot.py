@@ -50,7 +50,7 @@ class Robot(object):
         self.init_pose.orientation.y = pose.orientation.y
         self.init_pose.orientation.z = pose.orientation.z
         self.init_pose.orientation.w = pose.orientation.w
-    
+
     def take_brick_from_wall(self, brick):
         #TODO : check if the brick can be taken
 
@@ -99,7 +99,7 @@ class Robot(object):
 
         #move the effector forward through the hole in the brick
         self.cartesian_move_to(brick.feeder.pose, True)
-        
+
         #cartesianly move the brick backward of y += 0.2
         target_pose.position.x = self.current_pose.position.x
         target_pose.position.y = self.current_pose.position.y + 0.2
@@ -109,7 +109,7 @@ class Robot(object):
         target_pose.orientation.z = self.current_pose.orientation.z
         target_pose.orientation.w = self.current_pose.orientation.w
         self.cartesian_move_to(target_pose, True)
-        
+
 
     def place_brick_in_wall(self, brick):
         #cartesianly move the brick forward of y += 0.2
@@ -153,7 +153,7 @@ class Robot(object):
         #2 cases : brick is in the feeder ou brick is in the wall
         self.is_busy = True
         if(brick.is_placed): #the brick is in the wall
-            
+
             self.take_brick_from_wall(brick)
 
             #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
@@ -168,8 +168,8 @@ class Robot(object):
             self.move_to(self,target_pose, True)
 
             self.place_brick_in_feeder(brick)
-            
-            #update the wall object 
+
+            #update the wall object
             brick.remove_from_wall()
         else:
             self.take_brick_from_feeder(brick)
@@ -190,8 +190,8 @@ class Robot(object):
             #update the wall object
             brick.add_to_wall()
 
-        self.is_busy = False 
-    
+        self.is_busy = False
+
     def update_environment():
         #TODO : update class métiers
 
@@ -200,7 +200,7 @@ class Robot(object):
 # class MoveSawyer(object):
 #     def __init__(self):
 #         super(MoveSawyer, self).__init__()
-        
+
 #         moveit_commander.roscpp_initialize(sys.argv)
 #         rospy.init_node("manipulate_sawyer", anonymous=True)
 
@@ -209,10 +209,10 @@ class Robot(object):
 #         self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
 #                                                        moveit_msgs.msg.DisplayTrajectory,
 #                                                        queue_size=20)
-#         self.tfb = tf.TransformBroadcaster() 
+#         self.tfb = tf.TransformBroadcaster()
 #         self.tfl = tf.TransformListener()
 #         self.camera = Camera()
-#         self.gripper = Gripper()  
+#         self.gripper = Gripper()
 #         rospy.sleep(1)
 
 #     def display_trajectory(self, plan):
@@ -226,7 +226,7 @@ class Robot(object):
 #         ## END_SUB_TUTORIAL
 
 #     def moveRobotJoint(self, joint_goal):
- 
+
 #         # The go command can be called with joint values, poses, or without any
 #         # parameters if you have already set the pose or joint target for the group
 #         self.move_group.go(joint_goal, wait=True)
@@ -239,7 +239,7 @@ class Robot(object):
 
 
 #     def moveRobotCartesian(self, pose_goal):
-        
+
 #         self.move_group.set_pose_target(pose_goal)
 
 #         plan = self.move_group.go(wait=True)
@@ -276,7 +276,7 @@ class Robot(object):
 #         wpose.position.y = waypoints[0].position.y
 #         wpose.position.z = waypoints[0].position.z + scale* amplitude
 #         waypoints.append(copy.deepcopy(wpose))
-        
+
 #         # self.tfb.sendTransform(wpose.position,wpose.orientation,rospy.Time.now(),'final','cube')
 
 
@@ -290,10 +290,10 @@ class Robot(object):
 #         wpose.pose.orientation.y = 0.
 #         wpose.pose.orientation.z = 0.
 #         wpose.pose.orientation.w = 1
-#         wpose.pose.position.z += scale * amplitude  
+#         wpose.pose.position.z += scale * amplitude
 #         waypoints.append(copy.deepcopy(wpose.pose))'''
-        
-#         '''waypoints_z = np.linspace(wpose.position.z, wpose.position.z + scale * amplitude, 50)  
+
+#         '''waypoints_z = np.linspace(wpose.position.z, wpose.position.z + scale * amplitude, 50)
 #         for z in waypoints_z:
 #             wpose.position.z = z
 #             waypoints.append(copy.deepcopy(wpose))'''
@@ -371,17 +371,17 @@ class Robot(object):
 #         # self.scene.add_box("cube_orange", pose, size=(0.053, 0.053, 0.053))
 
 
-    
+
 #     def addCubeFrame(self):
 
 
 #         rospy.sleep(1)
 #         self.tfb.sendTransform([0.32,0.52,0.37 -0.125 + 0.053/2],[1,0,0,0],rospy.Time.now(),'cube','base')
-        
-       
+
+
 
 # if __name__ == "__main__":
-   
+
 #     MS = MoveSawyer()
 #     MS.addCubeFrame()
 #     MS.addFeederAndFloor()
@@ -389,11 +389,11 @@ class Robot(object):
 #     MS.gripper.open()
 #     rospy.sleep(1)
 #     # MS.moveRobot([-pi/2, pi/2, -pi/2, 0, 0 , 0, 0])
-   
+
 #     print  MS.scene.get_known_object_names()
 
 
-    
+
 #     # The approach:
 #     amplitude = 0.18 + 0.053/2.0
 #     approach = PoseStamped()
@@ -409,7 +409,7 @@ class Robot(object):
 #         # (cartesian_plan, fraction) = MS.z_translation(approach, amplitude, scale=1)
 #         # MS.execute_plan(cartesian_plan)
 #         # rospy.sleep(1)
-        
+
 #         rospy.sleep(10)
 #         transorm = self.tfl.lookupTransform('base', 'right_gripper_tip', rospy.Time(0))
 
@@ -497,11 +497,11 @@ class Robot(object):
 #         return (label,x,y)
 #     except rospy.ServiceException, e:
 #         print "Service call failed: %s"%e
-    
+
 
 # # def callback(data):
 # #     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    
+
 # # def listener():
 
 # #     # In ROS, nodes are uniquely named. If two nodes with the same
@@ -519,7 +519,7 @@ class Robot(object):
 #     '''tfl = tf.TransformListener()
 #     pose = tfl.lookupTransform(‘base’, ‘cube’, rospy.Time(0))
 #     print "pose", pose'''
-    
+
 
 
 # '''
