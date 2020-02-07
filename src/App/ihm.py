@@ -22,7 +22,7 @@ except ImportError:
 
 import rospy
 import geometry_msgs.msg
-from dimr_kuka.srv import SendToolTo,SendToolToRequest,SendToolToResponse
+from dimr_kuka.msg import DimrControl
 from PIL import Image, ImageTk
 from Domain.wall import Wall
 
@@ -42,9 +42,10 @@ class Ihm(tk.Tk):
         self.layer_number=3   # "self.controller.layer_number"
 
         rospy.init_node("ihm_node", anonymous=True)
-        rospy.wait_for_service('kuka_bridge_service')
-
-        self.send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
+        # rospy.wait_for_service('kuka_bridge_service')
+        #
+        # self.send_tool_to = rospy.ServiceProxy('kuka_bridge_service', SendToolTo)
+        self.dimr_pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
         self.flag = 1
 
         self.frames = {}
@@ -114,7 +115,6 @@ class  MainPage(tk.Frame):
         self.controller=controller
         self.column_number=self.controller.column_number
         self.layer_number=self.controller.layer_number
-        self.busy=False
 
 
     #############
@@ -222,8 +222,10 @@ class  MainPage(tk.Frame):
 
     #############
     def select_brick(self, layer, column):
-        print(self.busy)
-        if not (self.busy):
+
+        print(rospy.get_param("/kuka/busy"))
+        if not (rospy.get_param("/kuka/busy")):
+
             current_layer=self.controller.wall.layer_in_progress().num
             brick=self.controller.wall.at(layer,column)
             print(layer,column)
@@ -232,10 +234,10 @@ class  MainPage(tk.Frame):
             #         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
             if self.controller.wall.check_add_brick(brick):
                 if self.controller.wall.at(layer,column).add_to_wall():
-                    self.busy=True
+
                     self.order.set("Pose in progress")
                     self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_brick)
-                    print(self.busy)
+
 
                     # ROS PART:
                     pose_goal = geometry_msgs.msg.Pose()
@@ -247,14 +249,14 @@ class  MainPage(tk.Frame):
                     pose_goal.position.y = self.controller.flag * 0.45
                     pose_goal.position.z = 0.1
 
-                    test = SendToolToRequest()
+                    test = DimrControl()
                     test.brick_pose = pose_goal
 
-                    resp = self.controller.send_tool_to.call(test)
+                    self.controller.dimr_pub.publish(test)
 
                     self.controller.flag = self.controller.flag * (-1)
-                    self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
-                    self.order.set("Click on a white brick to build the wall")
+                    # self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+                    # self.order.set("Click on a white brick to build the wall")
 
             self.update_white_brick()
             if not (self.controller.wall.layer_in_progress().num==current_layer):
@@ -264,12 +266,11 @@ class  MainPage(tk.Frame):
             if self.controller.wall.is_filled_up():
                 self.order.set("FINISHED")
 
-            self.busy=False
 
 
     #############
     def destroy(self):
-        if not self.busy:
+        if not rospy.get_param("/kuka/busy"):
             print("destroying the wall")
             for layer in range(self.layer_number):
                 for column in range(self.column_number+1):

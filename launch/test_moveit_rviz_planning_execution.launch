@@ -37,6 +37,8 @@
     <!-- PARAMETRES DU KUKA KR6R900 -->
     <!-- ======================================== -->
 
+    <!-- propore au projet dimr -->
+    <rosparam file="$(find dimr_kuka)/config/dimr.yaml" command="load"/>
 
     <!-- On choisit le bon fichier de paramètres -->
     <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
