@@ -25,7 +25,7 @@ sudo apt autoremove
 
 ## Installation
 
-Installez Tkinter sur votre pc
+Installez Tkinter sur votre pc :
 ```
 sudo apt-get install python-imaging-tk
 sudo apt-get install python-tk
