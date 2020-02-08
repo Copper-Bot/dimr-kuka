@@ -67,11 +67,20 @@ class Kuka():
 
     def add_brick_to_wall(self, wall_pose, brick_type, layer, column):
         #Brick in base frame
+        brick_pose = PoseStamped()
+        brick_pose.header.frame_id = "base"
+        brick_pose.pose.orientation.w = wall_pose.orientation.w
+        brick_pose.pose.orientation.x = wall_pose.orientation.x 
+        brick_pose.pose.orientation.y = wall_pose.orientation.y
+        brick_pose.pose.orientation.z = wall_pose.orientation.z
+        brick_pose.pose.position.x = wall_pose.position.x
+        brick_pose.pose.position.y = wall_pose.position.y
+        brick_pose.pose.position.z = wall_pose.position.z
         brick_name = "brick"+str(layer)+str(column)
         if(brick_type == "small"):
-            self.scene.add_box(brick_name, wall_pose, size=(0.09, 0.1, 0.1))
+            self.scene.add_box(brick_name, brick_pose, size=(0.1, 0.09, 0.1))
         else:
-            self.scene.add_box(brick_name, wall_pose, size=(0.18, 0.1, 0.1))
+            self.scene.add_box(brick_name, brick_pose, size=(0.1, 0.18, 0.1))
 
     def callback_dimrcontrol_message(self,data):
 

@@ -34,19 +34,27 @@ class Brick(object):
         self.width = type.value
         self.depth = 0.1
         #position of the middle of the brick, dynamically attributed by the user when a click is detected on the interface
-        #TODO : input the placing coordinates for the wall (left-hand bottom corner of the wall)
+        #TODO : input the placing coordinates for the wall (middle of the left-hand bottom brick of the wall)
         self.wall_pose = Pose()
+        self.compute_wall_pose(layer, column)
+        #position of the middle of the brick in the feeder
+        self.feeder_pose = Pose()
+        self.feeder = None
+        self.is_placed = False
+    
+    def compute_wall_pose(self, layer, column):
         self.wall_pose.position.x = 0.5
         self.wall_pose.position.y = -0.41 + column*self.width
-        self.wall_pose.position.z = layer*self.height + self.height/2 + 0.1
+        self.wall_pose.position.z = layer*self.height + self.height/2
         self.wall_pose.orientation.x = 0
         self.wall_pose.orientation.y = 1
         self.wall_pose.orientation.z = 0.0
         self.wall_pose.orientation.w = 0
-        #position of the middle of the brick
-        self.feeder_pose = Pose()
-        self.feeder = None
-        self.is_placed = False
+        if(self.num_layer%2 == 1):
+            if(column == 0):
+                self.wall_pose.position.y -= Type.small.value/2
+            else:
+                self.wall_pose.position.y -= Type.small.value
 
     def find_right_feeder(self, feeders):
         #put the brick in the right feeder and attribute its corresponding taking pose
