@@ -43,7 +43,7 @@ class Brick(object):
         self.wall_pose.orientation.y = 0
         self.wall_pose.orientation.z = 0
         self.wall_pose.orientation.w = 1
-        #position of the middle of the brick
+        #position of the middle of the brick in the feeder
         self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
