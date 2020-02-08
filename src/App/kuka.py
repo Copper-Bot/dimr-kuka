@@ -53,8 +53,28 @@ class Kuka():
         rospy.spin()
         rospy.loginfo("Stopped manipulation")
 
+    def move_joints(self, joint_goal):
+
+            # The go command can be called with joint values, poses, or without any
+            # parameters if you have already set the pose or joint target for the group
+            self.move_group.go(joint_goal, wait=True)
+
+            # Calling ``stop()`` ensures that there is no residual movement
+            self.move_group.stop()
+
+            # Exit
+            rospy.loginfo("Stopped manipulation")
+
+    def add_brick_to_wall(self, wall_pose, brick_type):
+        #Brick in base frame
+
+
+        brick_name = "brick "+
+        self.scene.add_box(brick_name, wall_pose, size=(brick.width, brick.depth, brick.height))
 
     def callback_dimrcontrol_message(self,data):
+
+        self.move_joints([-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784])
         rospy.loginfo("Message DimrControl has been received.")
         self.move_group.set_pose_target(data.brick_pose)
         plan = self.move_group.go(wait=True)
