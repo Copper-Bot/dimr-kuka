@@ -44,7 +44,7 @@ class Brick(object):
     
     def compute_wall_pose(self, layer, column):
         self.wall_pose.position.x = 0.5
-        self.wall_pose.position.y = -0.41 + column*self.width
+        self.wall_pose.position.y = -0.41 + column*Type.big.value
         self.wall_pose.position.z = layer*self.height + self.height/2
         self.wall_pose.orientation.x = 0
         self.wall_pose.orientation.y = 1
@@ -53,8 +53,11 @@ class Brick(object):
         if(self.num_layer%2 == 1):
             if(column == 0):
                 self.wall_pose.position.y -= Type.small.value/2
+            elif(self.type == Type.small.name):
+                self.wall_pose.position.y -= 3*Type.small.value/2
             else:
                 self.wall_pose.position.y -= Type.small.value
+            
 
     def find_right_feeder(self, feeders):
         #put the brick in the right feeder and attribute its corresponding taking pose
