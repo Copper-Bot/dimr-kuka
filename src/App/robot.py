@@ -18,7 +18,7 @@ from moveit_commander.conversions import pose_to_list
 
 # from Domain.wall import Wall
 from Domain.feeder import Feeder
-# from dimr_kuka.msg import DimrControl
+from dimr_kuka.msg import DimrControl
 
 class Robot(object):
     # def __init__(self, feeders, wall):
@@ -32,7 +32,7 @@ class Robot(object):
         # self.wall = wall 
 
         moveit_commander.roscpp_initialize(sys.argv)
-        # rospy.init_node("topic_serveur", anonymous=True)
+        rospy.init_node("topic_serveur", anonymous=True)
         rospy.init_node("manipulate_kuka", anonymous=True)
         rospy.loginfo("Beginning motion")
 
@@ -42,12 +42,12 @@ class Robot(object):
         group_name = "manipulator"
         self.move_group = moveit_commander.MoveGroupCommander(group_name)
 
-        # display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path', moveit_msgs.msg.DisplayTrajectory, queue_size=20)
+        display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path', moveit_msgs.msg.DisplayTrajectory, queue_size=20)
         self.tfb = tf.TransformBroadcaster() 
         self.tfl = tf.TransformListener()
 
-        # rospy.sleep(1) # on attend un peu avant de publier
-        # sub = rospy.Subscriber("kuka_bridge", DimrControl, handle_dimrcontrol_message)
+        rospy.sleep(1) # on attend un peu avant de publier
+        sub = rospy.Subscriber("kuka_bridge", DimrControl, handle_dimrcontrol_message)
         rospy.sleep(1)
         rospy.loginfo("topic kuka_bridge subscribed and ready to process")
 
@@ -285,64 +285,64 @@ class Robot(object):
 
         self.update_current_pose(target_pose)
 
-    # def move_brick_to(self, layer, column):
+    def move_brick_to(self, wall_pose, feeder_pose, brick_type, is_placed):
     #     brick = self.wall.at(layer, column)
-    def move_brick_to(self,brick):
+    # def move_brick_to(self,brick):
         # #2 cases : brick is in the feeder ou brick is in the wall
         
-        pose_goal = Pose()
-        pose_goal.orientation.x = 0.0
-        pose_goal.orientation.y = 1.0
-        pose_goal.orientation.z = 0.0
-        pose_goal.orientation.w = 0.0
-        pose_goal.position.x = 0.5
-        pose_goal.position.y = -0.45
-        pose_goal.position.z = 0.1
+        # pose_goal = Pose()
+        # pose_goal.orientation.x = 0.0
+        # pose_goal.orientation.y = 1.0
+        # pose_goal.orientation.z = 0.0
+        # pose_goal.orientation.w = 0.0
+        # pose_goal.position.x = 0.5
+        # pose_goal.position.y = -0.45
+        # pose_goal.position.z = 0.1
 
-        self.move_group.set_pose_target(pose_goal)
-        plan = self.move_group.go(wait=True)
-        self.move_group.stop()
-        self.move_group.clear_pose_targets()
+        # self.move_group.set_pose_target(pose_goal)
+        # plan = self.move_group.go(wait=True)
+        # self.move_group.stop()
+        # self.move_group.clear_pose_targets()
 
-        # if(brick.is_placed): #the brick is in the wall
+        if(brick.is_placed): #the brick is in the wall
 
-        #     self.take_brick_from_wall(brick)
+            self.take_brick_from_wall(brick)
 
-        #     #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
-        #     target_pose = PoseStamped()
-        #     target_pose.header.frame_id = "base"
-        #     target_pose.pose.position.x = brick.feeder.pose.position.x
-        #     target_pose.pose.position.y = brick.feeder.pose.position.y + 0.2
-        #     target_pose.pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
-        #     target_pose.pose.orientation.x = brick.feeder.pose.orientation.x
-        #     target_pose.pose.orientation.y = brick.feeder.pose.orientation.y
-        #     target_pose.pose.orientation.z = brick.feeder.pose.orientation.z
-        #     target_pose.pose.orientation.w = brick.feeder.pose.orientation.w
-        #     self.move_to(target_pose, True)
+            #move the brick to target_pose = brick.feeder.pose with target_pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
+            target_pose = PoseStamped()
+            target_pose.header.frame_id = "base"
+            target_pose.pose.position.x = brick.feeder.pose.position.x
+            target_pose.pose.position.y = brick.feeder.pose.position.y + 0.2
+            target_pose.pose.position.z = brick.feeder.pose.position.z + brick.feeder.brick_count*brick.height
+            target_pose.pose.orientation.x = brick.feeder.pose.orientation.x
+            target_pose.pose.orientation.y = brick.feeder.pose.orientation.y
+            target_pose.pose.orientation.z = brick.feeder.pose.orientation.z
+            target_pose.pose.orientation.w = brick.feeder.pose.orientation.w
+            self.move_to(target_pose, True)
 
-        #     self.place_brick_in_feeder(brick)
+            self.place_brick_in_feeder(brick)
 
-        #     #update the wall object
-        #     brick.remove_from_wall()
-        # else:
-        #     self.take_brick_from_feeder(brick.wall_pose)
+            #update the wall object dans ihm.py
+            brick.remove_from_wall()
+        else:
+            self.take_brick_from_feeder(brick.wall_pose)
 
-        #     #move the brick to its future location in the wall
-        #     target_pose = PoseStamped()
-        #     target_pose.header.frame_id = "base"
-        #     target_pose.pose.position.x = brick.wall_pose.position.x
-        #     target_pose.pose.position.y = brick.wall_pose.position.y - 0.2
-        #     target_pose.pose.position.z = brick.wall_pose.position.z + brick.height
-        #     target_pose.pose.orientation.x = brick.wall_pose.orientation.x
-        #     target_pose.pose.orientation.y = brick.wall_pose.orientation.y
-        #     target_pose.pose.orientation.z = brick.wall_pose.orientation.z
-        #     target_pose.pose.orientation.w = brick.wall_pose.orientation.w
-        #     self.move_to(self,target_pose, True)
+            #move the brick to its future location in the wall
+            target_pose = PoseStamped()
+            target_pose.header.frame_id = "base"
+            target_pose.pose.position.x = brick.wall_pose.position.x
+            target_pose.pose.position.y = brick.wall_pose.position.y - 0.2
+            target_pose.pose.position.z = brick.wall_pose.position.z + brick.height
+            target_pose.pose.orientation.x = brick.wall_pose.orientation.x
+            target_pose.pose.orientation.y = brick.wall_pose.orientation.y
+            target_pose.pose.orientation.z = brick.wall_pose.orientation.z
+            target_pose.pose.orientation.w = brick.wall_pose.orientation.w
+            self.move_to(self,target_pose, True)
 
-        #     self.place_brick_in_wall(brick)
+            self.place_brick_in_wall(brick)
 
-        #     #update the wall object
-        #     brick.add_to_wall()
+            #update the wall object dans ihm.py
+            brick.add_to_wall()
 
         self.is_busy = False 
     
