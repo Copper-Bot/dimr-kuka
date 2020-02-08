@@ -209,7 +209,6 @@ Visualization Manager:
         Show Robot Visual: true
       Value: true
       Velocity_Scaling_Factor: 1
-<<<<<<< HEAD
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -252,8 +251,6 @@ Visualization Manager:
                         {}
       Update Interval: 0
       Value: true
-=======
->>>>>>> ff044f27c91dc703dd7ca5f405b71016c0f31196
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -277,14 +274,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.11356700211763382
-        Y: 0.10592000186443329
-        Z: 2.2351800055275817e-7
+        X: 0.8915520310401917
+        Y: -0.28665536642074585
+        Z: -4.470291514735436e-8
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
+<<<<<<< HEAD
 <<<<<<< HEAD
       Pitch: 0.17479650676250458
       Target Frame: base_link
@@ -296,6 +294,12 @@ Visualization Manager:
       Value: XYOrbit (rviz)
       Yaw: 4.679944038391113
 >>>>>>> ff044f27c91dc703dd7ca5f405b71016c0f31196
+=======
+      Pitch: 0.039797693490982056
+      Target Frame: base_link
+      Value: XYOrbit (rviz)
+      Yaw: 0.27676382660865784
+>>>>>>> c20e4e30da73aab93b66f76265cbe09777af5b27
     Saved: ~
 Window Geometry:
   Displays:

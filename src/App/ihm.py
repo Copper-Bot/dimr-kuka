@@ -264,18 +264,23 @@ class  MainPage(tk.Frame):
 
 
                     # ROS PART: test
-                    pose_goal = geometry_msgs.msg.Pose()
-                    pose_goal.orientation.x = 0.0
-                    pose_goal.orientation.y = 1.0
-                    pose_goal.orientation.z = 0.0
-                    pose_goal.orientation.w = 0.0
-                    pose_goal.position.x = 0.5
-                    pose_goal.position.y = self.flag * 0.45
-                    pose_goal.position.z = 0.1
+                    # pose_goal = geometry_msgs.msg.Pose()
+                    # pose_goal.orientation.x = 0.0
+                    # pose_goal.orientation.y = 1.0
+                    # pose_goal.orientation.z = 0.0
+                    # pose_goal.orientation.w = 0.0
+                    # pose_goal.position.x = 0.5
+                    # pose_goal.position.y = self.flag * 0.45
+                    # pose_goal.position.z = 0.1
 
                     #===============================================================
                     #PART TO UNCOMMENT IF TOPICS ARE USED
-                    self.test.brick_pose = pose_goal
+                    print(brick.wall_pose)
+                    self.test.brick_pose = brick.wall_pose
+                    self.test.brick_type=brick.type
+                    self.test.layer=layer
+                    self.test.column=column
+                    self.test.is_placed= False
                     self.controller.dimr_pub.publish(self.test)
                     #msg = DimrControl()
                     # msg.layer = layer
