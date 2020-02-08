@@ -9,12 +9,13 @@ import moveit_commander
 import moveit_msgs.msg
 from tf import TransformListener
 import geometry_msgs.msg
-from moveit_msgs.srv import GetPositionIK
-from moveit_msgs.srv import GetPositionIKRequest
-from moveit_msgs.srv import GetPositionIKResponse
-from sensor_msgs.msg import Image
-import matplotlib.pyplot as plt
-from cv_bridge import CvBridge, CvBridgeError
+from geometry_msgs.msg import Pose, PoseStamped
+#from moveit_msgs.srv import GetPositionIK
+#from moveit_msgs.srv import GetPositionIKRequest
+#from moveit_msgs.srv import GetPositionIKResponse
+#from sensor_msgs.msg import Image
+#import matplotlib.pyplot as plt
+#from cv_bridge import CvBridge, CvBridgeError
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
@@ -59,12 +60,12 @@ if __name__ == '__main__':
     # scene.add_box(palette_name, base_palette, size=(0.64, 0.80, 0.125))
 
     # Sol
-    sol = geometry_msgs.msg.PoseStamped()
+    sol = PoseStamped()
     sol.header.frame_id = "base"  # lancer un tf view pour choisir le bon nom !
     sol.pose.orientation.w = 0.0
     sol.pose.position.x = 0.0
     sol.pose.position.y = 0.0
-    sol.pose.position.z = -0.125
+    sol.pose.position.z = -0.01
     sol_name = "base_sol"
     scene.add_box(sol_name, sol, size=(4, 4, 0))
 
