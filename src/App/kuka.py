@@ -65,12 +65,13 @@ class Kuka():
             # Exit
             rospy.loginfo("Stopped manipulation")
 
-    def add_brick_to_wall(self, wall_pose, brick_type):
+    def add_brick_to_wall(self, wall_pose, brick_type, layer, column):
         #Brick in base frame
-
-
-        brick_name = "brick "+
-        self.scene.add_box(brick_name, wall_pose, size=(brick.width, brick.depth, brick.height))
+        brick_name = "brick"+str(layer)+str(column)
+        if(brick_type == "small"):
+            self.scene.add_box(brick_name, wall_pose, size=(0.09, 0.1, 0.1))
+        else:
+            self.scene.add_box(brick_name, wall_pose, size=(0.18, 0.1, 0.1))
 
     def callback_dimrcontrol_message(self,data):
 
@@ -82,6 +83,7 @@ class Kuka():
         self.move_group.clear_pose_targets()
         rospy.loginfo("finish")
         rospy.set_param("/kuka/busy", False)
+        self.add_brick_to_wall(data.brick_pose,data.brick_type,data.layer,data.column)
 
 
     def add_objects(self):

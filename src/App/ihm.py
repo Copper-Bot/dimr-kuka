@@ -278,6 +278,9 @@ class  MainPage(tk.Frame):
                     print(brick.wall_pose)
                     self.test.brick_pose = brick.wall_pose
                     self.test.brick_type=brick.type
+                    self.test.layer=layer
+                    self.test.column=column
+                    self.test.is_placed= False
                     self.controller.dimr_pub.publish(self.test)
                     #msg = DimrControl()
                     # msg.layer = layer
