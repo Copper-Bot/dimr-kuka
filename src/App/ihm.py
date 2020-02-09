@@ -120,6 +120,7 @@ class  MainPage(tk.Frame):
         self.layer_wait=0
         self.column_wait=0
         self.flag = 1
+        self.bricks = []
         self.test = DimrControl()
 
     #############
@@ -277,6 +278,7 @@ class  MainPage(tk.Frame):
                     #PART TO UNCOMMENT IF TOPICS ARE USED
                     print(brick.wall_pose)
                     self.test.brick_pose = brick.wall_pose
+                    self.test.feeder_pose = brick.feeder.pose
                     self.test.brick_type=brick.type
                     self.test.layer=layer
                     self.test.column=column
@@ -314,7 +316,7 @@ class  MainPage(tk.Frame):
             print("destroying the wall")
             for layer in range(self.layer_number):
                 for column in range(self.column_number+1):
-                    if not self.bricks[layer][column]==0:
+                    if(self.bricks != [] and not(self.bricks[layer][column]==0)):
                         self.bricks[layer][column].config(bg=self.color_init)
             self.order.set("Click on a white brick to build the wall")
             self.label.config(fg="DarkOrange2")

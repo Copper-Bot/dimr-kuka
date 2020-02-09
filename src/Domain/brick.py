@@ -43,7 +43,7 @@ class Brick(object):
         self.is_placed = False
     
     def compute_wall_pose(self, layer, column):
-        self.wall_pose.position.x = 0.5
+        self.wall_pose.position.x = 0.7
         self.wall_pose.position.y = -0.41 + column*Type.big.value
         self.wall_pose.position.z = layer*self.height + self.height/2
         self.wall_pose.orientation.x = 0
@@ -71,23 +71,14 @@ class Brick(object):
                 if(feeder.add_brick(self)):
                     feeder_found = True
                     self.feeder = feeder
-                    self.set_feeder_pose(feeder.pose)
+                    self.feeder_pose = self.feeder.next_available_pose(self.height)
             elif(self.type == Type.big.name and feeder.brick_type == Type.big.name):
                 if(feeder.add_brick(self)):
                     feeder_found = True
                     self.feeder = feeder
-                    self.set_feeder_pose(feeder.pose)
+                    self.feeder_pose = self.feeder.next_available_pose(self.height)
             r += 1
-        print 'feeder found : {0} --> feeder capacity : {1}'.format(feeder_found,self.feeder.brick_capacity)
-
-    def set_feeder_pose(self,pose):
-        self.feeder_pose.position.x = pose.position.x
-        self.feeder_pose.position.y = pose.position.y
-        self.feeder_pose.position.z = pose.position.z
-        self.feeder_pose.orientation.x = pose.orientation.x
-        self.feeder_pose.orientation.y = pose.orientation.y
-        self.feeder_pose.orientation.z = pose.orientation.z
-        self.feeder_pose.orientation.w = pose.orientation.w
+        print 'feeder found : {0} --> feeder capacity : {1} and brick count : {2}'.format(feeder_found,self.feeder.brick_capacity, self.feeder.brick_count)
 
     def add_to_wall(self):
         if(self.is_placed == False):
@@ -108,14 +99,7 @@ class Brick(object):
 
     def add_to_feeder(self):
         if(self.feeder != None):
-            n = self.feeder.brick_count + 1
-            self.feeder_pose.position.x = self.feeder.pose.position.x
-            self.feeder_pose.position.y = self.feeder.pose.position.y
-            self.feeder_pose.position.z = self.feeder.pose.position.z + n*self.height
-            self.feeder_pose.orientation.x = self.feeder.pose.orientation.x
-            self.feeder_pose.orientation.y = self.feeder.pose.orientation.y
-            self.feeder_pose.orientation.z = self.feeder.pose.orientation.z
-            self.feeder_pose.orientation.w = self.feeder.pose.orientation.w
+            self.feeder_pose = self.feeder.next_available_pose(self.height)
             self.feeder.add_brick(self)
 
     def to_string(self):

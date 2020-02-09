@@ -33,6 +33,18 @@ class Feeder(object):
         self.pose = pose
         self.bricks = []
 
+    def next_available_pose(self, brick_height):
+        next_pose = Pose()
+        next_pose.position.x = self.pose.position.x
+        next_pose.position.y = self.pose.position.y
+        next_pose.position.z = self.pose.position.z + self.brick_count*brick_height
+        next_pose.orientation.x = self.pose.orientation.x
+        next_pose.orientation.y = self.pose.orientation.y
+        next_pose.orientation.z = self.pose.orientation.z
+        next_pose.orientation.w = self.pose.orientation.w
+        return next_pose
+
+
     def fill(self,bricks):
         for b in self.bricks:
             self.add_brick(b)
@@ -52,17 +64,19 @@ class Feeder(object):
             return False
     
     def remove_brick(self):
-        #pop(0) returns an error if the list is empty
+        #pop() returns an error if the list is empty, pop(0) returns the first brick in the list and pop() the last one
         if(not self.is_empty()):
             self.brick_count -= 1
-            self.bricks.pop(0)
-            return True
+            return self.bricks.pop()
         else:
             print("Feeder is already empty")
-            return False
+            return None
 
     def is_empty(self):
         return self.brick_count == 0
+    
+    def is_filled_up(self):
+        return self.brick_count == self.brick_capacity
     
     def to_string(self):
         print '      Brick type : {0} \n      Brick capacity : {1} \n      Brick count : {2} \n'.format(self.brick_type,self.brick_capacity,self.brick_count)
