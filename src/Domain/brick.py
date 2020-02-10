@@ -16,6 +16,8 @@ from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
 
+# from App.ihm import global_feeders
+from Domain.feeder import feeders
 from enum import Enum
 
 class Type(Enum):
@@ -26,9 +28,6 @@ class Type(Enum):
 class Brick(object):
     #static properties for all Brick's instances
     def __init__(self,type,layer,column):
-        #type of the brick
-        self.num_column = column
-        self.num_layer = layer
         self.type = type.name
         self.height = 0.1
         self.width = type.value
@@ -36,11 +35,16 @@ class Brick(object):
         #position of the middle of the brick, dynamically attributed by the user when a click is detected on the interface
         #TODO : input the placing coordinates for the wall (middle of the left-hand bottom brick of the wall)
         self.wall_pose = Pose()
-        self.compute_wall_pose(layer, column)
+        self.num_column = column
+        self.num_layer = layer
+        if(layer != -1 and column != -1):
+            #type of the brick
+            self.compute_wall_pose(layer, column)
         #position of the middle of the brick in the feeder
         self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
+
     
     def compute_wall_pose(self, layer, column):
         self.wall_pose.position.x = 0.7
@@ -59,7 +63,7 @@ class Brick(object):
                 self.wall_pose.position.y -= Type.small.value
             
 
-    def find_right_feeder(self, feeders):
+    def find_right_feeder(self):
         #put the brick in the right feeder and attribute its corresponding taking pose
         r = 0
         feeder_found = False
@@ -109,3 +113,14 @@ class Brick(object):
             print(self.feeder.to_string())
         else:
             print '   Type : {0}\n   Is placed : {1}\n   Feeder : {2}\n '.format(self.type, self.is_placed, self.feeder)
+
+def fill_feeders():
+    for f in feeders:
+        for k in range(f.brick_capacity):
+            if(f.brick_type == Type.small.name):
+                b = Brick(Type.small,-1,-1)
+            else:
+                b = Brick(Type.big,-1,-1)
+            f.add_brick(b)
+        # f.to_string()
+    return feeders

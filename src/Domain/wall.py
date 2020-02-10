@@ -17,10 +17,11 @@ from math import pi
 # from moveit_commander.conversions import pose_to_list
 
 from layer import Layer
+# from App.ihm import global_feeders
 
 class Wall(object):
 
-    def __init__(self, feeders, layer_number=3, column_number=4):
+    def __init__(self, layer_number=3, column_number=4):
         self.layer_number = layer_number
         self.column_number = column_number
         self.bb_number = 0
@@ -28,7 +29,8 @@ class Wall(object):
         self.compute_nb_bricks()
         self.layers = [None]*layer_number
         self.fill()
-        self.fill_feeders(feeders)
+        self.fill_feeders()
+        # self.fill_feeders(global_feeders)
 
     def compute_nb_bricks(self):
         nb_even_layers = self.layer_number / 2
@@ -138,11 +140,11 @@ class Wall(object):
                     l+=1
         return is_filled_up
 
-    def fill_feeders(self, feeders):
+    def fill_feeders(self):
         if(self.is_empty() == True):
             print("filling feeders")
             for l in self.layers:
-                l.fill_feeders(feeders)
+                l.fill_feeders()
 
     def layer_in_progress(self):
         #return the layer in construction

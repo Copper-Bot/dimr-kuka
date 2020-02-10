@@ -15,23 +15,32 @@ from geometry_msgs.msg import Pose, PoseStamped
 from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
-from brick import Type
+# from brick import Type
+
+from enum import Enum
+
+class Type(Enum):
+    #brick's width
+    small = 0.09
+    big = 0.18
 
 class Feeder(object):
-    def __init__(self,id, brick_capacity, brick_type, pose):
+    def __init__(self,id, brick_capacity, brick_type, brick_height, pose):
         self.id = id
         self.brick_capacity = brick_capacity
         self.brick_count = 0
         self.brick_type = brick_type.name
         #coordinate of the feeder in the base frame (middle point of the bottom brick of the feeder)
-        self.height = 0.6
+        self.height = brick_capacity * brick_height
+        margin = 0.02
         if(self.brick_type == Type.big.name):
-            self.width = 0.2
+            self.width = Type.big.value + margin
         else:
-            self.width = 0.11
-        self.depth = 0.12
+            self.width = Type.small.value + margin
+        self.depth = brick_height + margin
         self.pose = pose
         self.bricks = []
+
 
     def next_available_pose(self, brick_height):
         next_pose = Pose()
@@ -80,3 +89,50 @@ class Feeder(object):
     
     def to_string(self):
         print '      Brick type : {0} \n      Brick capacity : {1} \n      Brick count : {2} \n'.format(self.brick_type,self.brick_capacity,self.brick_count)
+        for b in self.bricks:
+            b.to_string()
+
+
+brick_height = 0.1
+
+ #TODO : input the taking coordinates for the b6 runner
+taking_pose_b6 = Pose()
+taking_pose_b6.position.x = 0
+taking_pose_b6.position.y = -0.7
+taking_pose_b6.position.z = 0.05
+taking_pose_b6.orientation.x = 0
+taking_pose_b6.orientation.y = 1
+taking_pose_b6.orientation.z = 0
+taking_pose_b6.orientation.w = 0
+
+f1 = Feeder(1, 6, Type.big, brick_height, taking_pose_b6)
+
+#TODO : input the taking coordinates for the b5 runner
+taking_pose_b5 = Pose()
+taking_pose_b5.position.x = -0.3
+taking_pose_b5.position.y = -0.7
+taking_pose_b5.position.z = 0.05
+taking_pose_b5.orientation.x = 0
+taking_pose_b5.orientation.y = 1
+taking_pose_b5.orientation.z = 0
+taking_pose_b5.orientation.w = 0
+
+f2 = Feeder(2, 5, Type.big, brick_height, taking_pose_b5)
+
+#TODO : input the taking coordinates for the s2 runner
+taking_pose_s2 = Pose()
+taking_pose_s2.position.x = 0.3
+taking_pose_s2.position.y = -0.7
+taking_pose_s2.position.z = 0.05
+taking_pose_s2.orientation.x = 0
+taking_pose_s2.orientation.y = 1
+taking_pose_s2.orientation.z = 0
+taking_pose_s2.orientation.w = 0
+
+f3 = Feeder(3, 2, Type.small, brick_height, taking_pose_s2)
+
+global feeders
+feeders = [f1,f2,f3]
+
+for f in feeders:
+    f.to_string()

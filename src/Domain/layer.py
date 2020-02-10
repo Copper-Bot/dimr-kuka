@@ -16,6 +16,7 @@ from math import pi
 # from std_msgs.msg import String
 # from moveit_commander.conversions import pose_to_list
 
+# from App.ihm import global_feeders
 from brick import Type, Brick
 
 class Layer(object):
@@ -90,11 +91,12 @@ class Layer(object):
             if(b.is_placed == False):
                 b.add_to_wall()
 
-    def fill_feeders(self, feeders):
+    def fill_feeders(self):
         # if(self.is_empty() == False):
         for b in self.bricks:
             if(b != None):
-                b.find_right_feeder(feeders)
+                # b.find_right_feeder(feeders)
+                b.find_right_feeder()
 
     def to_string(self):
         print "===================== Layer number : {0} =====================".format(self.num)

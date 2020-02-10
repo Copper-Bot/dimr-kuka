@@ -18,19 +18,18 @@ try:
 except ImportError:
     # for Python3
     import tkinter as tk
-    from tkinter import font  as tkfont
+    from tkinter import font as tkfont
 
 import rospy
 import geometry_msgs.msg
 from dimr_kuka.msg import DimrControl
 from PIL import Image, ImageTk
 from Domain.wall import Wall
-from robot import Robot
 
 class Ihm(tk.Tk):
-    def __init__(self, feeders):
-        tk.Tk.__init__(self)
-        self.feeders = feeders
+    def __init__(self):
+        tk.Tk.__init__(self) 
+        # global_feeders = feeders
         self.wall = None #created with the right values when the user click on the "start building" button on the StartPage
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
@@ -100,7 +99,7 @@ class StartPage(tk.Frame):
     def start_building(self):
         self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
         self.controller.show_frame("MainPage")
-        self.controller.wall = Wall(self.controller.feeders, self.controller.layer_number, self.controller.column_number)
+        self.controller.wall = Wall(self.controller.layer_number, self.controller.column_number)
         # self.controller.kuka = Robot(self.controller.feeders,self.controller.wall)
         #self.controller.kuka = Robot(self.controller.feeders)
 

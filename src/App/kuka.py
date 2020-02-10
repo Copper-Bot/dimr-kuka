@@ -24,17 +24,15 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 from dimr_kuka.msg import DimrControl
+from Domain.brick import Type, fill_feeders
 from Domain.feeder import Feeder
-from Domain.brick import Type, Brick
-
 
 
 class Kuka():
-
-    def __init__(self, feeders):
+    def __init__(self):
         self.is_busy = False #robot state to publish
-        self.feeders = feeders
-        for f in feeders:
+        self.feeders = fill_feeders()
+        for f in self.feeders:
             f.to_string()
 
         moveit_commander.roscpp_initialize(sys.argv)
@@ -117,11 +115,11 @@ class Kuka():
             if(f.pose == data.feeder_pose):
                 # b = f.remove_brick() ihm.py le fait (controller)
                 # if(b != None):
-                brick_name = "brickf"+str(f.id)+str(f.brick_count)
+                brick_name = "brickf"+str(f.id)+str(f.brick_count-1)
 
                 #===============remove object=================
                 self.scene.remove_world_object(brick_name)
-                f.brick_count-=1
+                f.remove_brick()
 
                 #===============attached object==================
                 # grasping_group = 'manipulator'
@@ -192,14 +190,14 @@ class Kuka():
 
         #Feeders in base frame
         for f in self.feeders:
-            for k in range(f.brick_capacity):
-                f.brick_count += 1
-                brick_height = 0.1
+            k = 0
+            for b in f.bricks:
                 brick_pose = PoseStamped()
                 brick_pose.header.frame_id = "base"
                 brick_pose.pose.orientation.w = f.pose.orientation.w
                 brick_pose.pose.position.x = f.pose.position.x
                 brick_pose.pose.position.y = f.pose.position.y
-                brick_pose.pose.position.z = f.pose.position.z + (k+1)*brick_height
-                brick_name = "brickf"+str(f.id)+str(k+1)
-                self.scene.add_box(brick_name, brick_pose, size=(f.width, f.depth, brick_height))
+                brick_pose.pose.position.z = f.pose.position.z + k*b.height
+                brick_name = "brickf"+str(f.id)+str(k)
+                self.scene.add_box(brick_name, brick_pose, size=(f.width, f.depth, b.height))
+                k+=1
