@@ -86,12 +86,12 @@ if __name__ == '__main__':
     move_group.stop()
 
 
-    # Exemple dans l'espace cartésien
+    # Exemple dans l'espace cartésien (devant la brique)
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal.orientation.x = 0.0
-    pose_goal.orientation.y = 1.0
+    pose_goal.orientation.y = 0.7071
     pose_goal.orientation.z = 0.0
-    pose_goal.orientation.w = 0.0
+    pose_goal.orientation.w = 0.7071
     pose_goal.position.x = 0.5
     pose_goal.position.y = -0.45
     pose_goal.position.z = 0.1
@@ -101,12 +101,12 @@ if __name__ == '__main__':
     move_group.stop()
     move_group.clear_pose_targets()
 
-    # Exemple dans l'espace cartésien
+    # Exemple dans l'espace cartésien (devant le feeder)
     pose_goal = geometry_msgs.msg.Pose()
-    pose_goal.orientation.x = 0.0
-    pose_goal.orientation.y = 1.0
-    pose_goal.orientation.z = 0.0
-    pose_goal.orientation.w = 0.0
+    pose_goal.orientation.x = 0.5
+    pose_goal.orientation.y = 0.5
+    pose_goal.orientation.z = -0.5
+    pose_goal.orientation.w = 0.5
     pose_goal.position.x = 0.5
     pose_goal.position.y = 0.45
     pose_goal.position.z = 0.1
