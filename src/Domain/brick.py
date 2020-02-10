@@ -41,7 +41,7 @@ class Brick(object):
         self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
-    
+
     def compute_wall_pose(self, layer, column):
         self.wall_pose.position.x = 0.7
         self.wall_pose.position.y = -0.41 + column*Type.big.value
@@ -57,7 +57,7 @@ class Brick(object):
                 self.wall_pose.position.y -= 3*Type.small.value/2
             else:
                 self.wall_pose.position.y -= Type.small.value
-            
+
 
     def find_right_feeder(self, feeders):
         #put the brick in the right feeder and attribute its corresponding taking pose
@@ -94,8 +94,10 @@ class Brick(object):
         if(self.is_placed == True):
             self.is_placed = False
             self.add_to_feeder()
+            return True
         else:
             print("The brick isn't placed in the wall")
+            return False
 
     def add_to_feeder(self):
         if(self.feeder != None):

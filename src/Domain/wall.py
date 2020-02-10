@@ -98,7 +98,7 @@ class Wall(object):
         check = True
         if(brick.is_placed == False):
             check = False
-        elif(brick.num_layer < layer_number):
+        elif(brick.num_layer < self.layer_number):
             if(brick.num_layer % 2 == 0): #if the layer is even
                 brick_under_1 = self.at(brick.num_layer + 1, brick.num_column)
                 brick_under_2 = self.at(brick.num_layer + 1, brick.num_column + 1)
