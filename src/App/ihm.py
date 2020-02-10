@@ -46,7 +46,8 @@ class Ihm(tk.Tk):
         rospy.init_node("ihm_node", anonymous=True)
         self.dimr_build_pub = rospy.Publisher("kuka_bridge", DimrControl, queue_size=10)
         self.dimr_destroy_pub = rospy.Publisher("kuka_destroy", DimrControl, queue_size=10)
-
+        rospy.loginfo("topic kuka_bridge ready to process")
+        rospy.loginfo("topic kuka_destroy ready to process")
 
         self.frames = {}
         for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
@@ -61,6 +62,7 @@ class Ihm(tk.Tk):
 
         self.show_frame("StartPage") # the first Page to appear
 
+    ############
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = self.frames[page_name]
@@ -120,6 +122,7 @@ class  MainPage(tk.Frame):
         self.column_wait=0
         self.destroy_in_progress= False
         self.bricks = []
+        self.blink=False
         self.msg = DimrControl()
 
     #############
@@ -147,7 +150,7 @@ class  MainPage(tk.Frame):
 
         for layer in range(self.layer_number-1,-1,-1):
 
-            self.arrows[layer][0]=tk.Label(self,anchor="center",text ="" ,fg="DarkOrange2",font=(None,20,'bold'),bg=self.color_init)
+            self.arrows[layer][0]=tk.Label(self,anchor="center",text ="",font=(None,20,'bold'),bg=self.color_init)
             self.arrows[layer][0].grid(row=begin_row+layer,column=0,sticky='NSEW')
             self.grid_columnconfigure(0,weight=2)
 
@@ -172,7 +175,7 @@ class  MainPage(tk.Frame):
                     self.bricks[layer][column].grid(column=first_col_num+column+cpt, row=layer+begin_row,columnspan=2,sticky='NSEW')
                     cpt+=1
 
-            self.arrows[layer][1]=tk.Label(self,text ="" ,fg="DarkOrange2",font=(None,20,'bold'),anchor="center",bg=self.color_init)
+            self.arrows[layer][1]=tk.Label(self,text ="",font=(None,20,'bold'),anchor="center",bg=self.color_init)
             self.arrows[layer][1].grid(row=begin_row+layer,column=first_col_num+self.column_number*2,sticky='NSEW')
             self.grid_columnconfigure(first_col_num+self.column_number*2,weight=2)
 
@@ -195,9 +198,15 @@ class  MainPage(tk.Frame):
         self.update_arrows(self.current_layer)
         self.colorate_current_layer(0)
 
+    ############
+    def wall_in_color(self,color):
+        for layer in range(self.layer_number):
+            for column in range(self.column_number+1):
+                if not(layer%2==0 and column==self.column_number):
+                    self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=color)
 
+    ############
     def update_btn(self):
-
         print("salut")
         if not (rospy.get_param("/kuka/busy")):
             print("orange")
@@ -208,12 +217,19 @@ class  MainPage(tk.Frame):
             self.order.set("Click on a white brick to build the wall")
             self.label.config(fg="DarkOrange2")
         if self.controller.wall.is_filled_up():
-            self.order.set("FINISHED")
-            self.label.config(fg="green")
+            if not (rospy.get_param("/kuka/busy")):
+                self.wall_in_color(self.color_current_brick)
+                self.order.set("FINISHED")
+                self.label.config(fg="green")
         if self.wait:
+            self.blink = not self.blink
             if not self.destroy_in_progress:
+                if self.blink:
+                    self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+                else:
+                    self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
                 print("repasse")
-                self.parent.after(300,self.update_btn)
+                self.parent.after(700,self.update_btn)
 
 
 
@@ -255,10 +271,10 @@ class  MainPage(tk.Frame):
                         self.layer_wait=abs(layer-(self.layer_number-1))
                         self.column_wait=column
                         self.wait=True
-                        self.order.set("Pose in progress")
-                        self.label.config(fg="green")
+                        self.update_empty_brick()
+                        self.order.set("Pose in progress ...")
+                        self.label.config(fg="DarkOrange2")
                         self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_brick)
-
                         print(brick.wall_pose)
                         self.msg.brick_pose = brick.wall_pose
                         self.msg.feeder_pose = brick.feeder.pose
@@ -267,11 +283,10 @@ class  MainPage(tk.Frame):
                         self.msg.column=column
                         self.msg.is_placed= False
                         self.controller.dimr_build_pub.publish(self.msg)
-
                         #self.controller.kuka.move_brick_to(brick) #BLOQUAAAANT CONNASSE DOU LES TOPICS !!!
                         self.update_btn()
 
-
+    #############
     def update_empty_brick(self):
         for layer in range(self.layer_number-1,-1,-1):
             for column in range(self.column_number,-1,-1):
@@ -299,43 +314,65 @@ class  MainPage(tk.Frame):
     #         self.update_arrows(self.current_layer)
     #         print("destroy done")
 
+
+    ############
     def destroy(self):
         print("destroy_pass")
         if not self.controller.wall.is_empty():
             self.parent.after(600,self.destroy)
             if not rospy.get_param("/kuka/busy"):
-                    self.destroy_in_progress=True
-                    rospy.set_param("/kuka/busy",True)
-                    self.update_empty_brick()
-                    self.order.set("Destruction in progress ... \n Please wait until it is done")
-                    self.label.config(fg="red")
-                    print("destroying the wall")
-                    for layer in range(self.layer_number-1,-1,-1):
-                        for column in range(self.column_number,-1,-1):
-                            if not(layer%2==0 and column==self.column_number):
-                                print("coucou")
-                                brick=self.controller.wall.at(layer,column)
-                                self.update_arrows(layer)
-                                if self.controller.wall.check_remove_brick(brick):
-                                    if self.controller.wall.at(layer,column).remove_from_wall():
-                                        print(layer,column)
-                                        self.msg.brick_pose = brick.wall_pose
-                                        self.msg.feeder_pose = brick.feeder_pose
-                                        self.msg.brick_type=brick.type
-                                        self.msg.layer=layer
-                                        self.msg.column=column
-                                        self.msg.is_placed= True
-                                        self.controller.dimr_destroy_pub.publish(self.msg)
-                                        self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_current_brick)
-                                        return True
+                if self.controller.wall.is_filled_up():
+                    self.wall_in_color(self.color_brick_placed)
 
+                self.destroy_in_progress=True
+                rospy.set_param("/kuka/busy",True)
+                self.update_empty_brick()
+                self.order.set("Destruction in progress ...")
+                self.label.config(fg="DarkOrange2")
+                print("destroying the wall")
+                for layer in range(self.layer_number-1,-1,-1):
+                    for column in range(self.column_number,-1,-1):
+                        if not(layer%2==0 and column==self.column_number):
+                            print("coucou")
+                            brick=self.controller.wall.at(layer,column)
+                            self.update_arrows(layer)
+                            if self.controller.wall.check_remove_brick(brick):
+                                if self.controller.wall.at(layer,column).remove_from_wall():
+                                    print(layer,column)
+                                    self.msg.brick_pose = brick.wall_pose
+                                    self.msg.feeder_pose = brick.feeder_pose
+                                    self.msg.brick_type=brick.type
+                                    self.msg.layer=layer
+                                    self.msg.column=column
+                                    self.msg.is_placed= True
+                                    self.controller.dimr_destroy_pub.publish(self.msg)
+                                    self.layer_wait=abs(layer-(self.layer_number-1))
+                                    self.column_wait=column
+                                    return True
+            else:
+                self.blink = not self.blink
+                if self.destroy_in_progress:
+                    if self.blink:
+                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+                    else:
+                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
         else:
-            self.order.set("Click on a white brick to build the wall")
-            self.label.config(fg="DarkOrange2")
-            self.colorate_current_layer(0)
-            self.update_arrows(self.current_layer)
-            print("destroy done")
-            self.destroy_in_progress=False
+            if rospy.get_param("/kuka/busy"):
+                self.parent.after(600,self.destroy)
+                self.blink = not self.blink
+                if self.destroy_in_progress:
+                    if self.blink:
+                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+                    else:
+                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
+            else:
+
+                self.order.set("Click on a white brick to build the wall")
+                self.label.config(fg="DarkOrange2")
+                self.colorate_current_layer(0)
+                self.update_arrows(self.current_layer)
+                print("destroy done")
+                self.destroy_in_progress=False
 
 
 
@@ -373,6 +410,7 @@ class Settings(tk.Frame):
         self.grid_rowconfigure(3,weight=1)
         self.btn_validate.grid(row=3,column=0,columnspan=2,sticky='NSEW')
 
+    ###########
     def update_values(self):
         self.controller.layer_number=self.layer_slider.get()
         self.controller.column_number=self.brick_slider.get()

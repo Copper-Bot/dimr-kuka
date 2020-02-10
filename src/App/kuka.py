@@ -51,7 +51,9 @@ class Kuka():
         #self.tfb = tf.TransformBroadcaster()
         #self.tfl = tf.TransformListener()
         sub = rospy.Subscriber("kuka_bridge", DimrControl, self.callback_dimrcontrol_message)
+        sub = rospy.Subscriber("kuka_destroy", DimrControl, self.callback_dimr_destroy)
         rospy.loginfo("topic kuka_bridge subscribed and ready to process")
+        rospy.loginfo("topic kuka_destroy subscribed and ready to process")
         rospy.loginfo("adding objects")
         rospy.sleep(1)
         self.add_objects()
@@ -77,7 +79,7 @@ class Kuka():
         brick_pose = PoseStamped()
         brick_pose.header.frame_id = "base"
         brick_pose.pose.orientation.w = pose.orientation.w
-        brick_pose.pose.orientation.x = pose.orientation.x 
+        brick_pose.pose.orientation.x = pose.orientation.x
         brick_pose.pose.orientation.y = pose.orientation.y
         brick_pose.pose.orientation.z = pose.orientation.z
         brick_pose.pose.position.x = pose.position.x
@@ -93,6 +95,23 @@ class Kuka():
     #===============attached object==================
     #     self.scene.remove_attached_object(self.eef_link, name=brick_name)
 
+    def callback_dimr_destroy(self,data):
+        rospy.loginfo("Message DimrControl has been received.")
+        feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
+        self.move_joints(feeder_joint_goal)
+        feeder_pose = Pose()
+        feeder_pose.position.x = data.feeder_pose.position.x
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.15
+        feeder_pose.position.z = data.feeder_pose.position.z
+        feeder_pose.orientation.x = data.feeder_pose.orientation.x
+        feeder_pose.orientation.y = data.feeder_pose.orientation.y
+        feeder_pose.orientation.z = data.feeder_pose.orientation.z
+        feeder_pose.orientation.w = data.feeder_pose.orientation.w
+        self.move_to(feeder_pose)
+        rospy.loginfo(data.feeder_pose)
+        rospy.loginfo("finish")
+        rospy.set_param("/kuka/busy", False)
+
     def callback_dimrcontrol_message(self,data):
         rospy.loginfo("Message DimrControl has been received.")
 
@@ -103,7 +122,7 @@ class Kuka():
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.15
-        feeder_pose.position.z = data.feeder_pose.position.z 
+        feeder_pose.position.z = data.feeder_pose.position.z
         feeder_pose.orientation.x = data.feeder_pose.orientation.x
         feeder_pose.orientation.y = data.feeder_pose.orientation.y
         feeder_pose.orientation.z = data.feeder_pose.orientation.z
@@ -111,7 +130,7 @@ class Kuka():
         self.move_to(feeder_pose)
         # self.cartesian_move_to(data.feeder_pose)
         rospy.loginfo(data.feeder_pose)
-        
+
         brick_name = ""
         for f in self.feeders:
             if(f.pose == data.feeder_pose):
