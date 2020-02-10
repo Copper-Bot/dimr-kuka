@@ -71,7 +71,7 @@ class Kuka():
             # Exit
             rospy.loginfo("Stopped manipulation")
 
-    def add_brick_to_wall(self, pose, brick_type, layer, column):
+    def add_brick(self, pose, brick_type, layer, column):
         #===============remove object=================
         #Brick in base frame
         brick_pose = PoseStamped()
@@ -89,24 +89,52 @@ class Kuka():
         else:
             self.scene.add_box(brick_name, brick_pose, size=(0.1, Type.big.value, 0.1))
 
-    # def add_brick_to_wall(self, pose, brick_type, brick_name):
+    # def add_brick(self, pose, brick_type, brick_name):
     #===============attached object==================
     #     self.scene.remove_attached_object(self.eef_link, name=brick_name)
 
+    def remove_brick_from_feeder(self, feeder_pose):
+        brick_name = ""
+        for f in self.feeders:
+            if(f.pose.position.x == feeder_pose.position.x):
+                brick_name = "brickf"+str(f.id)+str(f.brick_count-1)
+
+                #===============remove object=================
+                self.scene.remove_world_object(brick_name)
+                f.remove_brick()
+
+                #===============attached object==================
+                # grasping_group = 'manipulator'
+                # touch_links = self.robot.get_link_names(group=grasping_group)
+                # self.scene.attach_box(self.eef_link, brick_name, touch_links=touch_links)
+    
+    def remove_brick_from_wall(self, wall_pose, layer, column):
+        brick_name = "brick"+str(layer)+str(column)
+        self.scene.remove_world_object(brick_name)
+
     def callback_dimr_destroy(self,data):
         rospy.loginfo("Message DimrControl has been received.")
+        wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
+        self.move_joints(wall_joint_goal)
+        self.move_to(data.brick_pose)
+        self.move_joints(wall_joint_goal)
+        rospy.sleep(1)
+        self.remove_brick_from_wall(data.brick_pose, data.layer, data.column)
+
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
         self.move_joints(feeder_joint_goal)
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
-        feeder_pose.position.y = data.feeder_pose.position.y + 0.15
+        feeder_pose.position.y = data.feeder_pose.position.y
         feeder_pose.position.z = data.feeder_pose.position.z
-        feeder_pose.orientation.x = data.feeder_pose.orientation.x
-        feeder_pose.orientation.y = data.feeder_pose.orientation.y
-        feeder_pose.orientation.z = data.feeder_pose.orientation.z
-        feeder_pose.orientation.w = data.feeder_pose.orientation.w
+        feeder_pose.orientation.x = 0 #data.feeder_pose.orientation.x
+        feeder_pose.orientation.y = 0 #data.feeder_pose.orientation.y
+        feeder_pose.orientation.z = 1 #data.feeder_pose.orientation.z
+        feeder_pose.orientation.w = 0 #data.feeder_pose.orientation.w
         self.move_to(feeder_pose)
-        rospy.loginfo(data.feeder_pose)
+        rospy.sleep(1)
+        self.add_brick(feeder_pose, data.brick_type, data.layer, data.column)
+        self.move_joints(feeder_joint_goal)
         rospy.loginfo("finish")
         rospy.set_param("/kuka/busy", False)
 
@@ -128,39 +156,26 @@ class Kuka():
         self.move_to(feeder_pose)
         # self.cartesian_move_to(data.feeder_pose)
         rospy.loginfo(data.feeder_pose)
-
-        brick_name = ""
-        for f in self.feeders:
-            if(f.pose == data.feeder_pose):
-                # b = f.remove_brick() ihm.py le fait (controller)
-                # if(b != None):
-                brick_name = "brickf"+str(f.id)+str(f.brick_count-1)
-
-                #===============remove object=================
-                self.scene.remove_world_object(brick_name)
-                f.remove_brick()
-
-                #===============attached object==================
-                # grasping_group = 'manipulator'
-                # touch_links = self.robot.get_link_names(group=grasping_group)
-                # self.scene.attach_box(self.eef_link, brick_name, touch_links=touch_links)
-
-                # break
+        rospy.sleep(1)
+        self.remove_brick_from_feeder(data.feeder_pose)
 
         self.move_joints(feeder_joint_goal)
 
         wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
         self.move_joints(wall_joint_goal)
         self.move_to(data.brick_pose)
-        rospy.loginfo("finish")
-        rospy.set_param("/kuka/busy", False)
+        rospy.sleep(1)
 
         #===============remove object=================
-        self.add_brick_to_wall(data.brick_pose,data.brick_type,data.layer,data.column)
-
+        self.add_brick(data.brick_pose,data.brick_type,data.layer,data.column)
+        rospy.sleep(1)
         #===============attached object==================
         # if(brick_name != ""):
-        #     self.add_brick_to_wall(data.brick_pose,data.brick_type,brick_name)
+        #     self.add_brick(data.brick_pose,data.brick_type,brick_name)
+
+        self.move_joints(wall_joint_goal)
+        rospy.loginfo("finish")
+        rospy.set_param("/kuka/busy", False)
 
     def cartesian_move_to(self, target_pose):
         #constraint : be careful with the effector's orientation : the brick must not fall
@@ -176,7 +191,7 @@ class Kuka():
         # for this tutorial.
         (plan, fraction) = self.move_group.compute_cartesian_path(
                                            waypoints,   # waypoints to follow
-                                           0.05,        # step
+                                           0.01,        # step
                                            5)           # jump_threshold
         print "fraction:", fraction
         # Note: We are just planning, not asking move_group to actually move the robot yet
@@ -218,5 +233,5 @@ class Kuka():
                 brick_pose.pose.position.y = f.pose.position.y
                 brick_pose.pose.position.z = f.pose.position.z + k*b.height
                 brick_name = "brickf"+str(f.id)+str(k)
-                self.scene.add_box(brick_name, brick_pose, size=(f.width, f.depth, b.height))
+                self.scene.add_box(brick_name, brick_pose, size=(f.depth,f.width,b.height))
                 k+=1

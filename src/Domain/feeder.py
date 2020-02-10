@@ -32,12 +32,11 @@ class Feeder(object):
         self.brick_type = brick_type.name
         #coordinate of the feeder in the base frame (middle point of the bottom brick of the feeder)
         self.height = brick_capacity * brick_height
-        margin = 0.02
         if(self.brick_type == Type.big.name):
-            self.width = Type.big.value + margin
+            self.width = Type.big.value
         else:
-            self.width = Type.small.value + margin
-        self.depth = brick_height + margin
+            self.width = Type.small.value
+        self.depth = brick_height
         self.pose = pose
         self.bricks = []
 
@@ -98,7 +97,7 @@ brick_height = 0.1
  #TODO : input the taking coordinates for the b6 runner
 taking_pose_b6 = Pose()
 taking_pose_b6.position.x = 0
-taking_pose_b6.position.y = -0.7
+taking_pose_b6.position.y = -0.8
 taking_pose_b6.position.z = 0.05
 taking_pose_b6.orientation.x = 0
 taking_pose_b6.orientation.y = 1
@@ -110,7 +109,7 @@ f1 = Feeder(1, 6, Type.big, brick_height, taking_pose_b6)
 #TODO : input the taking coordinates for the b5 runner
 taking_pose_b5 = Pose()
 taking_pose_b5.position.x = -0.3
-taking_pose_b5.position.y = -0.7
+taking_pose_b5.position.y = -0.8
 taking_pose_b5.position.z = 0.05
 taking_pose_b5.orientation.x = 0
 taking_pose_b5.orientation.y = 1
@@ -122,7 +121,7 @@ f2 = Feeder(2, 5, Type.big, brick_height, taking_pose_b5)
 #TODO : input the taking coordinates for the s2 runner
 taking_pose_s2 = Pose()
 taking_pose_s2.position.x = 0.3
-taking_pose_s2.position.y = -0.7
+taking_pose_s2.position.y = -0.8
 taking_pose_s2.position.z = 0.05
 taking_pose_s2.orientation.x = 0
 taking_pose_s2.orientation.y = 1

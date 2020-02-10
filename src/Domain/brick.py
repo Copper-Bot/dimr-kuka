@@ -20,6 +20,17 @@ from math import pi
 from Domain.feeder import feeders
 from enum import Enum
 
+def fill_feeders():
+    for f in feeders:
+        for k in range(f.brick_capacity):
+            if(f.brick_type == Type.small.name):
+                b = Brick(Type.small,-1,-1)
+            else:
+                b = Brick(Type.big,-1,-1)
+            f.add_brick(b)
+        # f.to_string()
+    return feeders
+
 class Type(Enum):
     #brick's width
     small = 0.09
@@ -114,14 +125,3 @@ class Brick(object):
             print(self.feeder.to_string())
         else:
             print '   Type : {0}\n   Is placed : {1}\n   Feeder : {2}\n '.format(self.type, self.is_placed, self.feeder)
-
-def fill_feeders():
-    for f in feeders:
-        for k in range(f.brick_capacity):
-            if(f.brick_type == Type.small.name):
-                b = Brick(Type.small,-1,-1)
-            else:
-                b = Brick(Type.big,-1,-1)
-            f.add_brick(b)
-        # f.to_string()
-    return feeders
