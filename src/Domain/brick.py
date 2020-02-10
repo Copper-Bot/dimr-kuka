@@ -45,10 +45,6 @@ class Brick(object):
         self.feeder = None
         self.is_placed = False
 
-<<<<<<< HEAD
-    
-=======
->>>>>>> 799a03b2af9c90450ba14f4436b4e660ed1b32b9
     def compute_wall_pose(self, layer, column):
         self.wall_pose.position.x = 0.7
         self.wall_pose.position.y = -0.41 + column*Type.big.value
