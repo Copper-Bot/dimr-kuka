@@ -1,13 +1,16 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 70
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /MotionPlanning1
+        - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Planning Request1
+        - /MotionPlanning1/Planning Metrics1
+        - /MotionPlanning1/Planned Path1
       Splitter Ratio: 0.5170649886131287
-    Tree Height: 273
+    Tree Height: 140
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -26,7 +29,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -39,7 +42,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Acceleration_Scaling_Factor: 1
       Class: moveit_rviz_plugin/MotionPlanning
       Enabled: true
@@ -121,7 +124,7 @@ Visualization Manager:
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
         Show Robot Collision: false
-        Show Robot Visual: true
+        Show Robot Visual: false
         Show Trail: false
         State Display Time: 0.05 s
         Trail Step Size: 1
@@ -211,47 +214,19 @@ Visualization Manager:
       Value: true
       Velocity_Scaling_Factor: 1
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        base:
-          Value: true
-        base_link:
-          Value: true
-        link_1:
-          Value: true
-        link_2:
-          Value: true
-        link_3:
-          Value: true
-        link_4:
-          Value: true
-        link_5:
-          Value: true
-        link_6:
-          Value: true
-        tool0:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          base:
-            {}
-          link_1:
-            link_2:
-              link_3:
-                link_4:
-                  link_5:
-                    link_6:
-                      tool0:
-                        {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -283,15 +258,15 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.17479650676250458
+      Pitch: 0.1347973346710205
       Target Frame: base_link
       Value: XYOrbit (rviz)
-      Yaw: 1.5417687892913818
+      Yaw: 6.084971904754639
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1025
+  Height: 713
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -300,9 +275,9 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd000000010000000000000295000003a7fc0200000007fb000000100044006900730070006c006100790073010000003d000001a2000000c900fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e006701000001fc000001cb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004100fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000001e5000001ff0000019b00ffffff000004a2000003a700000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000002950000026ffc0200000007fb000000100044006900730070006c006100790073010000003d000000c9000000c900fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e006701000001fc000001cb0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000010c000001a00000019b00ffffff000002780000026f00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1853
+  Width: 1299
   X: 67
   Y: 27
