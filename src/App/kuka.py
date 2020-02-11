@@ -167,19 +167,43 @@ class Kuka():
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         feeder_pose.position.z = data.feeder_pose.position.z
-        feeder_pose.orientation.x = 0.5 #data.feeder_pose.orientation.x
-        feeder_pose.orientation.y = 0.5 #data.feeder_pose.orientation.y
-        feeder_pose.orientation.z = -0.5 #data.feeder_pose.orientation.z
-        feeder_pose.orientation.w = 0.5 #data.feeder_pose.orientation.w
+        feeder_pose.orientation.x = 0.5 
+        feeder_pose.orientation.y = 0.5 
+        feeder_pose.orientation.z = -0.5 
+        feeder_pose.orientation.w = 0.5 
         # self.move_to(feeder_pose)
         self.cartesian_move_to(feeder_pose)
-        # feeder_pose.position.z = data.feeder_pose.position.z + 0.01
-        # self.cartesian_move_to(feeder_pose)
-        feeder_pose.position.y = data.feeder_pose.position.y + 0.15
+
+        feeder_pose = Pose()
+        feeder_pose.position.x = data.feeder_pose.position.x
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.05
+        feeder_pose.position.z = data.feeder_pose.position.z 
+        feeder_pose.orientation.x = 0.5 
+        feeder_pose.orientation.y = 0.5 
+        feeder_pose.orientation.z = -0.5 
+        feeder_pose.orientation.w = 0.5 
+        self.cartesian_move_to(feeder_pose)
+
+        feeder_pose = Pose()
+        feeder_pose.position.x = data.feeder_pose.position.x
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.05
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        feeder_pose.orientation.x = 0.5 
+        feeder_pose.orientation.y = 0.5 
+        feeder_pose.orientation.z = -0.5 
+        feeder_pose.orientation.w = 0.5 
         self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
         self.remove_brick_from_feeder(data.feeder_pose)
-        # self.move_joints(feeder_joint_goal)
+        feeder_pose = Pose()
+        feeder_pose.position.x = data.feeder_pose.position.x
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.2
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        feeder_pose.orientation.x = 0.5 
+        feeder_pose.orientation.y = 0.5 
+        feeder_pose.orientation.z = -0.5 
+        feeder_pose.orientation.w = 0.5 
+        self.cartesian_move_to(feeder_pose)
 
 
 
