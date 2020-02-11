@@ -40,9 +40,6 @@ class Kuka():
         rospy.loginfo("Beginning with Kuka")
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
-        rospy.sleep(1)
-        self.scene.remove_world_object()
-        rospy.sleep(1)
         group_name = "manipulator"
         self.move_group = moveit_commander.MoveGroupCommander(group_name)
         self.eef_link = self.move_group.get_end_effector_link()
@@ -88,6 +85,9 @@ class Kuka():
             self.scene.add_box(brick_name, brick_pose, size=(Type.small.value,0.1, 0.1))
         else:
             self.scene.add_box(brick_name, brick_pose, size=(Type.big.value,0.1, 0.1))
+        
+        if(rospy.get_param(/kuka_destroy/finish)):
+            self.add_objects()
 
     # def add_brick(self, pose, brick_type, brick_name):
     #===============attached object==================
@@ -270,6 +270,10 @@ class Kuka():
         self.move_group.clear_pose_targets()
 
     def add_objects(self):
+        #Reset the scene after the destruction of the wall
+        rospy.sleep(1)
+        self.scene.remove_world_object()
+        rospy.sleep(1)
 
         #Ground in base frame
         ground_pose = PoseStamped()
