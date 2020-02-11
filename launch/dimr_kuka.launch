@@ -15,6 +15,7 @@
     <!-- Launch main_kuka.py interface -->
     <node pkg="dimr_kuka" type="main_kuka.py" output="screen" name="dimr_kuka_node" cwd="node"/>
 
-
+    <!-- joystick -->
+    <include file="$(find dimr_kuka)/launch/test_joy_bridge_dimr.launch"/>
 
 </launch>
