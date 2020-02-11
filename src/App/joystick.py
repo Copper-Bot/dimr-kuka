@@ -19,7 +19,6 @@ from sensor_msgs.msg import JoyFeedback, JoyFeedbackArray
 
 delta = 0.05
 
-
 ws_center_x = 0.13
 ws_center_y = -0.20
 ws_center_z = 0.6
