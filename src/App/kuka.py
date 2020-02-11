@@ -138,6 +138,7 @@ class Kuka():
     def callback_dimr_destroy(self,data):
         rospy.loginfo("Message DimrControl has been received.")
 
+        #place the effector in front of the brick to take in the wall
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
@@ -147,18 +148,29 @@ class Kuka():
         wall_pose.orientation.z = 0.0
         wall_pose.orientation.w = 0.707
         self.move_to(wall_pose)
+
+        #move the effector forward through the hole in the brick
         wall_pose.position.x = data.brick_pose.position.x - 0.05
         self.cartesian_move_to(wall_pose)
+
+        #cartesianly lift the brick up of z += 0.05 m
         wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.06 + 0.065
         self.cartesian_move_to(wall_pose)
+
+        #remove the brick from the wall
         rospy.sleep(1)
         self.remove_brick_from_wall(data.brick_pose, data.layer, data.column)
+
+        #cartesianly move the brick backward of x -= 0.2 to get it out of the wall
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         self.cartesian_move_to(wall_pose)
 
 
+        #intermediate joint pose before taking a brick in a feeder
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
         self.move_joints(feeder_joint_goal)
+
+        #place the end-effector in front of the location of the brick in the feeder
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
@@ -168,17 +180,26 @@ class Kuka():
         feeder_pose.orientation.z = -0.5 
         feeder_pose.orientation.w = 0.5 
         self.cartesian_move_to(feeder_pose)
+
+        #move the effector forward to place the brick
         feeder_pose.position.y = data.feeder_pose.position.y + 0.05
         self.cartesian_move_to(feeder_pose)
+
+        #move the effector down to free the brick
         feeder_pose.position.z = data.feeder_pose.position.z - 0.01 + 0.065
         self.cartesian_move_to(feeder_pose)
+
+        #add the brick to the feeder
         rospy.sleep(1)
         self.add_brick_to_feeder(data.feeder_pose, data.brick_type, data.layer, data.column)
+
+        #retract the effector of 0.2m
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         self.cartesian_move_to(feeder_pose)
         rospy.loginfo("finish")
         rospy.set_param("/kuka_destroy/busy", False)
 
+        #if the wall is completely destroyed
         if(rospy.get_param("/kuka_destroy/finish")):
             rospy.loginfo("RESET SCENE")
             self.reset_scene()
@@ -189,6 +210,8 @@ class Kuka():
         #intermediate joint pose before taking a brick in a feeder
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
         self.move_joints(feeder_joint_goal)
+
+        #place the end-effector in front of the brick to take
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
@@ -197,23 +220,26 @@ class Kuka():
         feeder_pose.orientation.y = 0.5 
         feeder_pose.orientation.z = -0.5 
         feeder_pose.orientation.w = 0.5 
-
-        rospy.loginfo("pose feeder ")
-        rospy.loginfo(feeder_pose)
         self.cartesian_move_to(feeder_pose)
+
+        #move the effector forward through the hole in the brick
         feeder_pose.position.y = data.feeder_pose.position.y + 0.05
         self.cartesian_move_to(feeder_pose)
+
+        #cartesianly lift the brick up of z += 0.01m to take the brick
         feeder_pose.position.z = data.feeder_pose.position.z + 0.01 + 0.065
-        rospy.loginfo("pose feeder remonte")
-        rospy.loginfo(feeder_pose)
         self.cartesian_move_to(feeder_pose)
+
+        #remove the brick from the feeder
         rospy.sleep(1)
         self.remove_brick_from_feeder(data.feeder_pose)
+
+        #retract the end-effector 
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         self.cartesian_move_to(feeder_pose)
 
 
-
+        #place the effector in front of the wall position of the brick
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
@@ -222,17 +248,17 @@ class Kuka():
         wall_pose.orientation.y = 0.707
         wall_pose.orientation.z = 0.0
         wall_pose.orientation.w = 0.707
-        rospy.loginfo("brick")
-        rospy.loginfo(data.brick_pose)
-        rospy.loginfo("wall pose ")
-        rospy.loginfo(wall_pose)
         self.move_to(wall_pose)
+
+        #move the effector forward to place the brick in the wall
         wall_pose.position.x = data.brick_pose.position.x - 0.05
         self.cartesian_move_to(wall_pose)
+
+        #cartesianly lift the brick down to drop it off
         wall_pose.position.z = data.brick_pose.position.z + 0.05 - 0.06 + 0.065
-        rospy.loginfo("wall pose")
-        rospy.loginfo(wall_pose)
         self.cartesian_move_to(wall_pose)
+
+        #place the brick in the wall
         rospy.sleep(2)
         #===============remove object=================
         self.add_brick_to_wall(data.brick_pose,data.brick_type,data.layer,data.column)
@@ -241,10 +267,11 @@ class Kuka():
         # if(brick_name != ""):
         #     self.add_brick(data.brick_pose,data.brick_type,brick_name)
         # self.move_joints(wall_joint_goal)
+
+        #retract the end-effector from the wall
         wall_pose.position.x = data.brick_pose.position.x - 0.2
-        rospy.loginfo("wall pose ")
-        rospy.loginfo(wall_pose)
         self.cartesian_move_to(wall_pose)
+        
         rospy.loginfo("finish")
         rospy.set_param("/kuka/busy", False)
 
