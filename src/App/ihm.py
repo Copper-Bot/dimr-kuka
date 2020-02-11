@@ -302,7 +302,6 @@ class  Main_page(tk.Frame):
             if not self.destroy_in_progress:
                 rospy.set_param("/kuka/manual", True)
                 self.controller.show_frame("Page_joystick")
-                # publish topic
 
 
     ############
@@ -433,4 +432,3 @@ class Page_joystick(tk.Frame):
     def go_main_page(self):
         rospy.set_param("/kuka/manual", False)
         self.controller.show_frame("Main_page")
-        # mettre param ou envoyer un truc sur topic pour terminer
