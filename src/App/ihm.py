@@ -28,9 +28,9 @@ from Domain.wall import Wall
 
 class Ihm(tk.Tk):
     def __init__(self):
-        tk.Tk.__init__(self) 
+        tk.Tk.__init__(self)
         # global_feeders = feeders
-        self.wall = None #created with the right values when the user click on the "start building" button on the StartPage
+        self.wall = None #created with the right values when the user click on the "start building" button on the Start_page
         # the container is where we'll stack a bunch of frames
         # on top of each other, then the one we want visible
         # will be raised above the others
@@ -49,7 +49,7 @@ class Ihm(tk.Tk):
         rospy.loginfo("topic kuka_destroy ready to process")
 
         self.frames = {}
-        for F in (StartPage, MainPage, Settings): # you can ADD PAGE HERE
+        for F in (Start_page, Settings,Page_joystick, Main_page): # you can ADD PAGE HERE
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -59,7 +59,7 @@ class Ihm(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
 
-        self.show_frame("StartPage") # the first Page to appear
+        self.show_frame("Start_page") # the first Page to appear
 
     ############
     def show_frame(self, page_name):
@@ -68,7 +68,7 @@ class Ihm(tk.Tk):
         frame.tkraise()
 
 #=======================
-class StartPage(tk.Frame):
+class Start_page(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -100,12 +100,12 @@ class StartPage(tk.Frame):
         self.controller.show_frame("Settings")
     ############
     def start_building(self):
-        self.controller.frames["MainPage"].initialize() #draw the wall with the right number of layer and column
-        self.controller.show_frame("MainPage")
+        self.controller.frames["Main_page"].initialize() #draw the wall with the right number of layer and column
+        self.controller.show_frame("Main_page")
         self.controller.wall = Wall(self.controller.layer_number, self.controller.column_number)
 
 #=======================
-class  MainPage(tk.Frame):
+class  Main_page(tk.Frame):
 
     #############
     def __init__(self,parent,controller):
@@ -189,9 +189,16 @@ class  MainPage(tk.Frame):
         img_bin = Image.open("Images/bin2.png")
         img_bin.thumbnail((70,70), Image.ANTIALIAS)
         img_b = ImageTk.PhotoImage(img_bin)
-        button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy)
+        button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy_wall)
         button_destroy.image=img_b
         button_destroy.place(relx=1.,anchor="ne",bordermode="outside")
+
+        img_joystick = Image.open("Images/joystick.png")
+        img_joystick.thumbnail((70,70), Image.ANTIALIAS)
+        img_j= ImageTk.PhotoImage(img_joystick)
+        btn_joystick= tk.Button(self,font=(None,10,'bold'),image = img_j,command=self.go_joystick,bg=self.color_init)
+        btn_joystick.image=img_j
+        btn_joystick.place(anchor="nw")
 
         self.update_arrows(self.current_layer)
         self.colorate_current_layer(0)
@@ -281,7 +288,6 @@ class  MainPage(tk.Frame):
                         self.msg.column=column
                         self.msg.is_placed= False
                         self.controller.dimr_build_pub.publish(self.msg)
-                        #self.controller.kuka.move_brick_to(brick) #BLOQUAAAANT CONNASSE DOU LES TOPICS !!!
                         self.update_btn()
 
     #############
@@ -293,28 +299,16 @@ class  MainPage(tk.Frame):
                     if not brick.is_placed:
                         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_init)
 
-
     #############
-    # def destroy(self):
-    #
-    #     if not rospy.get_param("/kuka/busy"):
-    #     #if not(self.controller.kuka.is_busy):
-    #         self.destroy_in_progress=True
-    #         print("destroying the wall")
-    #         for layer in range(self.layer_number):
-    #             for column in range(self.column_number+1):
-    #                 if(self.bricks != [] and not(self.bricks[layer][column]==0)):
-    #                     self.bricks[layer][column].config(bg=self.color_init)
-    #         self.order.set("Click on a white brick to build the wall")
-    #         self.label.config(fg="DarkOrange2")
-    #         self.colorate_current_layer(0)
-    #         self.controller.wall.destroy()
-    #         self.update_arrows(self.current_layer)
-    #         print("destroy done")
+    def go_joystick(self):
+        if not rospy.get_param("/kuka/busy"):
+            if not self.destroy_in_progress:
+                self.controller.show_frame("Page_joystick")
+                # publish topic
 
 
     ############
-    def destroy(self):
+    def destroy_wall(self):
         print("destroy_pass")
         if not self.controller.wall.is_empty():
             self.parent.after(600,self.destroy)
@@ -412,18 +406,31 @@ class Settings(tk.Frame):
     def update_values(self):
         self.controller.layer_number=self.layer_slider.get()
         self.controller.column_number=self.brick_slider.get()
-        self.controller.show_frame("StartPage")
+        self.controller.show_frame("Start_page")
 
 
 
-##======================= template to add a page
-# class PageTwo(tk.Frame):
-#
-#     def __init__(self, parent, controller):
-#         tk.Frame.__init__(self, parent)
-#         self.controller = controller
-#         label = tk.Label(self, text="This is page 2")
-#         label.pack(side="top", fill="x", pady=10)
-#         button = tk.Button(self, text="Go to the start page",
-#                            command=lambda: controller.show_frame("StartPage"))
-#         button.pack()
+class Page_joystick(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        img = Image.open("Images/home_img.jpg")
+        labelWidth = controller.winfo_screenwidth()
+        labelHeight = controller.winfo_screenheight()
+        maxsize = (labelWidth, labelHeight)
+        img.thumbnail(maxsize, Image.ANTIALIAS)
+        img_ = ImageTk.PhotoImage(img)
+        label = tk.Label(self, image=img_ )
+        label.image = img_
+        label.pack()
+        label = tk.Label(self, text="Teleoperation")
+        label.pack(side="top", fill="x", pady=10)
+        btn_back = tk.Button(self,font=(None,10,'bold'),text="Building",command=self.go_main_page)
+        btn_back.place(anchor="nw")
+
+
+    def go_main_page(self):
+        self.controller.show_frame("Main_page")
+        # mettre param ou envoyer un truc sur topic pour terminer
