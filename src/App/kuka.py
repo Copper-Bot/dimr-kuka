@@ -147,33 +147,50 @@ class Kuka():
         self.move_joints(feeder_joint_goal)
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
-        feeder_pose.position.y = data.feeder_pose.position.y + 0.15
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         feeder_pose.position.z = data.feeder_pose.position.z
-        feeder_pose.orientation.x = data.feeder_pose.orientation.x
-        feeder_pose.orientation.y = data.feeder_pose.orientation.y
-        feeder_pose.orientation.z = data.feeder_pose.orientation.z
-        feeder_pose.orientation.w = data.feeder_pose.orientation.w
-        self.move_to(feeder_pose)
-        # self.cartesian_move_to(data.feeder_pose)
-        rospy.loginfo(data.feeder_pose)
+        feeder_pose.orientation.x = 0.5 #data.feeder_pose.orientation.x
+        feeder_pose.orientation.y = 0.5 #data.feeder_pose.orientation.y
+        feeder_pose.orientation.z = -0.5 #data.feeder_pose.orientation.z
+        feeder_pose.orientation.w = 0.5 #data.feeder_pose.orientation.w
+        # self.move_to(feeder_pose)
+        self.cartesian_move_to(feeder_pose)
+        # feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        # self.cartesian_move_to(feeder_pose)
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.15
+        self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
         self.remove_brick_from_feeder(data.feeder_pose)
+        # self.move_joints(feeder_joint_goal)
 
-        self.move_joints(feeder_joint_goal)
 
-        wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
-        self.move_joints(wall_joint_goal)
-        self.move_to(data.brick_pose)
+
+        # wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
+        # self.move_joints(wall_joint_goal)
+        # self.move_to(data.brick_pose)
+        wall_pose = Pose()
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        wall_pose.position.y = data.brick_pose.position.y 
+        wall_pose.position.z = data.brick_pose.position.z #+ 0.1
+        wall_pose.orientation.x = 0.0
+        wall_pose.orientation.y = 0.707
+        wall_pose.orientation.z = 0.0
+        wall_pose.orientation.w = 0.707
+        self.move_to(wall_pose)
+        wall_pose.position.x = data.brick_pose.position.x
+        self.cartesian_move_to(wall_pose)
+        # wall_pose.position.z = data.brick_pose.position.z
+        # self.cartesian_move_to(wall_pose)
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        self.cartesian_move_to(wall_pose)
         rospy.sleep(1)
-
         #===============remove object=================
         self.add_brick(data.brick_pose,data.brick_type,data.layer,data.column)
-        rospy.sleep(1)
+        # rospy.sleep(2)
         #===============attached object==================
         # if(brick_name != ""):
         #     self.add_brick(data.brick_pose,data.brick_type,brick_name)
-
-        self.move_joints(wall_joint_goal)
+        # self.move_joints(wall_joint_goal)
         rospy.loginfo("finish")
         rospy.set_param("/kuka/busy", False)
 
@@ -192,7 +209,7 @@ class Kuka():
         (plan, fraction) = self.move_group.compute_cartesian_path(
                                            waypoints,   # waypoints to follow
                                            0.01,        # step
-                                           5)           # jump_threshold
+                                           15)           # jump_threshold
         print "fraction:", fraction
         # Note: We are just planning, not asking move_group to actually move the robot yet
         #we move the robot :
