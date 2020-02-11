@@ -114,6 +114,7 @@ class  Main_page(tk.Frame):
         self.controller=controller
         rospy.set_param("/kuka/busy",False)
         rospy.set_param("/kuka_destroy/busy",False)
+        rospy.set_param("/kuka_destroy/finish",False)
         self.column_number=self.controller.column_number
         self.layer_number=self.controller.layer_number
         self.wait=False
@@ -319,6 +320,7 @@ class  Main_page(tk.Frame):
                         self.wall_in_color(self.color_brick_placed)
                     self.destroy_in_progress=True
                     rospy.set_param("/kuka_destroy/busy",True)
+                    rospy.set_param("/kuka_destroy/finish",False)
                     self.update_empty_brick()
                     self.order.set("Destruction in progress ...")
                     self.label.config(fg="DarkOrange2")
@@ -364,6 +366,7 @@ class  Main_page(tk.Frame):
                         self.colorate_current_layer(0)
                         self.update_arrows(self.current_layer)
                         print("destroy done")
+                        rospy.set_param("/kuka_destroy/finish",True)
                         self.destroy_in_progress=False
 
 
