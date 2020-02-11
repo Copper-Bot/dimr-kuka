@@ -107,7 +107,7 @@ class Kuka():
                 # grasping_group = 'manipulator'
                 # touch_links = self.robot.get_link_names(group=grasping_group)
                 # self.scene.attach_box(self.eef_link, brick_name, touch_links=touch_links)
-    
+
     def remove_brick_from_wall(self, wall_pose, layer, column):
         brick_name = "brick"+str(layer)+str(column)
         self.scene.remove_world_object(brick_name)
@@ -136,7 +136,7 @@ class Kuka():
         self.add_brick(feeder_pose, data.brick_type, data.layer, data.column)
         self.move_joints(feeder_joint_goal)
         rospy.loginfo("finish")
-        rospy.set_param("/kuka/busy", False)
+        rospy.set_param("/kuka_destroy/busy", False)
 
     def callback_dimrcontrol_message(self,data):
         rospy.loginfo("Message DimrControl has been received.")
@@ -170,7 +170,7 @@ class Kuka():
         # self.move_to(data.brick_pose)
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
-        wall_pose.position.y = data.brick_pose.position.y 
+        wall_pose.position.y = data.brick_pose.position.y
         wall_pose.position.z = data.brick_pose.position.z #+ 0.1
         wall_pose.orientation.x = 0.0
         wall_pose.orientation.y = 0.707
