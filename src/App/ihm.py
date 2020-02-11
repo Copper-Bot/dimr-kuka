@@ -113,6 +113,7 @@ class  Main_page(tk.Frame):
         self.parent = parent
         self.controller=controller
         rospy.set_param("/kuka/busy",False)
+        rospy.set_param("/kuka_destroy/busy",False)
         self.column_number=self.controller.column_number
         self.layer_number=self.controller.layer_number
         self.wait=False
@@ -266,7 +267,7 @@ class  Main_page(tk.Frame):
 
     #############
     def select_brick(self, layer, column):
-        if not (rospy.get_param("/kuka/busy")):
+        if not (rospy.get_param("/kuka/busy")) and not rospy.get_param("/kuka_destroy/busy"):
             if not self.destroy_in_progress:
                 current_layer=self.controller.wall.layer_in_progress().num
                 brick=self.controller.wall.at(layer,column)
@@ -301,7 +302,7 @@ class  Main_page(tk.Frame):
 
     #############
     def go_joystick(self):
-        if not rospy.get_param("/kuka/busy"):
+        if not rospy.get_param("/kuka/busy") and not  rospy.get_param("/kuka_destroy/busy"):
             if not self.destroy_in_progress:
                 self.controller.show_frame("Page_joystick")
                 # publish topic
@@ -309,62 +310,61 @@ class  Main_page(tk.Frame):
 
     ############
     def destroy_wall(self):
-        print("destroy_pass")
-        if not self.controller.wall.is_empty():
-            self.parent.after(600,self.destroy)
-            if not rospy.get_param("/kuka/busy"):
-                if self.controller.wall.is_filled_up():
-                    self.wall_in_color(self.color_brick_placed)
-
-                self.destroy_in_progress=True
-                rospy.set_param("/kuka/busy",True)
-                self.update_empty_brick()
-                self.order.set("Destruction in progress ...")
-                self.label.config(fg="DarkOrange2")
-                print("destroying the wall")
-                for layer in range(self.layer_number-1,-1,-1):
-                    for column in range(self.column_number,-1,-1):
-                        if not(layer%2==0 and column==self.column_number):
-                            print("coucou")
-                            brick=self.controller.wall.at(layer,column)
-                            self.update_arrows(layer)
-                            if self.controller.wall.check_remove_brick(brick):
-                                if self.controller.wall.at(layer,column).remove_from_wall():
-                                    print(layer,column)
-                                    self.msg.brick_pose = brick.wall_pose
-                                    self.msg.feeder_pose = brick.feeder_pose
-                                    self.msg.brick_type=brick.type
-                                    self.msg.layer=layer
-                                    self.msg.column=column
-                                    self.msg.is_placed= True
-                                    self.controller.dimr_destroy_pub.publish(self.msg)
-                                    self.layer_wait=abs(layer-(self.layer_number-1))
-                                    self.column_wait=column
-                                    return True
+        if not rospy.get_param("/kuka/busy"):
+            print("destroy_pass")
+            if not self.controller.wall.is_empty():
+                self.parent.after(600,self.destroy_wall)
+                if not rospy.get_param("/kuka_destroy/busy"):
+                    if self.controller.wall.is_filled_up():
+                        self.wall_in_color(self.color_brick_placed)
+                    self.destroy_in_progress=True
+                    rospy.set_param("/kuka_destroy/busy",True)
+                    self.update_empty_brick()
+                    self.order.set("Destruction in progress ...")
+                    self.label.config(fg="DarkOrange2")
+                    print("destroying the wall")
+                    for layer in range(self.layer_number-1,-1,-1):
+                        for column in range(self.column_number,-1,-1):
+                            if not(layer%2==0 and column==self.column_number):
+                                print("coucou")
+                                brick=self.controller.wall.at(layer,column)
+                                self.update_arrows(layer)
+                                if self.controller.wall.check_remove_brick(brick):
+                                    if self.controller.wall.at(layer,column).remove_from_wall():
+                                        print(layer,column)
+                                        self.msg.brick_pose = brick.wall_pose
+                                        self.msg.feeder_pose = brick.feeder_pose
+                                        self.msg.brick_type=brick.type
+                                        self.msg.layer=layer
+                                        self.msg.column=column
+                                        self.msg.is_placed= True
+                                        self.controller.dimr_destroy_pub.publish(self.msg)
+                                        self.layer_wait=abs(layer-(self.layer_number-1))
+                                        self.column_wait=column
+                                        return True
+                else:
+                    self.blink = not self.blink
+                    if self.destroy_in_progress:
+                        if self.blink:
+                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+                        else:
+                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
             else:
-                self.blink = not self.blink
-                if self.destroy_in_progress:
-                    if self.blink:
-                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
-                    else:
-                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
-        else:
-            if rospy.get_param("/kuka/busy"):
-                self.parent.after(600,self.destroy)
-                self.blink = not self.blink
-                if self.destroy_in_progress:
-                    if self.blink:
-                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
-                    else:
-                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
-            else:
-
-                self.order.set("Click on a white brick to build the wall")
-                self.label.config(fg="DarkOrange2")
-                self.colorate_current_layer(0)
-                self.update_arrows(self.current_layer)
-                print("destroy done")
-                self.destroy_in_progress=False
+                if rospy.get_param("/kuka_destroy/busy"):
+                    self.parent.after(600,self.destroy_wall)
+                    self.blink = not self.blink
+                    if self.destroy_in_progress:
+                        if self.blink:
+                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+                        else:
+                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
+                else:
+                        self.order.set("Click on a white brick to build the wall")
+                        self.label.config(fg="DarkOrange2")
+                        self.colorate_current_layer(0)
+                        self.update_arrows(self.current_layer)
+                        print("destroy done")
+                        self.destroy_in_progress=False
 
 
 
@@ -427,7 +427,7 @@ class Page_joystick(tk.Frame):
         label.pack()
         label = tk.Label(self, text="Teleoperation")
         label.pack(side="top", fill="x", pady=10)
-        btn_back = tk.Button(self,font=(None,10,'bold'),text="Building",command=self.go_main_page)
+        btn_back = tk.Button(self,font=(None,10,'bold'),height=3,text="Building",command=self.go_main_page)
         btn_back.place(anchor="nw")
 
 
