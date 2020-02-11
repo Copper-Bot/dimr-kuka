@@ -85,9 +85,6 @@ class Kuka():
             self.scene.add_box(brick_name, brick_pose, size=(Type.small.value,0.1, 0.1))
         else:
             self.scene.add_box(brick_name, brick_pose, size=(Type.big.value,0.1, 0.1))
-        
-        if(rospy.get_param(/kuka_destroy/finish)):
-            self.add_objects()
 
     # def add_brick(self, pose, brick_type, brick_name):
     #===============attached object==================
@@ -132,29 +129,53 @@ class Kuka():
 
     def callback_dimr_destroy(self,data):
         rospy.loginfo("Message DimrControl has been received.")
-        wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
-        self.move_joints(wall_joint_goal)
-        self.move_to(data.brick_pose)
-        self.move_joints(wall_joint_goal)
+
+        wall_pose = Pose()
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        wall_pose.position.y = data.brick_pose.position.y
+        wall_pose.position.z = data.brick_pose.position.z + 0.05
+        wall_pose.orientation.x = 0.0
+        wall_pose.orientation.y = 0.707
+        wall_pose.orientation.z = 0.0
+        wall_pose.orientation.w = 0.707
+        self.move_to(wall_pose)
+        wall_pose.position.x = data.brick_pose.position.x
+        self.cartesian_move_to(wall_pose)
+        wall_pose.position.z = data.brick_pose.position.z - 0.06
+        self.cartesian_move_to(wall_pose)
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        self.cartesian_move_to(wall_pose)
         rospy.sleep(1)
         self.remove_brick_from_wall(data.brick_pose, data.layer, data.column)
+
 
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
         self.move_joints(feeder_joint_goal)
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
-        feeder_pose.position.y = data.feeder_pose.position.y
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         feeder_pose.position.z = data.feeder_pose.position.z
-        feeder_pose.orientation.x = 0 #data.feeder_pose.orientation.x
-        feeder_pose.orientation.y = 0 #data.feeder_pose.orientation.y
-        feeder_pose.orientation.z = 1 #data.feeder_pose.orientation.z
-        feeder_pose.orientation.w = 0 #data.feeder_pose.orientation.w
-        self.move_to(feeder_pose)
+        feeder_pose.orientation.x = 0.5 
+        feeder_pose.orientation.y = 0.5 
+        feeder_pose.orientation.z = -0.5 
+        feeder_pose.orientation.w = 0.5 
+        # self.move_to(feeder_pose)
+        self.cartesian_move_to(feeder_pose)
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.05
+        self.cartesian_move_to(feeder_pose)
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
         self.add_brick_to_feeder(feeder_pose, data.brick_type, data.layer, data.column)
-        self.move_joints(feeder_joint_goal)
+        feeder_pose.position.y = data.feeder_pose.position.y + 0.2
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        self.cartesian_move_to(feeder_pose)
         rospy.loginfo("finish")
         rospy.set_param("/kuka_destroy/busy", False)
+
+        if(rospy.get_param("/kuka_destroy/finish")):
+            rospy.loginfo("RESET SCENE")
+            self.add_objects()
 
     def callback_dimrcontrol_message(self,data):
         rospy.loginfo("Message DimrControl has been received.")
@@ -173,36 +194,14 @@ class Kuka():
         feeder_pose.orientation.w = 0.5 
         # self.move_to(feeder_pose)
         self.cartesian_move_to(feeder_pose)
-
-        feeder_pose = Pose()
-        feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.05
-        feeder_pose.position.z = data.feeder_pose.position.z 
-        feeder_pose.orientation.x = 0.5 
-        feeder_pose.orientation.y = 0.5 
-        feeder_pose.orientation.z = -0.5 
-        feeder_pose.orientation.w = 0.5 
         self.cartesian_move_to(feeder_pose)
-
-        feeder_pose = Pose()
-        feeder_pose.position.x = data.feeder_pose.position.x
-        feeder_pose.position.y = data.feeder_pose.position.y + 0.05
         feeder_pose.position.z = data.feeder_pose.position.z + 0.01
-        feeder_pose.orientation.x = 0.5 
-        feeder_pose.orientation.y = 0.5 
-        feeder_pose.orientation.z = -0.5 
-        feeder_pose.orientation.w = 0.5 
         self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
         self.remove_brick_from_feeder(data.feeder_pose)
-        feeder_pose = Pose()
-        feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
         feeder_pose.position.z = data.feeder_pose.position.z + 0.01
-        feeder_pose.orientation.x = 0.5 
-        feeder_pose.orientation.y = 0.5 
-        feeder_pose.orientation.z = -0.5 
-        feeder_pose.orientation.w = 0.5 
         self.cartesian_move_to(feeder_pose)
 
 
@@ -213,7 +212,7 @@ class Kuka():
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
-        wall_pose.position.z = data.brick_pose.position.z #+ 0.1
+        wall_pose.position.z = data.brick_pose.position.z + 0.05
         wall_pose.orientation.x = 0.0
         wall_pose.orientation.y = 0.707
         wall_pose.orientation.z = 0.0
@@ -221,11 +220,11 @@ class Kuka():
         self.move_to(wall_pose)
         wall_pose.position.x = data.brick_pose.position.x
         self.cartesian_move_to(wall_pose)
-        # wall_pose.position.z = data.brick_pose.position.z
-        # self.cartesian_move_to(wall_pose)
+        wall_pose.position.z = data.brick_pose.position.z - 0.06
+        self.cartesian_move_to(wall_pose)
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         self.cartesian_move_to(wall_pose)
-        rospy.sleep(1)
+        rospy.sleep(2)
         #===============remove object=================
         self.add_brick_to_wall(data.brick_pose,data.brick_type,data.layer,data.column)
         # rospy.sleep(2)
@@ -239,7 +238,7 @@ class Kuka():
     def cartesian_move_to(self, target_pose):
         #constraint : be careful with the effector's orientation : the brick must not fall
         waypoints = []
-        init_pose = self.move_group.get_current_pose().pose
+        # init_pose = self.move_group.get_current_pose().pose
         # waypoints.append(init_pose)
         waypoints.append(target_pose)
 
@@ -251,7 +250,7 @@ class Kuka():
         (plan, fraction) = self.move_group.compute_cartesian_path(
                                            waypoints,   # waypoints to follow
                                            0.01,        # step
-                                           15)           # jump_threshold
+                                           5)           # jump_threshold
         print "fraction:", fraction
         # Note: We are just planning, not asking move_group to actually move the robot yet
         #we move the robot :

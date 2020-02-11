@@ -55,7 +55,7 @@ class Wall(object):
             bricks_nb = layer.count_placed_bricks()
             sb_number += bricks_nb[0]
             bb_number += bricks_nb[1]
-        return sb_number, bb_number
+        return sb_number+bb_number
 
     def destroy(self):
         if(self.is_empty() == False):
