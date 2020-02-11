@@ -229,14 +229,9 @@ class  Main_page(tk.Frame):
                 self.order.set("FINISHED")
                 self.label.config(fg="green")
         if self.wait:
-            self.blink = not self.blink
-            if not self.destroy_in_progress:
-                if self.blink:
-                    self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
-                else:
-                    self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
-                print("repasse")
-                self.parent.after(700,self.update_btn)
+            self.blink_brick()
+            print("repasse")
+            self.parent.after(700,self.update_btn)
 
 
 
@@ -281,7 +276,7 @@ class  Main_page(tk.Frame):
                         self.update_empty_brick()
                         self.order.set("Pose in progress ...")
                         self.label.config(fg="DarkOrange2")
-                        self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_brick)
+                        #self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_brick)
                         print(brick.wall_pose)
                         self.msg.brick_pose = brick.wall_pose
                         self.msg.feeder_pose = brick.feeder.pose
@@ -305,8 +300,20 @@ class  Main_page(tk.Frame):
     def go_joystick(self):
         if not rospy.get_param("/kuka/busy") and not  rospy.get_param("/kuka_destroy/busy"):
             if not self.destroy_in_progress:
+                rospy.set_param("/kuka/manual", True)
                 self.controller.show_frame("Page_joystick")
                 # publish topic
+
+
+    ############
+    def blink_brick(self):
+        print("hey")
+        self.blink = not self.blink
+        if self.destroy_in_progress or rospy.get_param("/kuka/busy"):
+            if self.blink:
+                self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
+            else:
+                self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
 
 
     ############
@@ -341,33 +348,23 @@ class  Main_page(tk.Frame):
                                         self.msg.column=column
                                         self.msg.is_placed= True
                                         self.controller.dimr_destroy_pub.publish(self.msg)
+                                        rospy.set_param("/kuka_destroy/finish", self.controller.wall.is_empty())
                                         self.layer_wait=abs(layer-(self.layer_number-1))
                                         self.column_wait=column
                                         return True
                 else:
-                    self.blink = not self.blink
-                    if self.destroy_in_progress:
-                        if self.blink:
-                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
-                        else:
-                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
+                    self.blink_brick()
             else:
                 if rospy.get_param("/kuka_destroy/busy"):
                     self.parent.after(600,self.destroy_wall)
-                    self.blink = not self.blink
-                    if self.destroy_in_progress:
-                        if self.blink:
-                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
-                        else:
-                            self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_current_layer)
+                    self.blink_brick()
                 else:
-                        self.order.set("Click on a white brick to build the wall")
-                        self.label.config(fg="DarkOrange2")
-                        self.colorate_current_layer(0)
-                        self.update_arrows(self.current_layer)
-                        print("destroy done")
-                        rospy.set_param("/kuka_destroy/finish",True)
-                        self.destroy_in_progress=False
+                    self.order.set("Click on a white brick to build the wall")
+                    self.label.config(fg="DarkOrange2")
+                    self.colorate_current_layer(0)
+                    self.update_arrows(self.current_layer)
+                    print("destroy done")
+                    self.destroy_in_progress=False
 
 
 
@@ -418,7 +415,6 @@ class Page_joystick(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-
         img = Image.open("Images/home_img.jpg")
         labelWidth = controller.winfo_screenwidth()
         labelHeight = controller.winfo_screenheight()
@@ -435,5 +431,6 @@ class Page_joystick(tk.Frame):
 
 
     def go_main_page(self):
+        rospy.set_param("/kuka/manual", False)
         self.controller.show_frame("Main_page")
         # mettre param ou envoyer un truc sur topic pour terminer

@@ -26,38 +26,39 @@ from sensor_msgs.msg import JoyFeedback, JoyFeedbackArray
 delta = 0.05
 
 def handle_controller_message(data):
-    rospy.loginfo("Message joy has been received.")
+    if rospy.get_param("/kuka/manual"):
+        effector_init = move_group.get_current_pose().pose
+        effector_target = effector_init
+        effector_target.position.x += delta * data.buttons[4] - delta * data.buttons[5]
+        effector_target.position.y += delta * data.buttons[12] - delta * data.buttons[11]
+        effector_target.position.z += delta * data.buttons[13] - delta * data.buttons[14]
 
-    effector_target = move_group.get_current_pose().pose
-    effector_target.position.x += delta * data.buttons[4] - delta * data.buttons[5]
-    effector_target.position.y += delta * data.buttons[12] - delta * data.buttons[11]
-    effector_target.position.z += delta * data.buttons[13] - delta * data.buttons[14]
+        # goal = PoseStamped()
+        # goal.header.frame_id = "base_link"
+        # goal.header.stamp = rospy.Time(0.0)
+        # goal.pose = effector_target
+        #
+        # plan_pub.publish(Empty())
+        #
+        # pub_goal.publish(goal)
+        #
+        # execute_pub.publish(Empty())
+        # update_start_state_pub.publish(Empty())
 
-    # goal = PoseStamped()
-    # goal.header.frame_id = "base_link"
-    # goal.header.stamp = rospy.Time(0.0)
-    # goal.pose = effector_target
-    #
-    # plan_pub.publish(Empty())
-    #
-    # pub_goal.publish(goal)
-    #
-    # execute_pub.publish(Empty())
-    # update_start_state_pub.publish(Empty())
-
-
-    move_group.set_pose_target(effector_target)
-    plan = move_group.go(wait=True)
-    move_group.stop()
-    move_group.clear_pose_targets()
-    #
-    # vib = JoyFeedback()
-    # vib.type = 1
-    # vib.id = 0
-    # vib.intensity = 0.6
-    # vibarr = JoyFeedbackArray()
-    # vibarr.array.append(vib)
-    # pub.publish(vibarr)
+        buttons_state = sum(data.buttons)
+        if (buttons_state != 0):
+            move_group.set_pose_target(effector_target)
+            plan = move_group.go(wait=True)
+            move_group.stop()
+            move_group.clear_pose_targets()
+        #
+        # vib = JoyFeedback()
+        # vib.type = 1
+        # vib.id = 0
+        # vib.intensity = 0.6
+        # vibarr = JoyFeedbackArray()
+        # vibarr.array.append(vib)
+        # pub.publish(vibarr)
 
 
 

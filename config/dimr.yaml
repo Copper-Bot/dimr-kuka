@@ -1,3 +1,7 @@
 kuka:
   busy: False
+  manual: False
+kuka_destroy:
+  finish: False
+  busy: False
 
