@@ -71,7 +71,7 @@ class Kuka():
             # Exit
             rospy.loginfo("Stopped manipulation")
 
-    def add_brick(self, pose, brick_type, layer, column):
+    def add_brick_to_feeder(self, pose, brick_type, layer, column):
         #===============remove object=================
         #Brick in base frame
         brick_pose = PoseStamped()
@@ -85,13 +85,31 @@ class Kuka():
         brick_pose.pose.position.z = pose.position.z
         brick_name = "brick"+str(layer)+str(column)
         if(brick_type == Type.small.name):
-            self.scene.add_box(brick_name, brick_pose, size=(0.1, Type.small.value, 0.1))
+            self.scene.add_box(brick_name, brick_pose, size=(Type.small.value,0.1, 0.1))
         else:
-            self.scene.add_box(brick_name, brick_pose, size=(0.1, Type.big.value, 0.1))
+            self.scene.add_box(brick_name, brick_pose, size=(Type.big.value,0.1, 0.1))
 
     # def add_brick(self, pose, brick_type, brick_name):
     #===============attached object==================
     #     self.scene.remove_attached_object(self.eef_link, name=brick_name)
+
+    def add_brick_to_wall(self, pose, brick_type, layer, column):
+        #===============remove object=================
+        #Brick in base frame
+        brick_pose = PoseStamped()
+        brick_pose.header.frame_id = "base"
+        brick_pose.pose.orientation.w = pose.orientation.w
+        brick_pose.pose.orientation.x = pose.orientation.x
+        brick_pose.pose.orientation.y = pose.orientation.y
+        brick_pose.pose.orientation.z = pose.orientation.z
+        brick_pose.pose.position.x = pose.position.x
+        brick_pose.pose.position.y = pose.position.y
+        brick_pose.pose.position.z = pose.position.z
+        brick_name = "brick"+str(layer)+str(column)
+        if(brick_type == Type.small.name):
+            self.scene.add_box(brick_name, brick_pose, size=(0.1,Type.small.value, 0.1))
+        else:
+            self.scene.add_box(brick_name, brick_pose, size=(0.1,Type.big.value, 0.1))
 
     def remove_brick_from_feeder(self, feeder_pose):
         brick_name = ""
@@ -133,7 +151,7 @@ class Kuka():
         feeder_pose.orientation.w = 0 #data.feeder_pose.orientation.w
         self.move_to(feeder_pose)
         rospy.sleep(1)
-        self.add_brick(feeder_pose, data.brick_type, data.layer, data.column)
+        self.add_brick_to_feeder(feeder_pose, data.brick_type, data.layer, data.column)
         self.move_joints(feeder_joint_goal)
         rospy.loginfo("finish")
         rospy.set_param("/kuka_destroy/busy", False)
@@ -185,7 +203,7 @@ class Kuka():
         self.cartesian_move_to(wall_pose)
         rospy.sleep(1)
         #===============remove object=================
-        self.add_brick(data.brick_pose,data.brick_type,data.layer,data.column)
+        self.add_brick_to_wall(data.brick_pose,data.brick_type,data.layer,data.column)
         # rospy.sleep(2)
         #===============attached object==================
         # if(brick_name != ""):
@@ -250,5 +268,5 @@ class Kuka():
                 brick_pose.pose.position.y = f.pose.position.y
                 brick_pose.pose.position.z = f.pose.position.z + k*b.height
                 brick_name = "brickf"+str(f.id)+str(k)
-                self.scene.add_box(brick_name, brick_pose, size=(f.depth,f.width,b.height))
+                self.scene.add_box(brick_name, brick_pose, size=(f.width,f.depth,b.height))
                 k+=1
