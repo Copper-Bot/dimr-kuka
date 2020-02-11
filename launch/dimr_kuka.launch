@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+    <!-- Simulation ou pas, vrai par défaut -->
+    <arg name="sim" default="true" />
+
+    <!-- Moveit, rviz, simulateur (ou lien RSI) -->
+    <include file="$(find dimr_kuka)/launch/test_moveit_rviz_planning_execution.launch">
+      <arg name="sim" value="$(arg sim)"/>
+    </include>
+
+    <!-- Launch main_ihm.py interface -->
+    <node pkg="dimr_kuka" type="main_ihm.py" output="screen" name="dimr_ihm_node" cwd="node"/>
+
+    <!-- Launch main_kuka.py interface -->
+    <node pkg="dimr_kuka" type="main_kuka.py" output="screen" name="dimr_kuka_node" cwd="node"/>
+
+
+
+</launch>
