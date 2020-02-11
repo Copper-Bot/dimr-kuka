@@ -216,7 +216,7 @@ class Kuka():
         #constraint : be careful with the effector's orientation : the brick must not fall
         waypoints = []
         init_pose = self.move_group.get_current_pose().pose
-        waypoints.append(init_pose)
+        # waypoints.append(init_pose)
         waypoints.append(target_pose)
 
         # We want the Cartesian path to be interpolated at a resolution of 1 cm
