@@ -30,10 +30,6 @@ from Domain.feeder import Feeder
 
 class Kuka():
     def __init__(self):
-        self.is_busy = False #robot state to publish
-        self.feeders = fill_feeders()
-        for f in self.feeders:
-            f.to_string()
 
         moveit_commander.roscpp_initialize(sys.argv)
         rospy.init_node("dimr_kuka", anonymous=True)
@@ -50,11 +46,23 @@ class Kuka():
         rospy.loginfo("topic kuka_bridge subscribed and ready to process")
         rospy.loginfo("topic kuka_destroy subscribed and ready to process")
         rospy.loginfo("adding objects")
-        rospy.sleep(1)
-        self.add_objects()
+        self.reset_scene()
 
         rospy.spin()
         rospy.loginfo("Stopped manipulation")
+    
+    def reset_scene(self):
+        #Reset the scene after the destruction of the wall
+        rospy.sleep(1)
+        self.scene.remove_world_object()
+        rospy.sleep(1)
+        rospy.loginfo("adding objects")
+        self.is_busy = False #robot state to publish
+        self.feeders = fill_feeders()
+        for f in self.feeders:
+            f.to_string()
+        rospy.sleep(1)
+        self.add_objects()
 
     def move_joints(self, joint_goal):
 
@@ -133,20 +141,20 @@ class Kuka():
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
-        wall_pose.position.z = data.brick_pose.position.z + 0.05
+        wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.065
         wall_pose.orientation.x = 0.0
         wall_pose.orientation.y = 0.707
         wall_pose.orientation.z = 0.0
         wall_pose.orientation.w = 0.707
         self.move_to(wall_pose)
-        wall_pose.position.x = data.brick_pose.position.x
+        wall_pose.position.x = data.brick_pose.position.x - 0.05
         self.cartesian_move_to(wall_pose)
-        wall_pose.position.z = data.brick_pose.position.z - 0.06
-        self.cartesian_move_to(wall_pose)
-        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.06 + 0.065
         self.cartesian_move_to(wall_pose)
         rospy.sleep(1)
         self.remove_brick_from_wall(data.brick_pose, data.layer, data.column)
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        self.cartesian_move_to(wall_pose)
 
 
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
@@ -154,75 +162,76 @@ class Kuka():
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
-        feeder_pose.position.z = data.feeder_pose.position.z
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.065
         feeder_pose.orientation.x = 0.5 
         feeder_pose.orientation.y = 0.5 
         feeder_pose.orientation.z = -0.5 
         feeder_pose.orientation.w = 0.5 
-        # self.move_to(feeder_pose)
         self.cartesian_move_to(feeder_pose)
         feeder_pose.position.y = data.feeder_pose.position.y + 0.05
         self.cartesian_move_to(feeder_pose)
-        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        feeder_pose.position.z = data.feeder_pose.position.z - 0.01 + 0.065
         self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
-        self.add_brick_to_feeder(feeder_pose, data.brick_type, data.layer, data.column)
+        self.add_brick_to_feeder(data.feeder_pose, data.brick_type, data.layer, data.column)
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
-        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
         self.cartesian_move_to(feeder_pose)
         rospy.loginfo("finish")
         rospy.set_param("/kuka_destroy/busy", False)
 
         if(rospy.get_param("/kuka_destroy/finish")):
             rospy.loginfo("RESET SCENE")
-            self.add_objects()
+            self.reset_scene()
 
     def callback_dimrcontrol_message(self,data):
         rospy.loginfo("Message DimrControl has been received.")
 
         #intermediate joint pose before taking a brick in a feeder
-        # feeder_joint_goal = [1.5620766269453479, -1.7125574664290197, 2.142221452314385, -0.06575124785831427, 1.1193458496424917, 1.5906244190148584]
         feeder_joint_goal = [1.6427763755008984, -0.3371494753045343, 1.9127279693433106, -0.14040367490179959, -1.376002223374912, 0.10153875293155995]
         self.move_joints(feeder_joint_goal)
         feeder_pose = Pose()
         feeder_pose.position.x = data.feeder_pose.position.x
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
-        feeder_pose.position.z = data.feeder_pose.position.z
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.065
         feeder_pose.orientation.x = 0.5 
         feeder_pose.orientation.y = 0.5 
         feeder_pose.orientation.z = -0.5 
         feeder_pose.orientation.w = 0.5 
-        # self.move_to(feeder_pose)
+
+        rospy.loginfo("pose feeder ")
+        rospy.loginfo(feeder_pose)
         self.cartesian_move_to(feeder_pose)
         feeder_pose.position.y = data.feeder_pose.position.y + 0.05
         self.cartesian_move_to(feeder_pose)
-        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
+        feeder_pose.position.z = data.feeder_pose.position.z + 0.01 + 0.065
+        rospy.loginfo("pose feeder remonte")
+        rospy.loginfo(feeder_pose)
         self.cartesian_move_to(feeder_pose)
         rospy.sleep(1)
         self.remove_brick_from_feeder(data.feeder_pose)
         feeder_pose.position.y = data.feeder_pose.position.y + 0.2
-        feeder_pose.position.z = data.feeder_pose.position.z + 0.01
         self.cartesian_move_to(feeder_pose)
 
 
 
-        # wall_joint_goal = [-6.921975813409511e-05, -1.1366995362220236, 2.509439093453135, 3.1414148918054776, 1.3233576826140818, -3.141619741099784]
-        # self.move_joints(wall_joint_goal)
-        # self.move_to(data.brick_pose)
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
-        wall_pose.position.z = data.brick_pose.position.z + 0.05
+        wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.065
         wall_pose.orientation.x = 0.0
         wall_pose.orientation.y = 0.707
         wall_pose.orientation.z = 0.0
         wall_pose.orientation.w = 0.707
+        rospy.loginfo("brick")
+        rospy.loginfo(data.brick_pose)
+        rospy.loginfo("wall pose ")
+        rospy.loginfo(wall_pose)
         self.move_to(wall_pose)
-        wall_pose.position.x = data.brick_pose.position.x
+        wall_pose.position.x = data.brick_pose.position.x - 0.05
         self.cartesian_move_to(wall_pose)
-        wall_pose.position.z = data.brick_pose.position.z - 0.06
-        self.cartesian_move_to(wall_pose)
-        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        wall_pose.position.z = data.brick_pose.position.z + 0.05 - 0.06 + 0.065
+        rospy.loginfo("wall pose")
+        rospy.loginfo(wall_pose)
         self.cartesian_move_to(wall_pose)
         rospy.sleep(2)
         #===============remove object=================
@@ -232,6 +241,10 @@ class Kuka():
         # if(brick_name != ""):
         #     self.add_brick(data.brick_pose,data.brick_type,brick_name)
         # self.move_joints(wall_joint_goal)
+        wall_pose.position.x = data.brick_pose.position.x - 0.2
+        rospy.loginfo("wall pose ")
+        rospy.loginfo(wall_pose)
+        self.cartesian_move_to(wall_pose)
         rospy.loginfo("finish")
         rospy.set_param("/kuka/busy", False)
 
@@ -269,10 +282,6 @@ class Kuka():
         self.move_group.clear_pose_targets()
 
     def add_objects(self):
-        #Reset the scene after the destruction of the wall
-        rospy.sleep(1)
-        self.scene.remove_world_object()
-        rospy.sleep(1)
 
         #Ground in base frame
         ground_pose = PoseStamped()
