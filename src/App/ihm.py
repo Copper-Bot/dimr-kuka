@@ -133,7 +133,7 @@ class  Main_page(tk.Frame):
         self.bricks = [[0 for x in xrange(self.column_number+1)] for x in xrange(self.layer_number)]
         self.arrows = [[0 for x in xrange(2)] for x in xrange(self.layer_number)]
         self.order = tk.StringVar()
-        self.order.set("Click on a brick to fill the 1st layer")
+        self.order.set("Click on a white brick to build the wall")
         begin_row=1
         first_col_num=1
         end_col_num=1
@@ -303,6 +303,7 @@ class  Main_page(tk.Frame):
                     if not brick.is_placed:
                         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_init)
 
+    #############
     def update_placed_brick(self):
         for layer in range(self.layer_number-1,-1,-1):
             for column in range(self.column_number,-1,-1):
@@ -319,6 +320,7 @@ class  Main_page(tk.Frame):
             if not self.destroy_in_progress:
                 rospy.set_param("/kuka/manual", True)
                 self.controller.show_frame("Page_joystick")
+
     #############
     def disable_btn(self):
         for layer in range(self.layer_number-1,-1,-1):
@@ -332,6 +334,7 @@ class  Main_page(tk.Frame):
             for column in range(self.column_number,-1,-1):
                 if not(layer%2==0 and column==self.column_number):
                     self.bricks[abs(layer-(self.layer_number-1))][column]["state"]="normal"
+
     ############
     def blink_brick(self):
         print("hey")
@@ -351,6 +354,8 @@ class  Main_page(tk.Frame):
                 self.parent.after(600,self.destroy_wall)
                 if not rospy.get_param("/kuka_destroy/busy"):
                     self.button_destroy["state"]="disabled"
+                    self.disable_btn()
+                    self.btn_joystick["state"]="disabled"
                     if self.controller.wall.is_filled_up():
                         self.wall_in_color(self.color_brick_placed)
                     self.destroy_in_progress=True
@@ -392,7 +397,9 @@ class  Main_page(tk.Frame):
                     self.colorate_current_layer(0)
                     self.update_arrows(self.current_layer)
                     print("destroy done")
+                    self.enable_btn()
                     self.button_destroy["state"]="normal"
+                    self.btn_joystick["state"]="normal"
                     self.destroy_in_progress=False
 
 
