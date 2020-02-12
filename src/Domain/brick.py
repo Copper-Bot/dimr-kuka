@@ -65,7 +65,7 @@ class Brick(object):
         self.wall_pose.orientation.z = 0.0
         self.wall_pose.orientation.w = 0
         if(self.num_layer%2 == 1):
-            if(column == 0):
+            if(self.num_column == 0):
                 self.wall_pose.position.y -= Type.small.value/2
             elif(self.type == Type.small.name):
                 self.wall_pose.position.y -= 3*Type.small.value/2
