@@ -71,7 +71,6 @@ if __name__ == '__main__':
 
     rospy.sleep(1)  # on attend un peu avant de publier
     sub = rospy.Subscriber("joy", Joy, handle_controller_message, queue_size=1)
-    pub = rospy.Publisher("/joy/set_feedback/", JoyFeedbackArray, queue_size=1)
 
 
     rospy.sleep(1)  # on attend un peu avant de publier
