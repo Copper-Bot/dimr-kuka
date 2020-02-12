@@ -5,7 +5,7 @@
     <arg name="sim" default="true" />
 
     <!-- Moveit, rviz, simulateur (ou lien RSI) -->
-    <include file="$(find dimr_kuka)/launch/test_moveit_rviz_planning_execution.launch">
+    <include file="$(find dimr_kuka)/launch/moveit_rviz_planning_execution.launch">
       <arg name="sim" value="$(arg sim)"/>
     </include>
 
@@ -16,6 +16,6 @@
     <node pkg="dimr_kuka" type="main_kuka.py" output="screen" name="dimr_kuka_node" cwd="node"/>
 
     <!-- joystick -->
-    <include file="$(find dimr_kuka)/launch/test_joy_bridge_dimr.launch"/>
+    <include file="$(find dimr_kuka)/launch/joy_bridge_dimr.launch"/>
 
 </launch>

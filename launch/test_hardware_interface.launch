@@ -29,4 +29,7 @@
     <!-- Load RSI simulation node -->
     <node name='kuka_rsi_simulator' pkg='kuka_rsi_simulator' type="kuka_rsi_simulator" args="127.0.0.1 49152" if="$(arg sim)" />
 
+    <!-- Load rqt joint trajectory -->
+    <node name="rqt_joint_trajectory_controller" pkg="rqt_joint_trajectory_controller" type="rqt_joint_trajectory_controller" />
+
 </launch>

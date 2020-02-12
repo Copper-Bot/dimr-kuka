@@ -37,6 +37,10 @@
 #   Author: Ryohei Ueda, Dave Coleman
 #   Desc:   Interface between PS3/XBox controller and MoveIt Motion Planning Rviz Plugin
 
+#   Modifié par Alban Chauvel dans le cadre du projet dimr_kuka pour le faire
+#   fonctionné correctement (à cause de bug dans le fichier original) et rajouter
+#   le support pour une manette sans fil xbox 360
+
 from __future__ import print_function
 
 import rospy
@@ -427,7 +431,7 @@ class MoveitJoy:
             self.current_eef_index = next_index
         next_topic = topics[self.current_eef_index]
 
-        rospy.loginfo("Changed controlled end effector to " + self.planning_groups_tips[planning_group][self.current_eef_index])
+        rospy.loginfo("Changed controlled end effector to " + self.planning_groups_tips[planning_group][self.current_eef_index])reverso.net/text_translation.aspx?lang=FR
         print("==============")
         print(next_topic)
         print("==============")
@@ -620,7 +624,7 @@ class MoveitJoy:
         #     self.update_start_state_pub.publish(Empty())
         self.pre_pose = new_pose
         self.marker_lock.release()
-        # update self.initial_poses
+        # update self.initial_posesreverso.net/text_translation.aspx?lang=FR
         self.marker_lock.acquire()
         self.initial_poses[self.current_pose_topic.split("/")[-1]] = new_pose.pose
         self.marker_lock.release()
