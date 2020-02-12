@@ -191,16 +191,16 @@ class  Main_page(tk.Frame):
         img_bin = Image.open("Images/bin2.png")
         img_bin.thumbnail((70,70), Image.ANTIALIAS)
         img_b = ImageTk.PhotoImage(img_bin)
-        button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy_wall)
-        button_destroy.image=img_b
-        button_destroy.place(relx=1.,anchor="ne",bordermode="outside")
+        self.button_destroy = tk.Button(self,font=(None,10,'bold'),image = img_b, bg=self.color_init, command=self.destroy_wall)
+        self.button_destroy.image=img_b
+        self.button_destroy.place(relx=1.,anchor="ne",bordermode="outside")
 
         img_joystick = Image.open("Images/joystick.png")
         img_joystick.thumbnail((70,70), Image.ANTIALIAS)
         img_j= ImageTk.PhotoImage(img_joystick)
-        btn_joystick= tk.Button(self,font=(None,10,'bold'),image = img_j,command=self.go_joystick,bg=self.color_init)
-        btn_joystick.image=img_j
-        btn_joystick.place(anchor="nw")
+        self.btn_joystick= tk.Button(self,font=(None,10,'bold'),image = img_j,command=self.go_joystick,bg=self.color_init)
+        self.btn_joystick.image=img_j
+        self.btn_joystick.place(anchor="nw")
 
         self.update_arrows(self.current_layer)
         self.colorate_current_layer(0)
@@ -223,6 +223,9 @@ class  Main_page(tk.Frame):
             self.update_arrows(self.controller.wall.layer_in_progress().num)
             self.order.set("Click on a white brick to build the wall")
             self.label.config(fg="DarkOrange2")
+            self.enable_btn()
+            self.button_destroy["state"]="normal"
+            self.btn_joystick["state"]="normal"
         if self.controller.wall.is_filled_up():
             if not (rospy.get_param("/kuka/busy")):
                 self.wall_in_color(self.color_current_brick)
@@ -231,7 +234,7 @@ class  Main_page(tk.Frame):
         if self.wait:
             self.blink_brick()
             print("repasse")
-            self.parent.after(700,self.update_btn)
+            self.parent.after(600,self.update_btn)
 
 
 
@@ -269,9 +272,13 @@ class  Main_page(tk.Frame):
                 brick=self.controller.wall.at(layer,column)
                 if self.controller.wall.check_add_brick(brick):
                     if self.controller.wall.at(layer,column).add_to_wall():
+                        self.button_destroy["state"]="disabled"
+                        self.btn_joystick["state"]="disabled"
+                        self.disable_btn()
                         rospy.set_param("/kuka/busy",True)
                         self.layer_wait=abs(layer-(self.layer_number-1))
                         self.column_wait=column
+                        self.update_placed_brick()
                         self.wait=True
                         self.update_empty_brick()
                         self.order.set("Pose in progress ...")
@@ -296,14 +303,35 @@ class  Main_page(tk.Frame):
                     if not brick.is_placed:
                         self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_init)
 
+    def update_placed_brick(self):
+        for layer in range(self.layer_number-1,-1,-1):
+            for column in range(self.column_number,-1,-1):
+                if not(layer%2==0 and column==self.column_number):
+                    brick=self.controller.wall.at(layer,column)
+                    if brick.is_placed:
+                        if layer != self.layer_wait:
+                            if column != self.column_wait:
+                                self.bricks[abs(layer-(self.layer_number-1))][column].config(bg=self.color_brick_placed)
+
     #############
     def go_joystick(self):
         if not rospy.get_param("/kuka/busy") and not  rospy.get_param("/kuka_destroy/busy"):
             if not self.destroy_in_progress:
                 rospy.set_param("/kuka/manual", True)
                 self.controller.show_frame("Page_joystick")
+    #############
+    def disable_btn(self):
+        for layer in range(self.layer_number-1,-1,-1):
+            for column in range(self.column_number,-1,-1):
+                if not(layer%2==0 and column==self.column_number):
+                    self.bricks[abs(layer-(self.layer_number-1))][column]["state"]="disabled"
 
-
+    #############
+    def enable_btn(self):
+        for layer in range(self.layer_number-1,-1,-1):
+            for column in range(self.column_number,-1,-1):
+                if not(layer%2==0 and column==self.column_number):
+                    self.bricks[abs(layer-(self.layer_number-1))][column]["state"]="normal"
     ############
     def blink_brick(self):
         print("hey")
@@ -322,6 +350,7 @@ class  Main_page(tk.Frame):
             if not self.controller.wall.is_empty():
                 self.parent.after(600,self.destroy_wall)
                 if not rospy.get_param("/kuka_destroy/busy"):
+                    self.button_destroy["state"]="disabled"
                     if self.controller.wall.is_filled_up():
                         self.wall_in_color(self.color_brick_placed)
                     self.destroy_in_progress=True
@@ -363,6 +392,7 @@ class  Main_page(tk.Frame):
                     self.colorate_current_layer(0)
                     self.update_arrows(self.current_layer)
                     print("destroy done")
+                    self.button_destroy["state"]="normal"
                     self.destroy_in_progress=False
 
 
