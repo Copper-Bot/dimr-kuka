@@ -214,9 +214,7 @@ class  Main_page(tk.Frame):
 
     ############
     def update_btn(self):
-        print("salut")
         if not (rospy.get_param("/kuka/busy")):
-            print("orange")
             self.wait=False
             self.bricks[self.layer_wait][self.column_wait].config(bg=self.color_brick_placed)
             self.update_white_brick()
@@ -230,7 +228,6 @@ class  Main_page(tk.Frame):
                 self.label.config(fg="green")
         if self.wait:
             self.blink_brick()
-            print("repasse")
             self.parent.after(700,self.update_btn)
 
 
@@ -318,7 +315,6 @@ class  Main_page(tk.Frame):
     ############
     def destroy_wall(self):
         if not rospy.get_param("/kuka/busy"):
-            print("destroy_pass")
             if not self.controller.wall.is_empty():
                 self.parent.after(600,self.destroy_wall)
                 if not rospy.get_param("/kuka_destroy/busy"):
@@ -330,16 +326,13 @@ class  Main_page(tk.Frame):
                     self.update_empty_brick()
                     self.order.set("Destruction in progress ...")
                     self.label.config(fg="DarkOrange2")
-                    print("destroying the wall")
                     for layer in range(self.layer_number-1,-1,-1):
                         for column in range(self.column_number,-1,-1):
                             if not(layer%2==0 and column==self.column_number):
-                                print("coucou")
                                 brick=self.controller.wall.at(layer,column)
                                 self.update_arrows(layer)
                                 if self.controller.wall.check_remove_brick(brick):
                                     if self.controller.wall.at(layer,column).remove_from_wall():
-                                        print(layer,column)
                                         self.msg.brick_pose = brick.wall_pose
                                         self.msg.feeder_pose = brick.feeder_pose
                                         self.msg.brick_type=brick.type
@@ -362,7 +355,6 @@ class  Main_page(tk.Frame):
                     self.label.config(fg="DarkOrange2")
                     self.colorate_current_layer(0)
                     self.update_arrows(self.current_layer)
-                    print("destroy done")
                     self.destroy_in_progress=False
 
 

@@ -17,7 +17,6 @@ import rospy
 import moveit_commander
 import moveit_msgs.msg
 import tf
-from tf import TransformListener
 import geometry_msgs.msg
 from geometry_msgs.msg import Pose, PoseStamped
 from math import pi
@@ -39,8 +38,6 @@ class Kuka():
         group_name = "manipulator"
         self.move_group = moveit_commander.MoveGroupCommander(group_name)
         self.eef_link = self.move_group.get_end_effector_link()
-        #self.tfb = tf.TransformBroadcaster()
-        #self.tfl = tf.TransformListener()
         sub = rospy.Subscriber("kuka_bridge", DimrControl, self.callback_dimrcontrol_message)
         sub = rospy.Subscriber("kuka_destroy", DimrControl, self.callback_dimr_destroy)
         rospy.loginfo("topic kuka_bridge subscribed and ready to process")
@@ -142,7 +139,7 @@ class Kuka():
         wall_pose = Pose()
         wall_pose.position.x = data.brick_pose.position.x - 0.2
         wall_pose.position.y = data.brick_pose.position.y
-        wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.065
+        wall_pose.position.z = data.brick_pose.position.z + 0.065
         wall_pose.orientation.x = 0.0
         wall_pose.orientation.y = 0.707
         wall_pose.orientation.z = 0.0
@@ -154,7 +151,7 @@ class Kuka():
         self.cartesian_move_to(wall_pose)
 
         #cartesianly lift the brick up of z += 0.05 m
-        wall_pose.position.z = data.brick_pose.position.z + 0.05 + 0.06 + 0.065
+        wall_pose.position.z = data.brick_pose.position.z + 0.06 + 0.065
         self.cartesian_move_to(wall_pose)
 
         #remove the brick from the wall

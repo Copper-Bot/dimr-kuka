@@ -50,16 +50,16 @@ class Brick(object):
         self.num_layer = layer
         if(layer != -1 and column != -1):
             #type of the brick
-            self.compute_wall_pose(layer, column)
+            self.compute_wall_pose()
         #position of the middle of the brick in the feeder
         self.feeder_pose = Pose()
         self.feeder = None
         self.is_placed = False
 
-    def compute_wall_pose(self, layer, column):
+    def compute_wall_pose(self):
         self.wall_pose.position.x = 0.7
-        self.wall_pose.position.y = -0.41 + column*Type.big.value
-        self.wall_pose.position.z = layer*self.height + self.height/2
+        self.wall_pose.position.y = -0.41 + self.num_column*Type.big.value
+        self.wall_pose.position.z = self.num_layer*self.height + self.height/2
         self.wall_pose.orientation.x = 0
         self.wall_pose.orientation.y = 1
         self.wall_pose.orientation.z = 0.0

@@ -132,6 +132,3 @@ f3 = Feeder(3, 2, Type.small, brick_height, taking_pose_s2)
 
 global feeders
 feeders = [f1,f2,f3]
-
-for f in feeders:
-    f.to_string()
