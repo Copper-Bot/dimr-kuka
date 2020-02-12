@@ -406,7 +406,7 @@ class Page_joystick(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        img = Image.open("Images/home_img.jpg")
+        img = Image.open("Images/joystick_map.png")
         labelWidth = controller.winfo_screenwidth()
         labelHeight = controller.winfo_screenheight()
         maxsize = (labelWidth, labelHeight)

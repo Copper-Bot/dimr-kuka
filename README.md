@@ -76,5 +76,16 @@ echo "source ~/dimr_kuka_ws/devel/setup.bash" >> ~/.bashrc
 Pour vérifier l'installation, redémarrer votre terminal, et tapez la commande suivante :
 
 ```
-roslaunch dimr-kuka test_moveit_rviz_planning_execution.launch sim:=true
+roslaunch dimr_kuka moveit_rviz_planning_execution.launch sim:=true
 ```
+
+
+
+## Utilisation
+
+Pour lancer le projet dimr, branchez si possible une manette, et tapez la commande suivante :
+
+```
+roslaunch dimr_kuka dimr_kuka.launch sim:=true
+```
+
