@@ -19,6 +19,7 @@
 
     <!-- Simulation ou pas, vrai par défaut -->
     <arg name="sim" default="true" />
+    <arg name="mode" default="rsi" />
 
     <!-- The name of the parameter under which the URDF is loaded -->
     <arg name="robot_description" default="robot_description"/>
@@ -41,8 +42,15 @@
     <rosparam file="$(find dimr_kuka)/config/dimr.yaml" command="load"/>
 
     <!-- On choisit le bon fichier de paramètres -->
-    <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
-    <rosparam file="$(find dimr_kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
+    <!-- Si on est en simu, on utilise les params de simu RSI -->
+    <group if="$(arg sim)">
+    	<rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load"/>
+    </group>
+    <!-- Sinon, sélection du bon fichier de param-->
+    <group unless="$(arg sim)">
+	<rosparam file="$(find dimr_kuka)/config/params_rsi.yaml" command="load" if="$(eval mode == 'rsi')"/>
+	<rosparam file="$(find dimr_kuka)/config/params_eki.yaml" command="load" if="$(eval mode == 'eki')"/>
+    </group>
 
     <!-- Load joint controller configurations from YAML file to parameter server -->
     <rosparam file="$(find dimr_kuka)/config/hardware_controllers.yaml" command="load"/>
@@ -70,17 +78,46 @@
     <!-- HARWARE INTERFACE -->
     <!-- ======================================== -->
 
+    <!-- Si on est en simu, on utilise RSI -->
+    <group if="$(arg sim)">
+	<!-- Start RSI interface (default) -->
+	<node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
+	type="kuka_hardware_interface_node" respawn="false"
+	output="screen"
+	required="true">
+	<!-- remap topics to conform to ROS-I specifications -->
+	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
+	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
+	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+	</node>
+    </group>
 
-    <!-- Start node without FT sensor -->
-    <node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
-      type="kuka_hardware_interface_node" respawn="false"
-      output="screen"
-      required="true">
-      <!-- remap topics to conform to ROS-I specifications -->
-      <remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
-      <remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
-      <remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
-    </node>
+    <!-- Sinon, sélection du bon bridge hardware (RSI ou EKI) -->
+    <group unless="$(arg sim)">
+	<!-- Start RSI interface (default) -->
+	<node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
+	type="kuka_hardware_interface_node" respawn="false"
+	output="screen"
+	required="true"
+	if="$(eval mode == 'rsi')">
+	<!-- remap topics to conform to ROS-I specifications -->
+	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
+	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
+	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+	</node>
+
+	<!-- Start EKI interface (mmode:=eki) -->
+	<node name="kuka_eki_hardware_interface" pkg="kuka_eki_hw_interface"
+	type="kuka_eki_hw_interface_node" respawn="false"
+	output="screen"
+	required="true"
+	if="$(eval mode == 'eki')">
+	<!-- remap topics to conform to ROS-I specifications -->
+	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
+	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
+	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+	</node>
+    </group>
 
     <!-- Load controllers (ACTION topic) -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"

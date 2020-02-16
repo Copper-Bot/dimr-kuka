@@ -1,0 +1,5 @@
+eki:
+  robot_address: "192.168.250.20"
+  robot_port: "54600"
+  socket_timeout: 5
+  max_cmd_buf_len: 5
