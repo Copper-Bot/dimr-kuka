@@ -4,7 +4,7 @@
 
     <!-- On choisit le bon fichier de paramètres -->
     <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load" if="$(arg sim)"/>
-    <rosparam file="$(find dimr_kuka)/config/params.yaml" command="load" unless="$(arg sim)"/>
+    <rosparam file="$(find dimr_kuka)/config/params_rsi.yaml" command="load" unless="$(arg sim)"/>
 
     <!-- Chargement du modèle KR6 R900 -->
     <param name="robot_description" command="$(find xacro)/xacro.py '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>

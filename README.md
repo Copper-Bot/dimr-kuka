@@ -5,6 +5,12 @@ Ce répertoire contient l'ensemble des fichiers nécessaire à l'utilisation du 
 
 
 
+## Mise en garde
+
+Attention, le bras KUKA KR6 R900 n'est pas un cobot, vous pouvez très facilement blesser ou tuer quelqu'un. Faites très attention lors de son utilisation, idéalement une deuxième personne est assignée au bouton d'arrêt d'urgence externe lors des manipulations.
+
+
+
 ## Prérequis
 
 Avant de construire le workspace, vous devez poseder sur votre machine linux :
@@ -81,11 +87,50 @@ roslaunch dimr_kuka moveit_rviz_planning_execution.launch sim:=true
 
 
 
-## Utilisation
+## Utilisation en simulation
 
-Pour lancer le projet dimr, branchez si possible une manette, et tapez la commande suivante :
+Pour lancer le projet dimr en simulation, branchez si possible une manette, et tapez la commande suivante :
 
 ```
 roslaunch dimr_kuka dimr_kuka.launch sim:=true
 ```
 
+Un simulateur RSI est lancé en arrière plan pour simuler la vrai réponse du KRC4 via le module RSI.
+
+## Utilisation réelle
+
+Pour lancer le projet dimr sur le robot réelle, le contrôleur KRC4 doit posséder :
+
+* soit le module Kuka RSI (Robot Sensor Interface)
+* soit le module Kuka EKI (Ethernet KRL Interface)
+
+Dans l'état actuel d'avancement du projet, le module RSI produit un "boot failed" au démarrage, donc seul le module EKI est opérationnelle pour le moment.
+
+Avec une très grande prudence sur les mouvements du bras, vous pouvez lancer le projet dimr et prendre le contrôle du bras manuellement (à l'aide d'une manette) avec la commande suivante :
+
+```
+roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki
+```
+
+Si vous voulez uniquement l'interface MOVEIT+RVIZ, tapez la commande suivante :
+
+```
+roslaunch dimr_kuka moveit_rviz_planning_execution.launch sim:=false mode:=eki
+```
+
+Enfin, si vous voulez uniquement tester la liaison du bras avec le module EKI, tapez la commande suivante :
+
+```
+roslaunch dimr_kuka test_EKI.launch
+```
+
+
+
+## TODO
+
+* Documentation sur la calibration (vidéos à upload) ;
+* Documentation sur la procédure de restauration du KRC4 en cas de pépin ;
+* Investiguer les problèmes avec le module RSI (workspace KRC4 à setup via Kuka WorkVisual ?) ;
+* Problèmes avec les points cartésiens sur le robot lors de l'utilisation réelle avec EKI ;
+* Améliorer le connecteur X11 en faisant une vrai boîte (voir documentation start-up) ;
+* Avoir KUKA au téléphone pour qu'ils viennent mettre à jour le KRC4 (et fournir une maj de RSI au passage)
