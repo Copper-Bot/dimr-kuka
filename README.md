@@ -5,124 +5,143 @@ Ce répertoire contient l'ensemble des fichiers nécessaires à l'utilisation du
 
 
 
-## Mise en garde
+To begin, turn the green on/off switch on the controller to the on position. The kuka will initialise for a few minutes.
 
-Attention, le bras KUKA KR6 R900 n'est pas un cobot, vous pouvez très facilement blesser ou tuer quelqu'un. Faites très attention lors de son utilisation, idéalement une deuxième personne est assignée au bouton d'arrêt d'urgence externe lors des manipulations.
+Once initialized you will have access to the kuka control interface.
+
+### Manual control
+
+To control the robot in manual mode start by placing it in **T1** mode. To do this, turn the key on the control panel, press **T1** and then turn the key over.
+
+<center>
+<img src="/img/kukat1.jpg" width="50%"></img>
+</center>
+
+Once in T1 mode, unlock the emergency stops. Click *confirm all* on the control panel
+
+<center>
+<img src="/img/kukaconfirmall.jpg" width="50%"/>
+</center>
+
+then click on the *operator acknolegment* button on the back of the controller (without going through the kuka work area!)
+
+<center>
+<img src="/img/kukacontrolleur.png" width="50%"/>
+</center>
+
+At this point the kuka is ready to be controlled manually. Simply hold one of the white buttons on the back of the tablet with your finger and then move the various joints with the 6 buttons on the side of the tablet.
+
+### Automatic control
+
+To run a program on the kuka it is necessary to switch it to **automatic** mode.
+
+⚠️ Automatic mode means that you do not need to hold down a button to make the kuka move as in **T1** mode, when using this mode always have an emergency stop button in your hands. To switch to automatic mode turn the key, click *aut* and then turn the key back.
+
+<center>
+<img src="/img/kukaaut.jpg" width="50%"></img>
+</center>
+
+Once in automatic mode, unlock the emergency stops, set the *operator safety* switch to 1 and click on *operator acknowledgement* (without going through the kuka work area!). Then start the controller by clicking on the I (or O) at the top of the tablet and then clicking on the I button
+
+<center>
+<img src="/img/kukaautlaunch.jpg" width="50%"></img>
+</center>
+
+Then you have to select a program. For example, for the program *kuka_eki* you just have to click on it and then press the *select* button. Finally, to start the program, press the *play* button on the left of the tablet.
+
+<center>
+<img src="/img/kukalaunch.jpg" width="50%"></img>
+</center>
+
+⚠️ The programme is now running independently. Please be aware of the kuka's movements and do not hesitate to press the emergency stop.
 
 
+## ROS
 
-## Prérequis
+### Installation
 
-Avant de construire le workspace, vous devez posséder sur votre machine linux :
-
-* [Python 2.7](https://stackoverflow.com/a/59632121)
-* [ROS Melodic **Desktop-Full**](https://wiki.ros.org/melodic/Installation/Ubuntu)
-* [ROS Moveit](https://moveit.ros.org/install/)
-
-Vérifiez que votre installation soit propre avant de continuer :
-
-```
-sudo apt update
-sudo apt upgrade
-sudo apt autoremove
-```
-
-
-
-## Installation
-
-Installez Tkinter sur votre pc :
-```
+```bash
 sudo apt-get install python-imaging-tk
 sudo apt-get install python-tk
-```
-
-
-Créez un nouvel espace de travail ROS :
-
-```
-mkdir -p ~/dimr_kuka_ws/src
-cd ~/dimr_kuka_ws/
-catkin_make
-```
-
-Allez dans le dossier src et téléchargez kuka experimental pour obtenir le modèle du KUKA KR6 R900 :
-
-```
-cd ~/dimr_kuka_ws/src/
+cd ~/catkin_ws/src/
 git clone https://github.com/ros-industrial/kuka_experimental
-```
-
-Téléchargez ensuite le dépôt actuel pour obtenir les packages nécessaire au projet :
-
-```
-git clone https://github.com/Copper-Bot/dimr-kuka.git
-```
-
-Remontez au dossier principal, vérifier les dépendances, et lancer une compilation :
-
-```
-cd ~/dimr_kuka_ws/
+git clone https://github.com/Bordeaux-INP/dimr-kuka
+cd ..
 rosdep install --from-paths src --ignore-src
 catkin_make
+source ~/.bashrc
 ```
 
-Editez votre bashrc pour sourcer automatiquement l'espace de travail :
-
-```
-echo "source ~/dimr_kuka_ws/devel/setup.bash" >> ~/.bashrc
-```
-
->  Dans le cas où vous avez déjà sourcé plusieurs espaces de travail ROS, tapez plutôt :
->
-> ```
-> echo "source ~/dimr_kuka_ws/devel/setup.bash --extend" >> ~/.bashrc
-> ```
-
-Pour vérifier l'installation, redémarrer votre terminal, et tapez la commande suivante :
-
-```
-roslaunch dimr_kuka moveit_rviz_planning_execution.launch sim:=true
+If you also want to use the wsg50 effector mounted on the kuka :
+```bash
+cd ~/catkin_ws/src/
+git clone https://github.com/nalt/wsg50-ros-pkg
+cd ..
+catkin_make
+source ~/.bashrc
 ```
 
+### Simulation
 
+To start the DIMR-KUKA project in simulation, type the following command. An RSI simulator is started in the background to simulate the true response of the KRC4 via the RSI module.
 
-## Utilisation en simulation
-
-Pour lancer le projet DIMR-KUKA en simulation, branchez si possible une manette, et tapez la commande suivante :
-
-```
+```bash
 roslaunch dimr_kuka dimr_kuka.launch sim:=true
 ```
 
-Un simulateur RSI est lancé en arrière plan pour simuler la vrai réponse du KRC4 via le module RSI.
+### Real
 
-## Utilisation réelle
+Once the kuka has been put into emergency mode, connect the ethernet cable from the switch on the bottom of the kuka to your PC. Also connect the power supply to the end effector if you wish to use it. Once everything is connected you can raise the emergency stop on the kuka and run the *kuka_eki* program.
 
-Pour lancer le projet DIMR-KUKA sur le robot réel, le contrôleur KRC4 doit posséder :
+On your pc it is necessary to manually provide DHCP on the address `192.168.250.21/24`. Remember to disable the proxy server if you have one. The kuka ip address will be `192.168.250.20` and the effector will be `192.168.250.22`.
 
-* soit le module Kuka RSI (Robot Sensor Interface)
-* soit le module Kuka EKI (Ethernet KRL Interface)
+<center>
+<img src="/img/kukadhcp.png" width="60%"></img>
+</center>
 
-Dans l'état actuel d'avancement du projet, le module RSI produit un "boot failed" au démarrage, donc seul le module EKI est opérationnelle pour le moment.
+You can check the connection of all items by running the command `nmap -sP 192.168.250.0/24` if everything is connected the output should be similar to this:
 
-Avec une très grande prudence sur les mouvements du bras, vous pouvez lancer le projet DIMR-KUKA et prendre le contrôle du bras manuellement (à l'aide d'une manette) avec la commande suivante :
-
+```bash
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-08-31 10:57 CEST
+Nmap scan report for 192.168.250.20
+Host is up (0.0016s latency).
+Nmap scan report for morhost-iscsi2.iscsi.ipb.fr (192.168.250.21)
+Host is up (0.00027s latency).
+Nmap scan report for hangar-iscsi2a.iscsi.ipb.fr (192.168.250.22)
+Host is up (0.0025s latency).
+Nmap done: 256 IP addresses (3 hosts up) scanned in 16.12 seconds
 ```
-roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki
+
+You can then run the command for the kuka. You will then have access to rviz to control it.
+```bash
+roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki 
 ```
 
-Si vous voulez uniquement l'interface MOVEIT+RVIZ, tapez la commande suivante :
+In order to do this it is first necessary to change the connection ip in the ros package. Open with your favorite editor the file: `~/catkin_ws/src/wsg50-ros-pkg/wsg_50_driver/launch/wsg_50_tcp.launch` and replace line 5 with the line below
 
-```
-roslaunch dimr_kuka moveit_rviz_planning_execution.launch sim:=false mode:=eki
+```xml
+	<param name="ip" type="string" value="192.168.250.22"/>
 ```
 
-Enfin, si vous voulez uniquement tester la liaison du bras avec le module EKI, tapez la commande suivante :
+Once registered you can run the following command to take control of the effector. Then open a browser and go to `192.168.250.22`.
 
+```bash
+roslaunch wsg_50_driver wsg_50_tcp.launch     
 ```
-roslaunch dimr_kuka test_EKI.launch
+
+### Ronoco
+
+To use the kuka (and the effector) with ronoco you just have to [install the project](https://sdelpeuch.github.io/ronoco/) and then launch it with the following command.
+
+```roslaunch
+roslaunch ronoco manipulator.launch commander:=manipulator compliant_mode:=None end_effector:=wsg_50_driver/move
 ```
+
+<center>
+<img src="/img/kuka.gif"></img>
+</center>
+
+
 
 
 
