@@ -3,7 +3,7 @@
     <rosparam file="$(find dimr_kuka)/config/params_eki.yaml" command="load" />
 
     <!-- Chargement du modèle KR6 R900 -->
-    <param name="robot_description" command="$(find xacro)/xacro.py '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
+    <param name="robot_description" command="$(find xacro)/xacro '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
 
     <!-- Load updated joint limits (override information from URDF) -->
     <group ns="robot_description_planning">

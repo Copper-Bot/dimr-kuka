@@ -58,7 +58,7 @@
     <rosparam file="$(find dimr_kuka)/config/controller_joint_names.yaml" command="load"/>
 
     <!-- Chargement du modèle KR6 R900 -->
-    <param name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
+    <param name="$(arg robot_description)" command="$(find xacro)/xacro '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
 
     <!-- ... et sa sémantique associée -->
     <param name="$(arg robot_description)_semantic" textfile="$(find dimr_kuka)/config/kuka_kr6r900sixx.srdf" />
