@@ -91,7 +91,7 @@ roslaunch dimr_kuka dimr_kuka.launch sim:=true
 
 ### Real
 
-Once the kuka has been put into emergency mode, connect the ethernet cable from the switch on the bottom of the kuka to your PC. Also connect the power supply to the end effector if you wish to use it. Once everything is connected you can raise the emergency stop on the kuka and run the *kuka_eki* program.
+Once the kuka has been put into emergency mode, connect the ethernet cable from the switch on the bottom of the kuka to your PC. Also connect the power supply to the end effector if you wish to use it. Once everything is connected you can remove the emergency stop on the kuka and run the *kuka_eki* program.
 
 On your pc it is necessary to manually provide DHCP on the address `192.168.250.21/24`. Remember to disable the proxy server if you have one. The kuka ip address will be `192.168.250.20` and the effector will be `192.168.250.22`.
 
@@ -117,7 +117,8 @@ You can then run the command for the kuka. You will then have access to rviz to 
 roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki 
 ```
 
-In order to do this it is first necessary to change the connection ip in the ros package. Open with your favorite editor the file: `~/catkin_ws/src/wsg50-ros-pkg/wsg_50_driver/launch/wsg_50_tcp.launch` and replace line 5 with the line below
+
+To use the effector, it is first necessary to change the connection ip in the ros package. Open with your favorite editor the file: `~/catkin_ws/src/wsg50-ros-pkg/wsg_50_driver/launch/wsg_50_tcp.launch` and replace line 5 with the line below
 
 ```xml
 	<param name="ip" type="string" value="192.168.250.22"/>
