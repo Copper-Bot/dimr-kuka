@@ -2,13 +2,15 @@
 <launch>
 
     <!-- Simulation ou pas, vrai par défaut -->
-    <arg name="sim" default="true" /> <!-- true ou false -->
-    <arg name="mode" default="rsi" /> <!-- rsi ou eki -->
+    <arg name="sim" default="true"/> <!-- true ou false -->
+    <arg name="gripper" default="false"/> <!-- true ou false -->
+    <arg name="mode" default="rsi"/> <!-- rsi ou eki -->
 
     <!-- Moveit, rviz, simulateur (ou lien RSI) -->
     <include file="$(find dimr_kuka)/launch/moveit_rviz_planning_execution.launch">
-      <arg name="sim" value="$(arg sim)"/>
-      <arg name="mode" default="$(arg mode)" />
+        <arg name="sim" value="$(arg sim)"/>
+        <arg name="mode" default="$(arg mode)"/>
+        <arg name="gripper" value="$(arg gripper)"/> <!-- true ou false -->
     </include>
 
     <!-- Launch main_ihm.py interface -->
