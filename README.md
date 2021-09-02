@@ -86,7 +86,7 @@ source ~/.bashrc
 To start the DIMR-KUKA project in simulation, type the following command. An RSI simulator is started in the background to simulate the true response of the KRC4 via the RSI module.
 
 ```bash
-roslaunch dimr_kuka dimr_kuka.launch sim:=true
+roslaunch dimr_kuka dimr_kuka.launch sim:=true gripper:=false
 ```
 
 ### Real
@@ -114,21 +114,25 @@ Nmap done: 256 IP addresses (3 hosts up) scanned in 16.12 seconds
 
 You can then run the command for the kuka. You will then have access to rviz to control it.
 ```bash
-roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki 
+roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki gripper:=false
 ```
 
 
-To use the effector, it is first necessary to change the connection ip in the ros package. Open with your favorite editor the file: `~/catkin_ws/src/wsg50-ros-pkg/wsg_50_driver/launch/wsg_50_tcp.launch` and replace line 5 with the line below
+🦾 To use the effector, it is first necessary to change the connection ip in the ros package. Open with your favorite editor the file: `~/catkin_ws/src/wsg50-ros-pkg/wsg_50_driver/launch/wsg_50_tcp.launch` and replace line 5 with the line below
 
 ```xml
 	<param name="ip" type="string" value="192.168.250.22"/>
 ```
 
-Once registered you can run the following command to take control of the effector. Then open a browser and go to `192.168.250.22`.
+Once registered you can run the following command to take control of the effector.
 
 ```bash
-roslaunch wsg_50_driver wsg_50_tcp.launch     
+roslaunch dimr_kuka dimr_kuka.launch sim:=false mode:=eki gripper:=true   
 ```
+
+🔧 The gripper services then start automatically, you can test the operation of the gripper with the command `rosservice call /wsg_50_driver/move 50 50`. If it moves everything is normal. If it responds with a 255 error then go to the `192.168.250.22` tab *manual control* and click on the **home** button you can then use the effector directly with ROS.
+
+
 
 ### Ronoco
 
