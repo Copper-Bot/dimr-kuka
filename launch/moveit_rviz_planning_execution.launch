@@ -7,7 +7,7 @@
     <!-- https://github.com/gavanderhoorn/kuka_experimental/tree/kr6r900sixx_moveit_rsi_convenience -->
     <!-- Ils  ont été modifiés dans le cadre de ce projet DIMR, voir dossier "moveit/"              -->
     <!-- Théoriquement, si RSI fonctionne sur le krc4, une connexion direct peut être établie       -->
-    <!-- avec la commande suivante, en utilisant le package moveit pour la planification de traj:   --> 
+    <!-- avec la commande suivante, en utilisant le package moveit pour la planification de traj:   -->
     <!-- roslaunch dimr_kuka test_moveit_rviz_planning_execution.launch sim:=false                  -->
     <!-- ========================================================================================== -->
 
@@ -18,20 +18,21 @@
 
 
     <!-- Simulation ou pas, vrai par défaut -->
-    <arg name="sim" default="true" />
-    <arg name="mode" default="rsi" />
+    <arg name="sim" default="true"/>
+    <arg name="mode" default="rsi"/>
+    <arg name="gripper" default="false"/>
 
     <!-- The name of the parameter under which the URDF is loaded -->
     <arg name="robot_description" default="robot_description"/>
 
     <!-- By default, we do not start a database (it can be large) -->
-    <arg name="db" default="false" doc="Start the MoveIt database" />
+    <arg name="db" default="false" doc="Start the MoveIt database"/>
     <!-- Allow user to specify database location -->
-    <arg name="db_path" default="$(find dimr_kuka)/default_warehouse_mongo_db" doc="Path to database files" />
+    <arg name="db_path" default="$(find dimr_kuka)/default_warehouse_mongo_db" doc="Path to database files"/>
 
     <!-- name of the ros_control controllers (see below) -->
-    <arg name="js_ctrlr" value="joint_state_controller" />
-    <arg name="pos_ctrlr_name" value="position_trajectory_controller" />
+    <arg name="js_ctrlr" value="joint_state_controller"/>
+    <arg name="pos_ctrlr_name" value="position_trajectory_controller"/>
 
 
     <!-- ======================================== -->
@@ -44,12 +45,12 @@
     <!-- On choisit le bon fichier de paramètres -->
     <!-- Si on est en simu, on utilise les params de simu RSI -->
     <group if="$(arg sim)">
-    	<rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load"/>
+        <rosparam file="$(find dimr_kuka)/config/params_sim.yaml" command="load"/>
     </group>
     <!-- Sinon, sélection du bon fichier de param-->
     <group unless="$(arg sim)">
-	<rosparam file="$(find dimr_kuka)/config/params_rsi.yaml" command="load" if="$(eval mode == 'rsi')"/>
-	<rosparam file="$(find dimr_kuka)/config/params_eki.yaml" command="load" if="$(eval mode == 'eki')"/>
+        <rosparam file="$(find dimr_kuka)/config/params_rsi.yaml" command="load" if="$(eval mode == 'rsi')"/>
+        <rosparam file="$(find dimr_kuka)/config/params_eki.yaml" command="load" if="$(eval mode == 'eki')"/>
     </group>
 
     <!-- Load joint controller configurations from YAML file to parameter server -->
@@ -58,19 +59,29 @@
     <rosparam file="$(find dimr_kuka)/config/controller_joint_names.yaml" command="load"/>
 
     <!-- Chargement du modèle KR6 R900 -->
-    <param name="$(arg robot_description)" command="$(find xacro)/xacro '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
+    <group if="$(arg gripper)">
+        <param name="$(arg robot_description)"
+               command="$(find xacro)/xacro '$(find kuka_kr6_wsg_50_support)/urdf/kr6r900sixx.xacro'"/>
+        <group unless="$(arg sim)">
+            <include file="$(find wsg_50_driver)/launch/wsg_50_tcp.launch"/>
+        </group>
+    </group>
+    <group unless="$(arg gripper)">
+        <param name="$(arg robot_description)"
+               command="$(find xacro)/xacro '$(find kuka_kr6_support)/urdf/kr6r900sixx.xacro'"/>
+    </group>
 
     <!-- ... et sa sémantique associée -->
-    <param name="$(arg robot_description)_semantic" textfile="$(find dimr_kuka)/config/kuka_kr6r900sixx.srdf" />
+    <param name="$(arg robot_description)_semantic" textfile="$(find dimr_kuka)/config/kuka_kr6r900sixx.srdf"/>
 
     <!-- Load updated joint limits (override information from URDF) -->
     <group ns="$(arg robot_description)_planning">
-      <rosparam command="load" file="$(find dimr_kuka)/config/joint_limits.yaml"/>
+        <rosparam command="load" file="$(find dimr_kuka)/config/joint_limits.yaml"/>
     </group>
 
     <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace -->
     <group ns="$(arg robot_description)_kinematics">
-      <rosparam command="load" file="$(find dimr_kuka)/config/kinematics.yaml"/>
+        <rosparam command="load" file="$(find dimr_kuka)/config/kinematics.yaml"/>
     </group>
 
 
@@ -80,53 +91,54 @@
 
     <!-- Si on est en simu, on utilise RSI -->
     <group if="$(arg sim)">
-	<!-- Start RSI interface (default) -->
-	<node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
-	type="kuka_hardware_interface_node" respawn="false"
-	output="screen"
-	required="true">
-	<!-- remap topics to conform to ROS-I specifications -->
-	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
-	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
-	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
-	</node>
+        <!-- Start RSI interface (default) -->
+        <node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
+              type="kuka_hardware_interface_node" respawn="false"
+              output="screen"
+              required="true">
+            <!-- remap topics to conform to ROS-I specifications -->
+            <remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action"/>
+            <remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states"/>
+            <remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+        </node>
     </group>
 
     <!-- Sinon, sélection du bon bridge hardware (RSI ou EKI) -->
     <group unless="$(arg sim)">
-	<!-- Start RSI interface (default) -->
-	<node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
-	type="kuka_hardware_interface_node" respawn="false"
-	output="screen"
-	required="true"
-	if="$(eval mode == 'rsi')">
-	<!-- remap topics to conform to ROS-I specifications -->
-	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
-	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
-	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
-	</node>
+        <!-- Start RSI interface (default) -->
+        <node name="kuka_hardware_interface" pkg="kuka_rsi_hw_interface"
+              type="kuka_hardware_interface_node" respawn="false"
+              output="screen"
+              required="true"
+              if="$(eval mode == 'rsi')">
+            <!-- remap topics to conform to ROS-I specifications -->
+            <remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action"/>
+            <remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states"/>
+            <remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+        </node>
 
-	<!-- Start EKI interface (mmode:=eki) -->
-	<node name="kuka_eki_hardware_interface" pkg="kuka_eki_hw_interface"
-	type="kuka_eki_hw_interface_node" respawn="false"
-	output="screen"
-	required="true"
-	if="$(eval mode == 'eki')">
-	<!-- remap topics to conform to ROS-I specifications -->
-	<remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action" />
-	<remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states" />
-	<remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
-	</node>
+        <!-- Start EKI interface (mmode:=eki) -->
+        <node name="kuka_eki_hardware_interface" pkg="kuka_eki_hw_interface"
+              type="kuka_eki_hw_interface_node" respawn="false"
+              output="screen"
+              required="true"
+              if="$(eval mode == 'eki')">
+            <!-- remap topics to conform to ROS-I specifications -->
+            <remap from="$(arg pos_ctrlr_name)/follow_joint_trajectory" to="/joint_trajectory_action"/>
+            <remap from="$(arg pos_ctrlr_name)/state" to="/feedback_states"/>
+            <remap from="$(arg pos_ctrlr_name)/command" to="/joint_path_command"/>
+        </node>
     </group>
 
     <!-- Load controllers (ACTION topic) -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-        args="$(arg pos_ctrlr_name) $(arg js_ctrlr)"/>
+          args="$(arg pos_ctrlr_name) $(arg js_ctrlr)"/>
     <!-- Load robot state publisher -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
     <!-- Load RSI simulation node -->
-    <node name='kuka_rsi_simulator' pkg='kuka_rsi_simulator' type="kuka_rsi_simulator" args="127.0.0.1 49152" if="$(arg sim)" />
+    <node name='kuka_rsi_simulator' pkg='kuka_rsi_simulator' type="kuka_rsi_simulator" args="127.0.0.1 49152"
+          if="$(arg sim)"/>
 
 
     <!-- ======================================== -->
@@ -135,11 +147,11 @@
 
     <!-- Setup and launch moveit -->
     <include file="$(find dimr_kuka)/launch/moveit/move_group.launch.xml">
-      <arg name="publish_monitored_planning_scene" value="true" />
+        <arg name="publish_monitored_planning_scene" value="true"/>
     </include>
 
     <include file="$(find dimr_kuka)/launch/moveit/moveit_rviz.launch.xml">
-      <arg name="config" value="true"/>
+        <arg name="config" value="true"/>
     </include>
 
 </launch>
